@@ -31,7 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env.local
 
 # vercel
 .vercel
@@ -42,4 +42,3 @@ next-env.d.ts
 
 CV_STUDIO_AGENT_BRIEF.md
 
-/docs/*

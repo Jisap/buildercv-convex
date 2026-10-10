@@ -8,13 +8,19 @@
  * @module
  */
 
+import type * as resumeModel from "../resumeModel.js";
+import type * as resumes from "../resumes.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{}>;
+declare const fullApi: ApiFromModules<{
+  resumeModel: typeof resumeModel;
+  resumes: typeof resumes;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.

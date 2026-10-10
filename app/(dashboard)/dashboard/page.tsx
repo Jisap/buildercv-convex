@@ -2,10 +2,10 @@
 
 import { UserButton } from "@clerk/nextjs";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
-import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { ResumesPanel } from "@/features/resumes/ResumesPanel";
 
 export default function DashboardPage() {
   return (
@@ -31,21 +31,10 @@ export default function DashboardPage() {
               Gestiona tus CV desde un solo lugar.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button size="sm" disabled title="Disponible en Fase 3">
-              <Plus />
-              Nuevo CV
-            </Button>
-            <UserButton />
-          </div>
+          <UserButton />
         </div>
-        <div className="mt-8 rounded-xl border border-dashed border-zinc-300 bg-white p-12 text-center">
-          <FileText className="mx-auto size-8 text-zinc-400" aria-hidden />
-          <p className="mt-3 font-medium">Aún no tienes currículums</p>
-          <p className="mx-auto mt-1 max-w-sm text-sm text-zinc-600">
-            La creación y edición de CV llega en la Fase 3. Tu cuenta ya
-            funciona: este panel es privado y solo tú puedes verlo.
-          </p>
+        <div className="mt-8">
+          <ResumesPanel />
         </div>
       </Authenticated>
     </div>

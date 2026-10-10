@@ -13,9 +13,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  /* Tema claro fijado a propósito: el MVP no contempla modo oscuro.
+     Sin esto, el texto heredado (casi blanco) quedaba invisible sobre
+     superficies blancas. Se reevaluará con diseño oscuro completo. */
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 
