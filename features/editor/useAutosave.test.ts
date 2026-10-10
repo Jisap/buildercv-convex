@@ -58,6 +58,32 @@ test("debounce: guarda una vez tras el último cambio y marca guardado", async (
   expect(result.current.dirty).toBe(false);
 });
 
+test("al desmontar con cambios pendientes, intenta guardarlos", async () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const { rerender, unmount } = renderHook(
+    ({ value, savedValue }) =>
+      useAutosave({ value, savedValue, onSave, enabled: true }),
+    { initialProps: { value: { a: 1 }, savedValue: { a: 1 } } },
+  );
+
+  rerender({ value: { a: 2 }, savedValue: { a: 1 } });
+  // Sin avanzar el debounce: al desmontar debe descargar el pendiente.
+  unmount();
+  expect(onSave).toHaveBeenCalledTimes(1);
+  expect(onSave).toHaveBeenCalledWith({ a: 2 });
+});
+
+test("al desmontar sin cambios no guarda", async () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const { unmount } = renderHook(
+    ({ value, savedValue }) =>
+      useAutosave({ value, savedValue, onSave, enabled: true }),
+    { initialProps: { value: { a: 1 }, savedValue: { a: 1 } } },
+  );
+  unmount();
+  expect(onSave).not.toHaveBeenCalled();
+});
+
 test("error visible y reintento manual", async () => {
   const onSave = vi.fn().mockRejectedValueOnce(new Error("caído"));
   const { result, rerender } = renderHook(

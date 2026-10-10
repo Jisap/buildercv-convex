@@ -22,8 +22,7 @@ const SECTION_TITLES: Record<SectionType, string> = {
   custom: "Sección personalizada",
 };
 
-function emptySection(type: SectionType, order: number): ResumeSection {
-  const base = { id: newId(), title: SECTION_TITLES[type], order, visible: true };
+function emptySection(type: SectionType, order: number): ResumeSection {  const base = { id: newId(), title: SECTION_TITLES[type], order, visible: true };
   switch (type) {
     case "personal":
       return { ...base, type, items: [{ id: newId() }] };
@@ -44,6 +43,15 @@ function emptySection(type: SectionType, order: number): ResumeSection {
     case "custom":
       return { ...base, type, items: [] };
   }
+}
+
+/** Crea una sección vacía del tipo dado (pura y testeable). */
+export function createSection(
+  type: SectionType,
+  order: number,
+  id: string = newId(),
+): ResumeSection {
+  return { ...emptySection(type, order), id };
 }
 
 /** CV válido con datos vacíos (crear “desde cero”). */

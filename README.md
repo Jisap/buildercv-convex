@@ -55,7 +55,9 @@ no secretos). `CLERK_SECRET_KEY` solo en servidor, nunca en el repo.
 
 ## Estado
 
-Fase 1: esqueleto + autenticación real (Clerk) y rutas privadas.
-Detalle y criterios en `docs/implementation-plan.md`; decisiones en
-`docs/architecture.md`; instalación paso a paso de Convex y Clerk en
-`docs/setup-convex-clerk.md`.
+MVP completo (Fases 0–6): autenticación Clerk, panel, editor con
+autoguardado, 3 plantillas y exportación PDF. Detalle y criterios en
+`docs/implementation-plan.md`; decisiones en `docs/architecture.md`;
+instalación de Convex y Clerk en `docs/setup-convex-clerk.md`; modelo en
+`docs/data-model.md`; PDF en `docs/pdf-testing.md`; despliegue en
+`docs/deployment.md`.

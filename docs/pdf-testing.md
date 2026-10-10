@@ -31,9 +31,20 @@ Script temporal (eliminado tras la prueba) con el mismo builder y Chromium:
   “José María Ñíguez…”, “A Coruña”, “actualidad”, experiencias, formación,
   sección personalizada, todo presente con acentos. Sin texto cortado a
   mitad de palabra entre páginas en la muestra.
-- Pendiente (requiere ojo humano): revisión visual del usuario de los PDF
-  corto y largo en las 3 plantillas (márgenes, banda moderna, pills,
-  columnas del compacto).
+
+## Matriz de revisión manual (pendiente, requiere ojo humano)
+
+| Caso | Qué comprobar |
+|---|---|
+| CV corto | Sin espacios extraños ni páginas vacías |
+| CV de varias páginas | Sin contenido omitido ni páginas inesperadas |
+| Párrafo muy largo | Fluye entre páginas sin partir palabras |
+| Sección al final de página | Encabezado junto a su contenido |
+| Nombre o empresa largos | Sin desbordes de columna ni margen |
+| Caracteres españoles | Acentos y ñ correctos |
+| Compacto (dos columnas) | Sin cortes ni desbordes |
+| Sección oculta | No aparece ni deja huecos |
+| Botones del editor | No aparecen en el PDF |
 
 ## Limitaciones conocidas
 

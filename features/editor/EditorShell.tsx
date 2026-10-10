@@ -24,11 +24,9 @@ import { Label } from "@/components/ui/label";
 import type {
   ResumeContent,
   ResumeDesign,
-  ResumeSection,
   SectionType,
 } from "@/types/resume";
-import { newId } from "@/lib/resume";
-import {
+import { createSection, newId } from "@/lib/resume";import {
   resumeContentSchema,
   resumeDesignSchema,
   resumeSectionSchema,
@@ -97,6 +95,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   const [content, setContent] = useState<ResumeContent | null>(null);
   const [design, setDesign] = useState<ResumeDesign | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [confirmSectionId, setConfirmSectionId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("edit");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -215,6 +214,11 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   const deleteSection = useCallback(
     (sectionId: string) => {
+      if (confirmSectionId !== sectionId) {
+        setConfirmSectionId(sectionId);
+        return;
+      }
+      setConfirmSectionId(null);
       setContent((current) => {
         if (!current) {
           return current;
@@ -224,35 +228,24 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
       });
       setSelectedId((current) => (current === sectionId ? null : current));
     },
-    [],
+    [confirmSectionId],
   );
 
+  // Puro: sin efectos secundarios dentro del actualizador (React puede
+  // reejecutarlo en comprobaciones de desarrollo).
   const addSection = useCallback((type: SectionType) => {
-    const titles: Record<SectionType, string> = {
-      personal: "Datos personales",
-      profile: "Perfil profesional",
-      experience: "Experiencia",
-      education: "Formación",
-      skills: "Competencias",
-      digitalSkills: "Competencias digitales",
-      languages: "Idiomas",
-      projects: "Proyectos",
-      custom: "Sección personalizada",
-    };
+    const id = newId();
+    setSelectedId(id);
     setContent((current) => {
       if (!current) {
         return current;
       }
-      const section = {
-        id: newId(),
-        title: titles[type],
-        order: current.sections.length,
-        visible: true,
-        type,
-        items: [],
-      } as ResumeSection;
-      setSelectedId(section.id);
-      return { sections: [...current.sections, section] };
+      return {
+        sections: [
+          ...current.sections,
+          createSection(type, current.sections.length, id),
+        ],
+      };
     });
   }, []);
 
@@ -415,10 +408,18 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                   </button>
                   <button
                     type="button"
-                    title="Eliminar sección"
+                    title={
+                      confirmSectionId === s.id
+                        ? "Pulsa de nuevo para confirmar"
+                        : "Eliminar sección"
+                    }
                     aria-label={`Eliminar ${s.title}`}
                     onClick={() => deleteSection(s.id)}
-                    className="rounded p-1 text-zinc-500 hover:bg-red-100 hover:text-red-700"
+                    className={`rounded p-1 hover:bg-red-100 hover:text-red-700 ${
+                      confirmSectionId === s.id
+                        ? "bg-red-100 text-red-700"
+                        : "text-zinc-500"
+                    }`}
                   >
                     <Trash2 className="size-4" />
                   </button>

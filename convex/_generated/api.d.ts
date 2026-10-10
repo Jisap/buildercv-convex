@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as contentLimits from "../contentLimits.js";
 import type * as resumeModel from "../resumeModel.js";
 import type * as resumes from "../resumes.js";
 
@@ -18,6 +19,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  contentLimits: typeof contentLimits;
   resumeModel: typeof resumeModel;
   resumes: typeof resumes;
 }>;

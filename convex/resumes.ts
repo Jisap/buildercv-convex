@@ -13,6 +13,7 @@ import {
 } from "./resumeModel";
 import { cloneContentWithNewIds, createDefaultContent } from "../lib/resume";
 import { TEMPLATE_IDS } from "../features/templates/types";
+import { assertContentLimits } from "./contentLimits";
 
 // Todas las funciones resuelven la identidad desde `ctx.auth` (JWT de Clerk
 // verificado por la plataforma). Jamás se acepta un userId del cliente.
@@ -129,6 +130,7 @@ export const update = mutation({
       patch.status = args.status;
     }
     if (args.content !== undefined) {
+      assertContentLimits(args.content);
       patch.content = args.content;
     }
     if (args.design !== undefined) {

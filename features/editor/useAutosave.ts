@@ -39,6 +39,7 @@ export function useAutosave<T>({
   const seqRef = useRef(0);
   const onSaveRef = useRef(onSave);
   const valueRef = useRef<T | null>(value);
+  const enabledRef = useRef(enabled);
 
   useEffect(() => {
     onSaveRef.current = onSave;
@@ -47,6 +48,26 @@ export function useAutosave<T>({
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
+
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  // Descarga al desmontar (navegación interna): mejor esfuerzo, sin await —
+  // el navegador puede matar la petición. `beforeunload` cubre el cierre.
+  useEffect(() => {
+    return () => {
+      const pending = valueRef.current;
+      if (
+        pending !== null &&
+        enabledRef.current &&
+        !snapshotsEqual(pending, savedRef.current)
+      ) {
+        seqRef.current += 1;
+        void onSaveRef.current(pending).catch(() => {});
+      }
+    };
+  }, []);
 
   // El servidor confirma: si lo persistido iguala lo local, estamos al día.
   useEffect(() => {

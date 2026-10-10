@@ -3,7 +3,29 @@ import {
   FONT_FAMILIES,
   RESUME_STATUSES,
   SECTION_TYPES,
-} from "@/types/resume";
+  type SectionType,
+} from "../../types/resume";
+
+// Límites centralizados: fuente única para Zod (cliente) y Convex
+// (servidor, vía import relativo). Cambiar aquí, no en cada esquema.
+export const LIMITS = {
+  maxSections: 30,
+  maxTitle: 200,
+  maxText: 5000,
+  maxTotalChars: 200_000,
+} as const;
+
+export const ITEM_LIMITS: Record<SectionType, number> = {
+  personal: 5,
+  profile: 5,
+  experience: 50,
+  education: 30,
+  skills: 50,
+  digitalSkills: 50,
+  languages: 30,
+  projects: 30,
+  custom: 50,
+};
 
 const idSchema = z.string().min(1, "ID requerido.");
 const dateSchema = z
@@ -19,37 +41,37 @@ const linkSchema = z.object({
 
 const personalItemSchema = z.object({
   id: idSchema,
-  fullName: z.string().max(200).optional(),
+  fullName: z.string().max(LIMITS.maxTitle).optional(),
   email: z.string().email("Correo no válido.").max(320).optional(),
   phone: z.string().max(50).optional(),
-  location: z.string().max(200).optional(),
+  location: z.string().max(LIMITS.maxTitle).optional(),
   links: z.array(linkSchema).max(20).optional(),
 });
 
 const profileItemSchema = z.object({
   id: idSchema,
-  text: z.string().max(5000).optional(),
+  text: z.string().max(LIMITS.maxText).optional(),
 });
 
 const experienceItemSchema = z.object({
   id: idSchema,
-  position: z.string().max(200).optional(),
-  company: z.string().max(200).optional(),
-  location: z.string().max(200).optional(),
+  position: z.string().max(LIMITS.maxTitle).optional(),
+  company: z.string().max(LIMITS.maxTitle).optional(),
+  location: z.string().max(LIMITS.maxTitle).optional(),
   startDate: dateSchema,
   endDate: dateSchema,
   current: z.boolean().optional(),
-  description: z.string().max(5000).optional(),
+  description: z.string().max(LIMITS.maxText).optional(),
 });
 
 const educationItemSchema = z.object({
   id: idSchema,
-  school: z.string().max(200).optional(),
-  degree: z.string().max(200).optional(),
-  field: z.string().max(200).optional(),
+  school: z.string().max(LIMITS.maxTitle).optional(),
+  degree: z.string().max(LIMITS.maxTitle).optional(),
+  field: z.string().max(LIMITS.maxTitle).optional(),
   startDate: dateSchema,
   endDate: dateSchema,
-  description: z.string().max(5000).optional(),
+  description: z.string().max(LIMITS.maxText).optional(),
 });
 
 const skillItemSchema = z.object({
@@ -66,39 +88,39 @@ const languageItemSchema = z.object({
 
 const projectItemSchema = z.object({
   id: idSchema,
-  name: z.string().max(200).optional(),
-  description: z.string().max(5000).optional(),
+  name: z.string().max(LIMITS.maxTitle).optional(),
+  description: z.string().max(LIMITS.maxText).optional(),
   url: z.string().max(500).optional(),
   technologies: z.array(z.string().max(100)).max(30).optional(),
 });
 
 const customItemSchema = z.object({
   id: idSchema,
-  title: z.string().max(200).optional(),
-  description: z.string().max(5000).optional(),
+  title: z.string().max(LIMITS.maxTitle).optional(),
+  description: z.string().max(LIMITS.maxText).optional(),
 });
 
 const baseSection = {
   id: idSchema,
-  title: z.string().min(1, "Título requerido.").max(200),
+  title: z.string().min(1, "Título requerido.").max(LIMITS.maxTitle),
   order: z.number().int().min(0),
   visible: z.boolean(),
 };
 
 export const resumeSectionSchema = z.discriminatedUnion("type", [
-  z.object({ ...baseSection, type: z.literal("personal"), items: z.array(personalItemSchema).max(5) }),
-  z.object({ ...baseSection, type: z.literal("profile"), items: z.array(profileItemSchema).max(5) }),
-  z.object({ ...baseSection, type: z.literal("experience"), items: z.array(experienceItemSchema).max(50) }),
-  z.object({ ...baseSection, type: z.literal("education"), items: z.array(educationItemSchema).max(30) }),
-  z.object({ ...baseSection, type: z.literal("skills"), items: z.array(skillItemSchema).max(50) }),
-  z.object({ ...baseSection, type: z.literal("digitalSkills"), items: z.array(skillItemSchema).max(50) }),
-  z.object({ ...baseSection, type: z.literal("languages"), items: z.array(languageItemSchema).max(30) }),
-  z.object({ ...baseSection, type: z.literal("projects"), items: z.array(projectItemSchema).max(30) }),
-  z.object({ ...baseSection, type: z.literal("custom"), items: z.array(customItemSchema).max(50) }),
+  z.object({ ...baseSection, type: z.literal("personal"), items: z.array(personalItemSchema).max(ITEM_LIMITS.personal) }),
+  z.object({ ...baseSection, type: z.literal("profile"), items: z.array(profileItemSchema).max(ITEM_LIMITS.profile) }),
+  z.object({ ...baseSection, type: z.literal("experience"), items: z.array(experienceItemSchema).max(ITEM_LIMITS.experience) }),
+  z.object({ ...baseSection, type: z.literal("education"), items: z.array(educationItemSchema).max(ITEM_LIMITS.education) }),
+  z.object({ ...baseSection, type: z.literal("skills"), items: z.array(skillItemSchema).max(ITEM_LIMITS.skills) }),
+  z.object({ ...baseSection, type: z.literal("digitalSkills"), items: z.array(skillItemSchema).max(ITEM_LIMITS.digitalSkills) }),
+  z.object({ ...baseSection, type: z.literal("languages"), items: z.array(languageItemSchema).max(ITEM_LIMITS.languages) }),
+  z.object({ ...baseSection, type: z.literal("projects"), items: z.array(projectItemSchema).max(ITEM_LIMITS.projects) }),
+  z.object({ ...baseSection, type: z.literal("custom"), items: z.array(customItemSchema).max(ITEM_LIMITS.custom) }),
 ]);
 
 export const resumeContentSchema = z.object({
-  sections: z.array(resumeSectionSchema).max(30),
+  sections: z.array(resumeSectionSchema).max(LIMITS.maxSections),
 });
 
 export const resumeDesignSchema = z.object({
@@ -112,7 +134,7 @@ export const resumeTitleSchema = z
   .string()
   .trim()
   .min(1, "El título es obligatorio.")
-  .max(200);
+  .max(LIMITS.maxTitle);
 
 export const resumeStatusSchema = z.enum(RESUME_STATUSES);
 

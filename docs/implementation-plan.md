@@ -182,3 +182,18 @@ criterios incumplidos.
 - Entregable: `docs/deployment.md` (hosting Node, límites de Vercel, pasos,
   limitaciones del MVP).
 - Verificado: lint 0, `tsc` 0, unit 15/15, E2E 24/24, `build`.
+
+## Auditoría externa (2026-10-10, `docs/BUILDERCV_RECOMENDACIONES.md`)
+
+Triaje contra el código real; aplicado lo verificado:
+
+- Límites autoritativos en servidor (`convex/contentLimits.ts` + tests):
+  conteos, IDs duplicados, títulos, fechas, niveles, longitudes, tamaño
+  total. Constantes `LIMITS`/`ITEM_LIMITS` centralizadas y compartidas.
+- `addSection` puro (sin setState en actualizador) + helper `createSection`
+  testeado; borrado de sección con confirmación en dos clics.
+- `useAutosave` descarga pendientes al desmontar (mejor esfuerzo) + tests;
+  `beforeunload` se mantiene. README actualizado al estado MVP.
+- Matriz manual de PDF añadida a `docs/pdf-testing.md`.
+- No adoptado: test de PDF con Chromium en CI (pesado; verificado por
+  script), versiones/historial (fuera de MVP), IA (brief §11).
