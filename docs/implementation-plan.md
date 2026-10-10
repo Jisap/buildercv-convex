@@ -132,12 +132,26 @@ criterios incumplidos.
 - Pendiente: prueba manual en navegador (editar, reordenar, recargar,
   estados de guardado, responsive).
 
-## Fase 4 — Plantillas y previsualización
+## Fase 4 — Plantillas y previsualización ✅ (código completo 2026-10-10)
 
-- Contrato `ResumeTemplateProps`, 3 renderizadores (clásico-ATS, moderno,
-  compacto), personalización (acento, fuente permitida, orden/visibilidad),
-  responsive + contenido largo.
-- Aceptación: mismo contenido en las 3 plantillas.
+- Contrato `ResumeTemplateProps` (`features/templates/types.ts`) y registro
+  con metadatos, allowlist (`TEMPLATE_IDS`, usada también en servidor) y
+  pilas tipográficas cerradas. Lógica de contenido compartida una vez
+  (`shared.tsx`); las plantillas solo aportan estilo.
+- Tres renderizadores: **clásico/ATS** (una columna, acento mínimo),
+  **moderno** (banda de acento, pills) y **compacto** (denso, dos columnas
+  en listas). Modo `print` sin cromo, listo para Fase 5.
+- Test 2/2: el mismo fixture largo se verifica íntegro en las tres
+  (textos, acentos, ocultas excluidas, acento aplicado).
+- Editor: `TemplatePicker` (plantilla + acento + tipografía) con autoguardado
+  del diseño; vista previa = `TemplateRenderer` en ancho A4. Crear “desde
+  plantilla” en el panel (selector) + allowlist en servidor.
+- Verificado: push, lint 0, `tsc` 0, `npm test` 11/11, `build` (editor
+  dinámico, resto estático).
+- Pendiente: prueba manual (mismo contenido en las 3, contenido largo,
+  responsive móvil/escritorio).
+- Roadmap post-MVP (petición usuario): más plantillas y más funciones de
+  edición; la arquitectura (contrato + registro) ya lo permite.
 
 ## Fase 5 — PDF
 

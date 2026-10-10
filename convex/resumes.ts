@@ -12,6 +12,7 @@ import {
   resumeStatusValidator,
 } from "./resumeModel";
 import { cloneContentWithNewIds, createDefaultContent } from "../lib/resume";
+import { TEMPLATE_IDS } from "../features/templates/types";
 
 // Todas las funciones resuelven la identidad desde `ctx.auth` (JWT de Clerk
 // verificado por la plataforma). Jamás se acepta un userId del cliente.
@@ -54,8 +55,8 @@ function assertDesign(design: {
   if (!/^#[0-9a-fA-F]{6}$/.test(design.accentColor)) {
     throw new ConvexError("Color de acento no válido (hex #rrggbb).");
   }
-  if (design.templateId.trim().length === 0) {
-    throw new ConvexError("La plantilla es obligatoria.");
+  if (!TEMPLATE_IDS.includes(design.templateId)) {
+    throw new ConvexError("Plantilla desconocida.");
   }
 }
 

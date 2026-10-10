@@ -4,7 +4,9 @@ Tipos canónicos en `types/resume.ts`. Validadores normativos para
 almacenamiento en `convex/resumeModel.ts` (validadores `v` de Convex).
 Espejo Zod para formularios en `lib/validation/resume.ts`. Fábricas puras
 compartidas por cliente y servidor en `lib/resume.ts`. Ante cualquier cambio,
-actualizar los cuatro.
+actualizar los cuatro. **Regla de imports**: todo archivo alcanzable desde
+`convex/` (incluidos `lib/` y `features/templates/types.ts`) usa imports
+relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
 
 ## Principios
 

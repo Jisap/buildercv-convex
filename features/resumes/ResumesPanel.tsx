@@ -6,6 +6,7 @@ import { Copy, FileText, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { TEMPLATES } from "@/features/templates/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resumeTitleSchema } from "@/lib/validation/resume";
@@ -26,6 +27,7 @@ export function ResumesPanel() {
   const duplicateResume = useMutation(api.resumes.duplicate);
   const removeResume = useMutation(api.resumes.remove);
   const [title, setTitle] = useState("");
+  const [templateId, setTemplateId] = useState(TEMPLATES[0].id);
   const [titleError, setTitleError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] =
@@ -51,7 +53,7 @@ export function ResumesPanel() {
     setActionError(null);
     setCreating(true);
     try {
-      await createResume({ title: parsed.data });
+      await createResume({ title: parsed.data, templateId });
       setTitle("");
     } catch {
       setActionError("No se pudo crear el currículum. Inténtalo de nuevo.");
@@ -85,14 +87,30 @@ export function ResumesPanel() {
 
   return (
     <div>
-      <form onSubmit={handleCreate} className="flex gap-2" noValidate>
+      <form onSubmit={handleCreate} className="flex flex-col gap-2 sm:flex-row" noValidate>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Nombre del currículum (p. ej. «CV comercial»)"
           aria-label="Nombre del currículum"
           maxLength={200}
+          className="flex-1"
         />
+        <label className="sr-only" htmlFor="new-template">
+          Plantilla inicial
+        </label>
+        <select
+          id="new-template"
+          value={templateId}
+          onChange={(e) => setTemplateId(e.target.value)}
+          className="flex h-10 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-zinc-950"
+        >
+          {TEMPLATES.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
         <Button type="submit" disabled={creating}>
           <Plus />
           {creating ? "Creando…" : "Nuevo CV"}

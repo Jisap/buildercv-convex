@@ -22,19 +22,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type {
   ResumeContent,
+  ResumeDesign,
   ResumeSection,
   SectionType,
 } from "@/types/resume";
 import { newId } from "@/lib/resume";
 import {
   resumeContentSchema,
+  resumeDesignSchema,
   resumeSectionSchema,
   resumeTitleSchema,
 } from "@/lib/validation/resume";
 import { useAutosave, type SaveStatus } from "./useAutosave";
 import { ADD_SECTION_LABEL } from "./sectionFields";
 import { SectionForm } from "./SectionForm";
-import { ResumePreview } from "./ResumePreview";
+import { TemplatePicker } from "@/features/templates/TemplatePicker";
+import { TemplateRenderer } from "@/features/templates/TemplateRenderer";
 
 type MobileTab = "sections" | "edit" | "preview";
 
@@ -91,6 +94,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<ResumeContent | null>(null);
+  const [design, setDesign] = useState<ResumeDesign | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("edit");
   const [titleError, setTitleError] = useState<string | null>(null);
@@ -103,6 +107,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     setHydratedFor(serverDoc._id);
     setTitle(serverDoc.title);
     setContent(serverDoc.content);
+    setDesign(serverDoc.design);
     setSelectedId((current) =>
       current && serverDoc.content.sections.some((s) => s.id === current)
         ? current
@@ -111,19 +116,23 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   }
 
   const draft = useMemo(
-    () => (content === null ? null : { title, content }),
-    [title, content],
+    () => (content === null || design === null ? null : { title, content, design }),
+    [title, content, design],
   );
   const saved = useMemo(
     () =>
       serverDoc === undefined || serverDoc === null
         ? undefined
-        : { title: serverDoc.title, content: serverDoc.content },
+        : {
+            title: serverDoc.title,
+            content: serverDoc.content,
+            design: serverDoc.design,
+          },
     [serverDoc],
   );
 
   const onSave = useCallback(
-    async (value: { title: string; content: ResumeContent }) => {
+    async (value: { title: string; content: ResumeContent; design: ResumeDesign }) => {
       const titleParsed = resumeTitleSchema.safeParse(value.title);
       if (!titleParsed.success) {
         setTitleError(
@@ -140,10 +149,16 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         throw new Error("invalid-content");
       }
       setValidationError(null);
+      const designParsed = resumeDesignSchema.safeParse(value.design);
+      if (!designParsed.success) {
+        setValidationError("La configuración de diseño no es válida.");
+        throw new Error("invalid-design");
+      }
       await updateResume({
         id,
         title: titleParsed.data,
         content: contentParsed.data,
+        design: designParsed.data,
       });
     },
     [id, updateResume],
@@ -262,7 +277,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     );
   }
 
-  if (content === null) {
+  if (content === null || design === null) {
     return (
       <p className="p-6 text-sm text-zinc-600" role="status">
         Preparando el editor…
@@ -445,7 +460,10 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
           aria-label="Vista previa"
           className={mobileTab === "preview" ? "block" : "hidden md:block"}
         >
-          <ResumePreview title={title} content={content} />
+          <TemplatePicker design={design} onChange={setDesign} />
+          <div className="mx-auto w-full max-w-[210mm]">
+            <TemplateRenderer content={content} design={design} mode="preview" />
+          </div>
         </section>
       </div>
     </div>
