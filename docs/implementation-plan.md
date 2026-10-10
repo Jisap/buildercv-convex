@@ -109,12 +109,28 @@ criterios incumplidos.
 - Entregable: `docs/data-model.md`. Pendiente: prueba manual en navegador
   con tu sesión de Clerk (crear → recargar → duplicar → eliminar).
 
-## Fase 3 — Contenido y editor
+## Fase 3 — Contenido y editor ✅ (código completo 2026-10-10)
 
-- Formularios RHF+Zod por tipo de sección, añadir/ocultar/eliminar/
-  reordenar/duplicar, crear desde cero y desde plantilla, autosave con
-  debounce y estados reales.
-- Aceptación: CV completo editable sin mocks, persiste tras recarga.
+- Ruta `/editor/[id]` (protegida en middleware, `instant = false` por ser
+  dinámica) con shell de 3 paneles: navegación de secciones, formulario y
+  vista previa; en móvil, pestañas. Header con título editable, indicador
+  de guardado (cargando/guardando/guardado/error + reintento) y aviso al
+  salir con cambios pendientes.
+- Secciones: seleccionar, añadir (7 tipos), renombrar, ocultar/mostrar,
+  subir/bajar, eliminar. Elementos: añadir, editar por tipo (texto, email,
+  fecha `month`, número, checkbox, url, tecnologías por comas, enlaces),
+  subir/bajar, eliminar. Errores de validación Zod junto al campo.
+- Autoguardado (`useAutosave`, test 3/3): debounce 800 ms, nunca “guardado”
+  sin confirmación, ignora respuestas antiguas, `beforeunload` si hay
+  cambios. La vista previa simple deriva del mismo contenido (Fase 4 la
+  sustituye por renderizadores).
+- Verificado: push, lint 0, `tsc` 0, `npm test` 9/9, `build` (editor
+  dinámico, resto estático), `/editor/abc` sin sesión → handshake Clerk.
+- Decisión: “crear desde plantilla” se completa en Fase 4 junto a los
+  renderizadores (elegir plantilla sin render sería UI falsa); Fase 3 deja
+  creado “desde cero” con `templateId` guardado.
+- Pendiente: prueba manual en navegador (editar, reordenar, recargar,
+  estados de guardado, responsive).
 
 ## Fase 4 — Plantillas y previsualización
 

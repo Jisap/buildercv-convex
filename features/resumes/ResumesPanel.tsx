@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { Copy, FileText, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -132,8 +133,8 @@ export function ResumesPanel() {
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <Button size="sm" variant="secondary" disabled title="El editor llega en la Fase 3">
-                  Editar
+                <Button asChild size="sm" variant="secondary">
+                  <Link href={`/editor/${resume._id}`}>Editar</Link>
                 </Button>
                 <Button
                   size="sm"
