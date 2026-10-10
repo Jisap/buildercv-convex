@@ -41,3 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 CV_STUDIO_AGENT_BRIEF.md
+
+/docs/*

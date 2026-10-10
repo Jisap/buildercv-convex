@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CV Studio
 
-## Getting Started
+Aplicación web para crear, editar, organizar y exportar currículums
+profesionales. Especificación completa en `CV_STUDIO_AGENT_BRIEF.md`.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router), React 19, TypeScript estricto,
+Tailwind CSS v4 (CSS-first), shadcn/ui, Convex + Clerk (email+contraseña),
+Zod + React Hook Form, Lucide, Vitest, Playwright.
+
+## Requisitos
+
+- Node.js 24 LTS (verificado con v24.13.1) y npm 11.
+- Cuenta de Convex (solo desde Fase 1 para auth y persistencia):
+  `npx convex dev` te guía en el login.
+
+## Puesta en marcha
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # y rellena NEXT_PUBLIC_CONVEX_URL + claves Clerk
+npx convex dev               # genera convex/_generated + CONVEX_URL
+# En el despliegue Convex define:
+npx convex env set CLERK_JWT_ISSUER_DOMAIN https://xxx.clerk.accounts.dev
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Clerk (obligatorio desde Fase 1)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Crea cuenta en [clerk.com](https://dashboard.clerk.com/sign-up) y una
+   aplicación (Email + contraseña; Google opcional).
+2. Activa la integración **Convex** en el dashboard de Clerk (crea el JWT
+   template `convex`) y copia la **Frontend API URL** (issuer).
+3. Copia **Publishable Key** (`pk_test_…`) y **Secret Key** en `.env.local`:
+   `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` y `CLERK_SECRET_KEY`.
+4. `npx convex env set CLERK_JWT_ISSUER_DOMAIN <issuer>` (ver paso 2).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Motivo: Convex Auth se descartó porque la verificación de sus JWT en la
+plataforma fallaba con `AuthProviderDiscoveryFailed` (detalle en
+`docs/implementation-plan.md`). Clerk usa issuer externo y sí verifica.
 
-## Learn More
+## Comandos
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` — desarrollo.
+- `npm run build` / `npm start` — build y arranque de producción.
+- `npm run lint` — ESLint (cero errores en Fase 1).
+- `npx tsc --noEmit` — tipos estrictos (cero errores en Fase 1).
+- `npx convex dev` — backend local + codegen (requiere login Convex).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Variables de entorno
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ver `.env.example`. `NEXT_PUBLIC_*` son públicas (URLs y clave publicable,
+no secretos). `CLERK_SECRET_KEY` solo en servidor, nunca en el repo.
 
-## Deploy on Vercel
+## Estado
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fase 1: esqueleto + autenticación real (Clerk) y rutas privadas.
+Detalle y criterios en `docs/implementation-plan.md`; decisiones en
+`docs/architecture.md`; instalación paso a paso de Convex y Clerk en
+`docs/setup-convex-clerk.md`.
