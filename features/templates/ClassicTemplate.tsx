@@ -13,6 +13,8 @@ import { formatRange, visibleSections, SectionTitle } from "./shared";
 
 // Clásico / ATS: una columna, jerarquía clara, acento solo en nombre y
 // filetes. Nada decorativo que dificulte la lectura automática.
+// Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5);
+// no alteran el aspecto en pantalla.
 
 export function ClassicTemplate({ content, design, mode }: ResumeTemplateProps) {
   const sections = visibleSections(content);
@@ -26,15 +28,15 @@ export function ClassicTemplate({ content, design, mode }: ResumeTemplateProps) 
       style={{ fontFamily: FONT_STACKS[design.fontFamily] }}
       className={
         mode === "print"
-          ? "bg-white p-8 text-zinc-900"
-          : "rounded-xl border border-zinc-200 bg-white p-8 text-zinc-900 shadow-sm"
+          ? "cv-doc bg-white p-8 text-zinc-900"
+          : "cv-doc rounded-xl border border-zinc-200 bg-white p-8 text-zinc-900 shadow-sm"
       }
     >
       {person && <ClassicPersonal item={person} accent={design.accentColor} />}
       <div className="mt-5 space-y-5">
         {rest.map((section) => (
-          <section key={section.id} aria-label={section.title}>
-            <SectionTitle className="border-b border-zinc-300 pb-1 text-xs font-bold tracking-widest text-zinc-900 uppercase">
+          <section key={section.id} aria-label={section.title} className="cv-section">
+            <SectionTitle className="cv-section-title border-b border-zinc-300 pb-1 text-xs font-bold tracking-widest text-zinc-900 uppercase">
               {section.title}
             </SectionTitle>
             <div className="mt-2">
@@ -49,15 +51,15 @@ export function ClassicTemplate({ content, design, mode }: ResumeTemplateProps) 
 
 function ClassicPersonal({ item, accent }: { item: PersonalItem; accent: string }) {
   return (
-    <header>
-      <h2 className="text-3xl font-bold" style={{ color: accent }}>
+    <header className="cv-personal">
+      <h2 className="cv-name text-3xl font-bold" style={{ color: accent }}>
         {item.fullName || "Tu nombre"}
       </h2>
-      <p className="mt-1 text-sm text-zinc-600">
+      <p className="cv-contact mt-1 text-sm text-zinc-600">
         {[item.email, item.phone, item.location].filter(Boolean).join(" · ")}
       </p>
       {item.links && item.links.length > 0 && (
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="cv-links mt-1 text-sm text-zinc-600">
           {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
         </p>
       )}
@@ -76,7 +78,7 @@ function ClassicBody({
     return (
       <div className="space-y-2">
         {(items as ProfileItem[]).map((item) => (
-          <p key={item.id} className="whitespace-pre-line text-sm leading-6 text-zinc-800">
+          <p key={item.id} className="cv-entry-text whitespace-pre-line text-sm leading-6 text-zinc-800">
             {item.text || ""}
           </p>
         ))}
@@ -85,20 +87,20 @@ function ClassicBody({
   }
   if (sectionType === "experience") {
     return (
-      <ul className="space-y-4">
+      <ul className="cv-entries space-y-4">
         {(items as ExperienceItem[]).map((item) => (
-          <li key={item.id}>
-            <p className="text-sm font-bold text-zinc-900">
+          <li key={item.id} className="cv-entry">
+            <p className="cv-entry-title text-sm font-bold text-zinc-900">
               {item.position || "Puesto"}
               {item.company ? ` — ${item.company}` : ""}
             </p>
-            <p className="text-sm text-zinc-500">
+            <p className="cv-entry-meta text-sm text-zinc-500">
               {[item.location, formatRange(item.startDate, item.endDate, item.current)]
                 .filter(Boolean)
                 .join(" · ")}
             </p>
             {item.description && (
-              <p className="mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
+              <p className="cv-entry-text mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
                 {item.description}
               </p>
             )}
@@ -109,17 +111,17 @@ function ClassicBody({
   }
   if (sectionType === "education") {
     return (
-      <ul className="space-y-3">
+      <ul className="cv-entries space-y-3">
         {(items as EducationItem[]).map((item) => (
-          <li key={item.id}>
-            <p className="text-sm font-bold text-zinc-900">
+          <li key={item.id} className="cv-entry">
+            <p className="cv-entry-title text-sm font-bold text-zinc-900">
               {[item.degree, item.field].filter(Boolean).join(" · ") || "Titulación"}
             </p>
-            <p className="text-sm text-zinc-500">
+            <p className="cv-entry-meta text-sm text-zinc-500">
               {[item.school, formatRange(item.startDate, item.endDate)].filter(Boolean).join(" · ")}
             </p>
             {item.description && (
-              <p className="mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
+              <p className="cv-entry-text mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
                 {item.description}
               </p>
             )}
@@ -130,7 +132,7 @@ function ClassicBody({
   }
   if (sectionType === "skills" || sectionType === "digitalSkills") {
     return (
-      <p className="text-sm leading-6 text-zinc-800">
+      <p className="cv-inline-list text-sm leading-6 text-zinc-800">
         {(items as SkillItem[])
           .map((i) => i.name || "")
           .filter(Boolean)
@@ -140,7 +142,7 @@ function ClassicBody({
   }
   if (sectionType === "languages") {
     return (
-      <ul className="space-y-1 text-sm text-zinc-800">
+      <ul className="cv-lang-list space-y-1 text-sm text-zinc-800">
         {(items as LanguageItem[]).map((item) => (
           <li key={item.id}>
             {item.name || "—"}
@@ -152,16 +154,16 @@ function ClassicBody({
   }
   if (sectionType === "projects") {
     return (
-      <ul className="space-y-3">
+      <ul className="cv-entries space-y-3">
         {(items as ProjectItem[]).map((item) => (
-          <li key={item.id}>
-            <p className="text-sm font-bold text-zinc-900">{item.name || "Proyecto"}</p>
+          <li key={item.id} className="cv-entry">
+            <p className="cv-entry-title text-sm font-bold text-zinc-900">{item.name || "Proyecto"}</p>
             {item.description && (
-              <p className="mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
+              <p className="cv-entry-text mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
                 {item.description}
               </p>
             )}
-            <p className="text-sm text-zinc-500">
+            <p className="cv-entry-meta text-sm text-zinc-500">
               {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
             </p>
           </li>
@@ -170,12 +172,12 @@ function ClassicBody({
     );
   }
   return (
-    <ul className="space-y-3">
+    <ul className="cv-entries space-y-3">
       {(items as CustomItem[]).map((item) => (
-        <li key={item.id}>
-          {item.title && <p className="text-sm font-bold text-zinc-900">{item.title}</p>}
+        <li key={item.id} className="cv-entry">
+          {item.title && <p className="cv-entry-title text-sm font-bold text-zinc-900">{item.title}</p>}
           {item.description && (
-            <p className="mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
+            <p className="cv-entry-text mt-1 whitespace-pre-line text-sm leading-6 text-zinc-800">
               {item.description}
             </p>
           )}

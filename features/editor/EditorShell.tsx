@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   ArrowUp,
   Check,
+  Download,
   Eye,
   EyeOff,
   Loader2,
@@ -323,6 +324,12 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
             Reintentar
           </Button>
         )}
+        <Button asChild size="sm" variant="outline">
+          <a href={`/api/resumes/${id}/pdf`} download>
+            <Download />
+            PDF
+          </a>
+        </Button>
       </header>
       {validationError && (
         <p role="alert" className="mt-2 text-sm text-red-600">

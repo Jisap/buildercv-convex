@@ -153,12 +153,22 @@ criterios incumplidos.
 - Roadmap post-MVP (petición usuario): más plantillas y más funciones de
   edición; la arquitectura (contrato + registro) ya lo permite.
 
-## Fase 5 — PDF
+## Fase 5 — PDF ✅ (código completo 2026-10-10)
 
-- Route Handler Node + Chromium, `@page A4`, `printBackground`,
-  fixtures (corto/largo/acentos/listas/custom), tests de texto en PDF de
-  1 y N páginas, `docs/pdf-testing.md` con decisión de hosting.
-- Aceptación: PDF íntegro, seleccionable, sin cortes inaceptables.
+- Ruta `GET /api/resumes/[id]/pdf` (dinámica, runtime nodejs por defecto):
+  auth Clerk + query con propiedad, mismo renderizador en modo `print`,
+  Chromium singleton, A4 con `preferCSSPageSize`, adjunto descargable.
+  401 sin sesión, 404 ajeno. Botón “PDF” en el editor.
+- Clases semánticas `cv-*` en plantillas + CSS de impresión propio
+  (`@page`, saltos, color exacto). Fixtures corto/largo/límite y tests 4/4.
+- Verificado: lint 0, `tsc` 0, `npm test` 15/15, `build`, 401 sin sesión,
+  PDFs reales generados localmente (1 y 3 páginas, texto íntegro extraído).
+- Entregable: `docs/pdf-testing.md` (incluye límite de Vercel serverless).
+- Pendiente: revisión visual del usuario (corto+largo en 3 plantillas).
+- Incidencia resuelta: editor y PDF fallaban con “No autenticado”/401 porque
+  el JWT template `convex` no existía en Clerk (lista vacía por API).
+  Creado por API con `claims: {aud: "convex"}`; verificado que el flujo
+  vuelve a funcionar. Si vuelve a fallar igual, mirar primero los templates.
 
 ## Fase 6 — Endurecimiento y entrega
 

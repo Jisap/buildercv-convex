@@ -13,6 +13,7 @@ import { formatRange, visibleSections, SectionTitle } from "./shared";
 
 // Moderno: cabecera con banda de acento y títulos de sección en acento.
 // Misma estructura y contenido que el resto de plantillas.
+// Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5).
 
 export function ModernTemplate({ content, design, mode }: ResumeTemplateProps) {
   const sections = visibleSections(content);
@@ -27,27 +28,25 @@ export function ModernTemplate({ content, design, mode }: ResumeTemplateProps) {
       style={{ fontFamily: FONT_STACKS[design.fontFamily] }}
       className={
         mode === "print"
-          ? "bg-white text-zinc-900"
-          : "overflow-hidden rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
+          ? "cv-doc bg-white text-zinc-900"
+          : "cv-doc overflow-hidden rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
-      <div className="p-8 text-white" style={{ backgroundColor: accent }}>
+      <div className="cv-band p-8 text-white" style={{ backgroundColor: accent }}>
         {person ? (
           <ModernPersonal item={person} />
         ) : (
-          <h2 className="text-3xl font-bold">Tu nombre</h2>
+          <h2 className="cv-name text-3xl font-bold">Tu nombre</h2>
         )}
       </div>
       <div className="space-y-5 p-8">
         {rest.map((section) => (
-          <section key={section.id} aria-label={section.title}>
-            <SectionTitle
-              className="text-sm font-bold tracking-wide uppercase"
-            >
+          <section key={section.id} aria-label={section.title} className="cv-section">
+            <SectionTitle className="cv-section-title text-sm font-bold tracking-wide uppercase">
               <span style={{ color: accent }}>{section.title}</span>
             </SectionTitle>
             <div
-              className="mt-1 mb-2 h-0.5 w-10"
+              className="cv-rule mt-1 mb-2 h-0.5 w-10"
               style={{ backgroundColor: accent }}
               aria-hidden
             />
@@ -61,13 +60,13 @@ export function ModernTemplate({ content, design, mode }: ResumeTemplateProps) {
 
 function ModernPersonal({ item }: { item: PersonalItem }) {
   return (
-    <header>
-      <h2 className="text-3xl font-bold text-white">{item.fullName || "Tu nombre"}</h2>
-      <p className="mt-1 text-sm text-white/90">
+    <header className="cv-personal">
+      <h2 className="cv-name text-3xl font-bold text-white">{item.fullName || "Tu nombre"}</h2>
+      <p className="cv-contact mt-1 text-sm text-white/90">
         {[item.email, item.phone, item.location].filter(Boolean).join(" · ")}
       </p>
       {item.links && item.links.length > 0 && (
-        <p className="mt-1 text-sm text-white/90">
+        <p className="cv-links mt-1 text-sm text-white/90">
           {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
         </p>
       )}
@@ -88,7 +87,7 @@ function ModernBody({
     return (
       <div className="space-y-2">
         {(items as ProfileItem[]).map((item) => (
-          <p key={item.id} className="text-sm leading-6 text-zinc-700">
+          <p key={item.id} className="cv-entry-text text-sm leading-6 text-zinc-700">
             {item.text || ""}
           </p>
         ))}
@@ -97,20 +96,20 @@ function ModernBody({
   }
   if (sectionType === "experience") {
     return (
-      <ul className="space-y-4">
+      <ul className="cv-entries space-y-4">
         {(items as ExperienceItem[]).map((item) => (
-          <li key={item.id} className="border-l-2 pl-3" style={{ borderColor: accent }}>
-            <p className="text-sm font-bold text-zinc-900">
+          <li key={item.id} className="cv-entry border-l-2 pl-3" style={{ borderColor: accent }}>
+            <p className="cv-entry-title text-sm font-bold text-zinc-900">
               {item.position || "Puesto"}
               {item.company ? ` · ${item.company}` : ""}
             </p>
-            <p className="text-xs text-zinc-500">
+            <p className="cv-entry-meta text-xs text-zinc-500">
               {[item.location, formatRange(item.startDate, item.endDate, item.current)]
                 .filter(Boolean)
                 .join(" · ")}
             </p>
             {item.description && (
-              <p className="mt-1 whitespace-pre-line text-sm leading-6 text-zinc-700">
+              <p className="cv-entry-text mt-1 whitespace-pre-line text-sm leading-6 text-zinc-700">
                 {item.description}
               </p>
             )}
@@ -121,17 +120,17 @@ function ModernBody({
   }
   if (sectionType === "education") {
     return (
-      <ul className="space-y-3">
+      <ul className="cv-entries space-y-3">
         {(items as EducationItem[]).map((item) => (
-          <li key={item.id}>
-            <p className="text-sm font-bold text-zinc-900">
+          <li key={item.id} className="cv-entry">
+            <p className="cv-entry-title text-sm font-bold text-zinc-900">
               {[item.degree, item.field].filter(Boolean).join(" · ") || "Titulación"}
             </p>
-            <p className="text-xs text-zinc-500">
+            <p className="cv-entry-meta text-xs text-zinc-500">
               {[item.school, formatRange(item.startDate, item.endDate)].filter(Boolean).join(" · ")}
             </p>
             {item.description && (
-              <p className="mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
+              <p className="cv-entry-text mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
             )}
           </li>
         ))}
@@ -140,11 +139,11 @@ function ModernBody({
   }
   if (sectionType === "skills" || sectionType === "digitalSkills") {
     return (
-      <ul className="flex flex-wrap gap-1.5">
+      <ul className="cv-pills flex flex-wrap gap-1.5">
         {(items as SkillItem[]).map((item) => (
           <li
             key={item.id}
-            className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+            className="cv-pill rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
             style={{ backgroundColor: accent }}
           >
             {item.name || "—"}
@@ -156,7 +155,7 @@ function ModernBody({
   }
   if (sectionType === "languages") {
     return (
-      <ul className="space-y-1 text-sm text-zinc-700">
+      <ul className="cv-lang-list space-y-1 text-sm text-zinc-700">
         {(items as LanguageItem[]).map((item) => (
           <li key={item.id}>
             <span className="font-semibold">{item.name || "—"}</span>
@@ -168,14 +167,14 @@ function ModernBody({
   }
   if (sectionType === "projects") {
     return (
-      <ul className="space-y-3">
+      <ul className="cv-entries space-y-3">
         {(items as ProjectItem[]).map((item) => (
-          <li key={item.id}>
-            <p className="text-sm font-bold text-zinc-900">{item.name || "Proyecto"}</p>
+          <li key={item.id} className="cv-entry">
+            <p className="cv-entry-title text-sm font-bold text-zinc-900">{item.name || "Proyecto"}</p>
             {item.description && (
-              <p className="mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
+              <p className="cv-entry-text mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
             )}
-            <p className="text-xs text-zinc-500">
+            <p className="cv-entry-meta text-xs text-zinc-500">
               {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
             </p>
           </li>
@@ -184,12 +183,12 @@ function ModernBody({
     );
   }
   return (
-    <ul className="space-y-3">
+    <ul className="cv-entries space-y-3">
       {(items as CustomItem[]).map((item) => (
-        <li key={item.id}>
-          {item.title && <p className="text-sm font-bold text-zinc-900">{item.title}</p>}
+        <li key={item.id} className="cv-entry">
+          {item.title && <p className="cv-entry-title text-sm font-bold text-zinc-900">{item.title}</p>}
           {item.description && (
-            <p className="mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
+            <p className="cv-entry-text mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
           )}
         </li>
       ))}
