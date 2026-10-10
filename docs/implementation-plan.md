@@ -170,14 +170,15 @@ criterios incumplidos.
   Creado por API con `claims: {aud: "convex"}`; verificado que el flujo
   vuelve a funcionar. Si vuelve a fallar igual, mirar primero los templates.
 
-## Fase 6 — Endurecimiento y entrega
+## Fase 6 — Endurecimiento y entrega ✅ (código completo 2026-10-10)
 
-- E2E (Playwright) de flujos clave, a11y teclado, responsive, estados
-  carga/vacío/error, revisión de logs/variables, guía de despliegue y
-  limitaciones. Aceptación: checklist §14 del brief en verde.
-
-## Pregunta bloqueante para Fase 1
-
-- ¿Proveedor auth del MVP: **solo Password (recomendado)** o añadir
-  OAuth Google/GitHub desde el inicio? Por defecto sigo con Password +
-  OAuth como extensión documentada salvo que indiques lo contrario.
+- E2E Playwright 24/24 (`npm run test:e2e`, desktop+móvil): landing,
+  redirects sin sesión (`/dashboard`, `/editor`, API 401), formularios en
+  español, axe sin violaciones críticas/serias, sin desborde horizontal.
+  Vitest excluye `e2e/`. Flujos con sesión: manual (Clerk exige su entorno
+  de testing para E2E).
+- Revisión: variables auditadas contra el código (todas en `.env.example`),
+  `test-results/` gitignorado, docs al día.
+- Entregable: `docs/deployment.md` (hosting Node, límites de Vercel, pasos,
+  limitaciones del MVP).
+- Verificado: lint 0, `tsc` 0, unit 15/15, E2E 24/24, `build`.

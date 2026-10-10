@@ -45,6 +45,7 @@ plataforma fallaba con `AuthProviderDiscoveryFailed` (detalle en
 - `npm run lint` — ESLint (cero errores en Fase 1).
 - `npx tsc --noEmit` — tipos estrictos (cero errores en Fase 1).
 - `npm test` — Vitest (backend Convex en memoria).
+- `npm run test:e2e` — Playwright (requiere `npm run dev` o lo arranca solo).
 - `npx convex dev` — backend local + codegen (requiere login Convex).
 
 ## Variables de entorno
