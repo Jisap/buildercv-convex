@@ -3,6 +3,7 @@ import {
   cloneContentWithNewIds,
   createDefaultContent,
   createSection,
+  moveItemToIndex,
 } from "./resume";
 import { resumeContentSchema } from "./validation/resume";
 
@@ -16,6 +17,23 @@ test("createSection es pura y válida", () => {
   const parsed = resumeContentSchema.safeParse({
     sections: [...content.sections, a],
   });
+  expect(parsed.success).toBe(true);
+});
+
+test("moveItemToIndex reordena sin perder datos", () => {
+  const section = createSection("experience", 0, "sec");
+  const withItems = {
+    ...section,
+    items: [{ id: "a" }, { id: "b" }, { id: "c" }],
+  } as unknown as typeof section;
+  const moved = moveItemToIndex(withItems, "c", 0);
+  expect(moved.items.map((i) => i.id)).toEqual(["c", "a", "b"]);
+  // Sin cambios si ya está ahí, el ID no existe o el índice se recorta.
+  expect(moveItemToIndex(withItems, "a", 0)).toBe(withItems);
+  expect(moveItemToIndex(withItems, "z", 0)).toBe(withItems);
+  const clamped = moveItemToIndex(withItems, "a", 99);
+  expect(clamped.items.map((i) => i.id)).toEqual(["b", "c", "a"]);
+  const parsed = resumeContentSchema.safeParse({ sections: [moved] });
   expect(parsed.success).toBe(true);
 });
 

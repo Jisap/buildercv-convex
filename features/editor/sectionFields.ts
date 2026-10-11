@@ -97,8 +97,7 @@ export const ADD_ITEM_LABEL: Record<SectionType, string> = {
   custom: "Añadir elemento",
 };
 
-export const ADD_SECTION_LABEL: { type: SectionType; label: string }[] = [
-  { type: "experience", label: "Experiencia" },
+export const ADD_SECTION_LABEL: { type: SectionType; label: string }[] = [  { type: "experience", label: "Experiencia" },
   { type: "education", label: "Formación" },
   { type: "skills", label: "Competencias" },
   { type: "digitalSkills", label: "Competencias digitales" },
@@ -106,3 +105,49 @@ export const ADD_SECTION_LABEL: { type: SectionType; label: string }[] = [
   { type: "projects", label: "Proyectos" },
   { type: "custom", label: "Personalizada" },
 ];
+
+function str(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function joinParts(parts: string[]): string {
+  return parts.filter(Boolean).join(" · ");
+}
+
+function truncate(value: string, max = 60): string {
+  const clean = value.trim();
+  return clean.length > max ? `${clean.slice(0, max - 1).trimEnd()}…` : clean;
+}
+
+/**
+ * Resumen de una línea para la fila compacta del editor
+ * (p. ej. "Puesto · Empresa"). Vacío si el elemento aún no tiene
+ * contenido: el llamador muestra entonces "Elemento N · sin contenido".
+ */
+export function summarizeItem(
+  type: SectionType,
+  item: Record<string, unknown>,
+): string {
+  switch (type) {
+    case "personal":
+      return str(item.fullName);
+    case "profile":
+      return truncate(str(item.text));
+    case "experience":
+      return joinParts([str(item.position), str(item.company)]);
+    case "education":
+      return joinParts([str(item.degree), str(item.school)]);
+    case "skills":
+    case "digitalSkills": {
+      const level =
+        typeof item.level === "number" ? `Nivel ${item.level}` : "";
+      return joinParts([str(item.name), level]);
+    }
+    case "languages":
+      return joinParts([str(item.name), str(item.level)]);
+    case "projects":
+      return str(item.name);
+    case "custom":
+      return str(item.title) || truncate(str(item.description));
+  }
+}

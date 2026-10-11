@@ -11,8 +11,8 @@ Hecho en esta sesión (todo verificado: tsc 0, lint 0, 49/49 tests, build OK, pu
 - Antes: 6 plantillas (lateral, elegante rediseñada, mínima) con `<select>` nativo, editor en 2 zonas (panel Contenido/Diseño + preview sticky), diseño visual (tamaño/margen/espaciado, 1–2 columnas), script `npm run convex:push`.
 
 Próxima sesión (en orden):
-1. Verificación manual pendiente: arrastre con ratón/táctil/teclado, estabilidad de "Guardado" al mover/añadir, PDF de las 6 plantillas en 1–2 columnas.
-2. F3 (opcional): reordenar elementos dentro de sección (empleos, estudios) con el mismo patrón.
+1. Verificación manual: arrastre con ratón/táctil/teclado ✅ y estabilidad de "Guardado" al mover/añadir ✅ (verificados por el usuario 2026-10-11). Pendiente: PDF de las 6 plantillas en 1–2 columnas.
+2. F3 implementada (items con arrastre, pendiente prueba manual). Quedan E2E completa tras los cambios + despliegue.
 3. E2E completa tras los cambios de layout + despliegue.
 4. F4 solo con spike previo (canvas libre sigue descartado).
 **Documentos base:** `docs/design.md`, `CV_STUDIO_AGENT_BRIEF.md`, `docs/architecture.md`, `docs/implementation-plan.md`, `docs/data-model.md`.
@@ -64,8 +64,10 @@ Criterios de cierre de esta fase:
 - Las flechas y →/← quedan como alternativa accesible. Guardado solo al soltar (vía `onLayoutChange` → `commitLayout` → autoguardado con debounce).
 - Verificado: tsc 0, lint 0, 49/49 tests, build OK, push Convex OK. Pendiente: prueba manual con ratón, táctil y teclado.
 
-### Fase F3 — Items reordenables + pulido (opcional)
-- Reordenar elementos dentro de sección con `dnd-kit` (mismo patrón que F2).
+### Fase F3 — Items reordenables + pulido (implementada 2026-10-11)
+- Reordenar elementos dentro de sección con `dnd-kit` (mismo patrón que F2): asa por tarjeta en `SectionForm`, sensores ratón/táctil/teclado, flechas ↑/↓ como alternativa accesible, guardado vía `onChangeContent` → autoguardado existente.
+- Helper puro `moveItemToIndex` en `lib/resume.ts` (misma semántica que `moveSectionToIndex`) + test; `moveItem` por flechas reutiliza el helper.
+- Verificado: tsc 0, lint 0, 50/50 tests, build OK, push Convex OK. Pendiente: prueba manual con ratón, táctil y teclado.
 - Evaluar `UndoRedo` solo local (complejo con autosave + Convex; fuera del MVP salvo diseño simple documentado).
 - `ZoomControls` de vista previa si aporta valor (solo escala contenedor).
 

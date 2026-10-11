@@ -156,6 +156,35 @@ function regenerateItemIds(items: { id: string }[]): { id: string }[] {
 }
 
 /**
+ * Coloca un elemento en una posición exacta dentro de su sección
+ * (destino de un drop de dnd-kit). Sin cambios si ya está ahí o el ID
+ * no existe. El índice se recorta a la longitud de la lista.
+ */
+export function moveItemToIndex(
+  section: ResumeSection,
+  itemId: string,
+  index: number,
+): ResumeSection {
+  const items = section.items as unknown as { id: string }[];
+  if (!items.some((item) => item.id === itemId)) {
+    return section;
+  }
+  if (items[index]?.id === itemId) {
+    return section;
+  }
+  const ids = items.map((item) => item.id).filter((id) => id !== itemId);
+  const at = Math.max(0, Math.min(index, ids.length));
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const ordered = [...ids.slice(0, at), itemId, ...ids.slice(at)].flatMap(
+    (id) => {
+      const item = byId.get(id);
+      return item === undefined ? [] : [item];
+    },
+  );
+  return { ...section, items: ordered } as unknown as ResumeSection;
+}
+
+/**
  * Copia profunda del contenido con IDs nuevos (para duplicar CV).
  * Devuelve también el mapa antiguo→nuevo para remapear el layout.
  */
