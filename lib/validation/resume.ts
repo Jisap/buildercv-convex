@@ -1,6 +1,8 @@
 import { z } from "zod";
 import {
+  DESIGN_LIMITS,
   FONT_FAMILIES,
+  LAYOUT_IDS,
   RESUME_STATUSES,
   SECTION_TYPES,
   type SectionType,
@@ -128,6 +130,25 @@ export const resumeDesignSchema = z.object({
   templateVersion: z.number().int().min(1),
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Color hex #rrggbb."),
   fontFamily: z.enum(FONT_FAMILIES),
+  // `.default()` para migrar CV antiguos guardados sin estos campos: al
+  // hidratar, el diseño incompleto se normaliza en lugar de bloquear el
+  // autoguardado.
+  fontSize: z
+    .number()
+    .min(DESIGN_LIMITS.minFontSize)
+    .max(DESIGN_LIMITS.maxFontSize)
+    .default(DESIGN_LIMITS.defaultFontSize),
+  pageMargin: z
+    .number()
+    .min(DESIGN_LIMITS.minPageMargin)
+    .max(DESIGN_LIMITS.maxPageMargin)
+    .default(DESIGN_LIMITS.defaultPageMargin),
+  sectionSpacing: z
+    .number()
+    .min(DESIGN_LIMITS.minSectionSpacing)
+    .max(DESIGN_LIMITS.maxSectionSpacing)
+    .default(DESIGN_LIMITS.defaultSectionSpacing),
+  layoutId: z.enum(LAYOUT_IDS).default("single"),
 });
 
 export const resumeTitleSchema = z

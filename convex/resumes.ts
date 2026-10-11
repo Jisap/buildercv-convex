@@ -11,7 +11,7 @@ import {
   resumeDesignValidator,
   resumeStatusValidator,
 } from "./resumeModel";
-import { cloneContentWithNewIds, createDefaultContent } from "../lib/resume";
+import { cloneContentWithNewIds, createDefaultContent, createDefaultDesign, withDesignDefaults } from "../lib/resume";
 import { TEMPLATE_IDS } from "../features/templates/types";
 import { assertContentLimits } from "./contentLimits";
 
@@ -50,14 +50,55 @@ function assertTitle(title: string): string {
 }
 
 function assertDesign(design: {
-  accentColor: string;
-  templateId: string;
+  accentColor?: string;
+  templateId?: string;
+  fontSize?: number;
+  pageMargin?: number;
+  sectionSpacing?: number;
+  layoutId?: string;
 }): void {
-  if (!/^#[0-9a-fA-F]{6}$/.test(design.accentColor)) {
+  if (
+    design.accentColor !== undefined &&
+    !/^#[0-9a-fA-F]{6}$/.test(design.accentColor)
+  ) {
     throw new ConvexError("Color de acento no válido (hex #rrggbb).");
   }
-  if (!TEMPLATE_IDS.includes(design.templateId)) {
+  if (
+    design.templateId !== undefined &&
+    !TEMPLATE_IDS.includes(design.templateId)
+  ) {
     throw new ConvexError("Plantilla desconocida.");
+  }
+  if (
+    design.fontSize !== undefined &&
+    (!Number.isFinite(design.fontSize) ||
+      design.fontSize < 9 ||
+      design.fontSize > 13)
+  ) {
+    throw new ConvexError("Tamaño de fuente fuera de rango (9–13 pt).");
+  }
+  if (
+    design.pageMargin !== undefined &&
+    (!Number.isFinite(design.pageMargin) ||
+      design.pageMargin < 8 ||
+      design.pageMargin > 20)
+  ) {
+    throw new ConvexError("Margen de página fuera de rango (8–20 mm).");
+  }
+  if (
+    design.sectionSpacing !== undefined &&
+    (!Number.isFinite(design.sectionSpacing) ||
+      design.sectionSpacing < 2 ||
+      design.sectionSpacing > 10)
+  ) {
+    throw new ConvexError("Separación fuera de rango (2–10 mm).");
+  }
+  if (
+    design.layoutId !== undefined &&
+    design.layoutId !== "single" &&
+    design.layoutId !== "two-col"
+  ) {
+    throw new ConvexError("Distribución desconocida.");
   }
 }
 
@@ -88,12 +129,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const userId = await getIdentityUserId(ctx);
     const title = assertTitle(args.title);
-    const design = {
-      templateId: args.templateId?.trim() || "classic",
-      templateVersion: 1,
-      accentColor: "#1d4ed8",
-      fontFamily: "inter" as const,
-    };
+    const design = createDefaultDesign(args.templateId?.trim() || "classic", 1);
     assertDesign(design);
     return await ctx.db.insert("resumes", {
       userId,
@@ -135,7 +171,10 @@ export const update = mutation({
     }
     if (args.design !== undefined) {
       assertDesign(args.design);
-      patch.design = args.design;
+      // Fusión con lo guardado + defaults: el parche sustituye el objeto
+      // completo, así que un diseño parcial (o un CV antiguo sin los campos
+      // nuevos) nunca debe borrar valores existentes.
+      patch.design = withDesignDefaults({ ...resume.design, ...args.design });
     }
     await ctx.db.patch(resume._id, patch);
     return resume._id;

@@ -47,3 +47,36 @@ test("el título se escapa en el <title>", async () => {
   expect(html).toContain("CV &lt;script&gt; &amp; &quot;x&quot;");
   expect(html).not.toContain("<script> &");
 });
+
+test("el diseño del usuario sobrescribe márgenes y fuentes", async () => {
+  const html = await buildPrintHtml("Mi CV", SHORT_CONTENT, {
+    ...SHORT_DESIGN,
+    fontSize: 13,
+    pageMargin: 18,
+    sectionSpacing: 8,
+  });
+  expect(html).toContain("margin: 18mm");
+  expect(html).toContain("font-size: 13pt");
+});
+
+test("two-col reparte en principal y lateral", async () => {
+  const html = await buildPrintHtml("Mi CV", LONG_CONTENT, {
+    ...SHORT_DESIGN,
+    layoutId: "two-col",
+  });
+  expect(html).toContain("cv-layout-two-col");
+  expect(html).toContain("cv-layout-main");
+  expect(html).toContain("cv-layout-sidebar");
+});
+
+test("un diseño antiguo incompleto usa valores por defecto", async () => {
+  const legacy = {
+    templateId: "classic",
+    templateVersion: 1,
+    accentColor: "#1d4ed8",
+    fontFamily: "inter",
+  } as typeof SHORT_DESIGN;
+  const html = await buildPrintHtml("Mi CV", SHORT_CONTENT, legacy);
+  expect(html).toContain("margin: 13mm");
+  expect(html).toContain("font-size: 11pt");
+});

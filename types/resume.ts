@@ -106,12 +106,40 @@ export const FONT_FAMILIES = ["inter", "georgia", "system"] as const;
 
 export type FontFamily = (typeof FONT_FAMILIES)[number];
 
+export const LAYOUT_IDS = ["single", "two-col"] as const;
+
+export type LayoutId = (typeof LAYOUT_IDS)[number];
+
+/** Límites del diseño visual (fase actual, sin dnd-kit). */
+export const DESIGN_LIMITS = {
+  /** Tamaño base del cuerpo en pt. */
+  minFontSize: 9,
+  maxFontSize: 13,
+  defaultFontSize: 11,
+  /** Margen de página uniforme en mm. */
+  minPageMargin: 8,
+  maxPageMargin: 20,
+  defaultPageMargin: 13,
+  /** Separación entre secciones en mm. */
+  minSectionSpacing: 2,
+  maxSectionSpacing: 10,
+  defaultSectionSpacing: 5,
+} as const;
+
 export interface ResumeDesign {
   templateId: string;
   templateVersion: number;
   /** Hex `#rrggbb`. */
   accentColor: string;
   fontFamily: FontFamily;
+  /** Tamaño base del cuerpo en pt (9–13). */
+  fontSize: number;
+  /** Margen de página uniforme en mm (8–20). */
+  pageMargin: number;
+  /** Separación entre secciones en mm (2–10). */
+  sectionSpacing: number;
+  /** Distribución predefinida (sin drag en esta fase). */
+  layoutId: LayoutId;
 }
 
 export const RESUME_STATUSES = ["draft", "archived"] as const;

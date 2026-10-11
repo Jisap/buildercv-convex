@@ -1,6 +1,12 @@
 // CSS autónomo para el PDF (Fase 5). Se inyecta en el HTML que renderiza
 // Chromium: las clases Tailwind no existen fuera de Next, así que este CSS
 // cubre los ganchos `cv-*` que emiten las plantillas (mismo árbol React).
+//
+// Los contenedores de secciones usan display grid + gap en línea desde
+// las plantillas (valor de design.sectionSpacing); por eso .cv-section
+// no lleva margen propio: el espaciado lo gobierna el contenedor.
+import type { ResumeDesign } from "@/types/resume";
+import { withDesignDefaults } from "@/lib/resume";
 
 export const PRINT_CSS = `
 @page {
@@ -54,9 +60,9 @@ html, body {
   margin: 0 0 1mm 0;
 }
 
-/* Secciones */
+/* Secciones (el espaciado vertical lo da el gap del contenedor). */
 .cv-section {
-  margin-top: 5mm;
+  margin: 0;
 }
 .cv-section-title {
   font-size: 11pt;
@@ -142,4 +148,65 @@ html, body {
 .cv-cols > * {
   break-inside: avoid;
 }
+
+/* Distribución de dos columnas del documento (estilos en línea en las
+   plantillas como fuente principal; estas reglas son red de seguridad
+   para la fragmentación en varias páginas). */
+.cv-layout-two-col {
+  break-inside: auto;
+}
+.cv-layout-main,
+.cv-layout-sidebar {
+  break-inside: auto;
+}
+.cv-layout-sidebar .cv-section {
+  break-inside: avoid;
+}
 `;
+
+/**
+  * Sobrescribe del CSS base con los valores del diseño del usuario
+  * (margen de página y tamaño de fuente). Se inyecta DESPUÉS de
+  * PRINT_CSS para que mande. La separación entre secciones y el
+  * relleno del documento viajan en estilos en línea desde las plantillas.
+  */
+export function buildDesignCss(design: ResumeDesign): string {
+  const d = withDesignDefaults(design);
+  const small = Math.max(8, d.fontSize - 1.5);
+  const name = d.fontSize + 11;
+  return `
+@page {
+  margin: ${d.pageMargin}mm;
+}
+html, body {
+  font-size: ${d.fontSize}pt;
+}
+.cv-name {
+  font-size: ${name}pt;
+}
+.cv-contact, .cv-links {
+  font-size: ${small}pt;
+}
+.cv-section-title {
+  font-size: ${d.fontSize}pt;
+}
+.cv-entry-title {
+  font-size: ${d.fontSize}pt;
+}
+.cv-entry-meta {
+  font-size: ${small}pt;
+}
+.cv-entry-text {
+  font-size: ${d.fontSize}pt;
+}
+.cv-inline-list {
+  font-size: ${d.fontSize}pt;
+}
+.cv-lang-list {
+  font-size: ${d.fontSize}pt;
+}
+.cv-pills .cv-pill {
+  font-size: ${small}pt;
+}
+`;
+}

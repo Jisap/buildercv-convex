@@ -1,6 +1,6 @@
 import type { ResumeContent, ResumeDesign } from "@/types/resume";
 import { TemplateRenderer } from "@/features/templates/TemplateRenderer";
-import { PRINT_CSS } from "./printCss";
+import { PRINT_CSS, buildDesignCss } from "./printCss";
 
 // Construye el documento HTML autónomo que Chromium convierte en PDF.
 // Usa el MISMO renderizador que la vista previa (mode "print").
@@ -35,6 +35,7 @@ export async function buildPrintHtml(
 <meta charset="utf-8" />
 <title>${safeTitle}</title>
 <style>${PRINT_CSS}</style>
+<style>${buildDesignCss(design)}</style>
 </head>
 <body>${body}</body>
 </html>`;

@@ -5,6 +5,7 @@ import { chromium, type Browser } from "playwright";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { buildPrintHtml } from "@/features/exports/printDocument";
+import { withDesignDefaults } from "@/lib/resume";
 
 // Ruta dinámica (usa sesión y genera binario por petición).
 
@@ -62,7 +63,12 @@ export async function GET(
   }
 
   try {
-    const html = await buildPrintHtml(resume.title, resume.content, resume.design);
+    // Normaliza diseños guardados antes de la fase de personalización visual.
+    const html = await buildPrintHtml(
+      resume.title,
+      resume.content,
+      withDesignDefaults(resume.design),
+    );
     const browser = await getBrowser();
     const page = await browser.newPage();
     try {

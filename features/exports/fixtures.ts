@@ -8,6 +8,10 @@ export const SHORT_DESIGN: ResumeDesign = {
   templateVersion: 1,
   accentColor: "#1d4ed8",
   fontFamily: "inter",
+  fontSize: 11,
+  pageMargin: 13,
+  sectionSpacing: 5,
+  layoutId: "single",
 };
 
 export const SHORT_CONTENT: ResumeContent = {

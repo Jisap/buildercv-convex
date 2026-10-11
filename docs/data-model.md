@@ -21,8 +21,17 @@ relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
 - Fechas internas en formato `YYYY-MM`; la localización visible (es-ES) se
   hace al renderizar (Fase 3+).
 - Sin CSS arbitrario: el diseño solo admite `templateId`, `templateVersion`,
-  `accentColor` (hex `#rrggbb`, validado en servidor) y `fontFamily` de una
-  lista cerrada (`inter` | `georgia` | `system`).
+  `accentColor` (hex `#rrggbb`, validado en servidor), `fontFamily` de una
+  lista cerrada (`inter` | `georgia` | `system`), `fontSize` en pt (9–13),
+  `pageMargin` en mm (8–20), `sectionSpacing` en mm (2–10) y `layoutId`
+  (`single` | `two-col`). Rangos validados en cliente (Zod con defaults para
+  migrar CV antiguos) y en servidor (`assertDesign` + validadores Convex).
+  Los CV guardados antes de esta fase se normalizan al hidratar
+  (`withDesignDefaults` en `lib/resume.ts`). En Convex los cuatro campos
+  nuevos son `v.optional` para no invalidar documentos antiguos en el push
+  del esquema; `update` fusiona (`{...guardado, ...parche}` + defaults) para
+  no borrar valores con parches parciales, y `assertDesign` solo valida los
+  campos presentes.
 
 ## Tabla `resumes`
 

@@ -6,26 +6,34 @@ import type {
   ProfileItem,
   ProjectItem,
   CustomItem,
+  ResumeSection,
   SkillItem,
 } from "@/types/resume";
 import { FONT_STACKS, type ResumeTemplateProps } from "./types";
-import { formatRange, visibleSections, SectionTitle } from "./shared";
+import { formatRange, SectionTitle } from "./shared";
+import { partitionForLayout } from "./layout";
 
 // Moderno: cabecera con banda de acento y títulos de sección en acento.
 // Misma estructura y contenido que el resto de plantillas.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5).
 
 export function ModernTemplate({ content, design, mode }: ResumeTemplateProps) {
-  const sections = visibleSections(content);
-  const personal = sections.find((s) => s.type === "personal");
-  const rest = sections.filter((s) => s !== personal);
+  const { personal, main, sidebar } = partitionForLayout(
+    content.sections,
+    design.layoutId,
+  );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
   const accent = design.accentColor;
+  const twoCol = design.layoutId === "two-col" && sidebar.length > 0;
+  const gap = `${design.sectionSpacing}mm`;
 
   return (
     <article
       aria-label="Currículum"
-      style={{ fontFamily: FONT_STACKS[design.fontFamily] }}
+      style={{
+        fontFamily: FONT_STACKS[design.fontFamily],
+        padding: `${design.pageMargin}mm`,
+      }}
       className={
         mode === "print"
           ? "cv-doc bg-white text-zinc-900"
@@ -39,22 +47,66 @@ export function ModernTemplate({ content, design, mode }: ResumeTemplateProps) {
           <h2 className="cv-name text-3xl font-bold">Tu nombre</h2>
         )}
       </div>
-      <div className="space-y-5 p-8">
-        {rest.map((section) => (
-          <section key={section.id} aria-label={section.title} className="cv-section">
-            <SectionTitle className="cv-section-title text-sm font-bold tracking-wide uppercase">
-              <span style={{ color: accent }}>{section.title}</span>
-            </SectionTitle>
-            <div
-              className="cv-rule mt-1 mb-2 h-0.5 w-10"
-              style={{ backgroundColor: accent }}
-              aria-hidden
-            />
-            <ModernBody sectionType={section.type} items={section.items} accent={accent} />
-          </section>
-        ))}
-      </div>
+      {twoCol ? (
+        <div
+          className="cv-layout-two-col"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            columnGap: "8mm",
+            marginTop: gap,
+          }}
+        >
+          <div
+            className="cv-layout-main"
+            style={{ display: "grid", gap, alignContent: "start" }}
+          >
+            {main.map((section) => (
+              <ModernSection key={section.id} section={section} accent={accent} />
+            ))}
+          </div>
+          <div
+            className="cv-layout-sidebar"
+            style={{ display: "grid", gap, alignContent: "start" }}
+          >
+            {sidebar.map((section) => (
+              <ModernSection key={section.id} section={section} accent={accent} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div
+          className="cv-sections"
+          style={{ display: "grid", gap, marginTop: gap }}
+        >
+          {main.map((section) => (
+            <ModernSection key={section.id} section={section} accent={accent} />
+          ))}
+        </div>
+      )}
     </article>
+  );
+}
+
+function ModernSection({
+  section,
+  accent,
+}: {
+  section: ResumeSection;
+  accent: string;
+}) {
+  return (
+    <section aria-label={section.title} className="cv-section">
+      <SectionTitle className="cv-section-title text-sm font-bold tracking-wide uppercase">
+        <span style={{ color: accent }}>{section.title}</span>
+      </SectionTitle>
+      <div
+        className="cv-rule mt-1 mb-2 h-0.5 w-10"
+        style={{ backgroundColor: accent }}
+        aria-hidden
+      />
+      <ModernBody sectionType={section.type} items={section.items} accent={accent} />
+    </section>
   );
 }
 

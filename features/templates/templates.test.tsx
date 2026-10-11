@@ -134,6 +134,10 @@ const design: ResumeDesign = {
   templateVersion: 1,
   accentColor: "#b91c1c",
   fontFamily: "georgia",
+  fontSize: 11,
+  pageMargin: 13,
+  sectionSpacing: 5,
+  layoutId: "single",
 };
 
 const MUST_CONTAIN = [

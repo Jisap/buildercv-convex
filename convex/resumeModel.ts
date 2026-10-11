@@ -143,6 +143,14 @@ export const resumeDesignValidator = v.object({
     v.literal("georgia"),
     v.literal("system"),
   ),
+  /** Tamaño base del cuerpo en pt (9–13). Rango validado en servidor. */
+  fontSize: v.optional(v.number()),
+  /** Margen de página uniforme en mm (8–20). */
+  pageMargin: v.optional(v.number()),
+  /** Separación entre secciones en mm (2–10). */
+  sectionSpacing: v.optional(v.number()),
+  /** Distribución predefinida (sin drag en esta fase). */
+  layoutId: v.optional(v.union(v.literal("single"), v.literal("two-col"))),
 });
 
 export const resumeStatusValidator = v.union(

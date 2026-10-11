@@ -83,13 +83,16 @@ test("validación en servidor: título vacío y color inválido", async () => {
         templateVersion: 1,
         accentColor: "rojo",
         fontFamily: "inter",
+        fontSize: 11,
+        pageMargin: 13,
+        sectionSpacing: 5,
+        layoutId: "single",
       },
     }),
   ).rejects.toThrow("Color de acento");
 });
 
-test("duplicar copia contenido con IDs nuevos", async () => {
-  const { alice } = setup();
+test("duplicar copia contenido con IDs nuevos", async () => {  const { alice } = setup();
   const id = await alice.mutation(api.resumes.create, { title: "Original" });
   const copyId = await alice.mutation(api.resumes.duplicate, { id });
 
@@ -112,4 +115,27 @@ test("duplicar copia contenido con IDs nuevos", async () => {
       expect(originalIds.has(item.id)).toBe(false);
     }
   }
+});
+
+test("crear usa diseño con valores por defecto y valida rangos", async () => {
+  const { alice } = setup();
+  const id = await alice.mutation(api.resumes.create, { title: "Con diseño" });
+  const doc = await alice.query(api.resumes.get, { id });
+  expect(doc.design.fontSize).toBe(11);
+  expect(doc.design.pageMargin).toBe(13);
+  expect(doc.design.sectionSpacing).toBe(5);
+  expect(doc.design.layoutId).toBe("single");
+
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      design: { ...doc.design, fontSize: 20 },
+    }),
+  ).rejects.toThrow("fuera de rango");
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      design: { ...doc.design, layoutId: "libre" as "single" },
+    }),
+  ).rejects.toThrow();
 });

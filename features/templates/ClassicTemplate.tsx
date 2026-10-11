@@ -6,10 +6,12 @@ import type {
   PersonalItem,
   ProfileItem,
   ProjectItem,
+  ResumeSection,
   SkillItem,
 } from "@/types/resume";
 import { FONT_STACKS, type ResumeTemplateProps } from "./types";
-import { formatRange, visibleSections, SectionTitle } from "./shared";
+import { formatRange, SectionTitle } from "./shared";
+import { partitionForLayout } from "./layout";
 
 // Clásico / ATS: una columna, jerarquía clara, acento solo en nombre y
 // filetes. Nada decorativo que dificulte la lectura automática.
@@ -17,35 +19,79 @@ import { formatRange, visibleSections, SectionTitle } from "./shared";
 // no alteran el aspecto en pantalla.
 
 export function ClassicTemplate({ content, design, mode }: ResumeTemplateProps) {
-  const sections = visibleSections(content);
-  const personal = sections.find((s) => s.type === "personal");
-  const rest = sections.filter((s) => s !== personal);
+  const { personal, main, sidebar } = partitionForLayout(
+    content.sections,
+    design.layoutId,
+  );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
+  const twoCol = design.layoutId === "two-col" && sidebar.length > 0;
+  const gap = `${design.sectionSpacing}mm`;
 
   return (
     <article
       aria-label="Currículum"
-      style={{ fontFamily: FONT_STACKS[design.fontFamily] }}
+      style={{
+        fontFamily: FONT_STACKS[design.fontFamily],
+        padding: `${design.pageMargin}mm`,
+      }}
       className={
         mode === "print"
-          ? "cv-doc bg-white p-8 text-zinc-900"
-          : "cv-doc rounded-xl border border-zinc-200 bg-white p-8 text-zinc-900 shadow-sm"
+          ? "cv-doc bg-white text-zinc-900"
+          : "cv-doc rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
       {person && <ClassicPersonal item={person} accent={design.accentColor} />}
-      <div className="mt-5 space-y-5">
-        {rest.map((section) => (
-          <section key={section.id} aria-label={section.title} className="cv-section">
-            <SectionTitle className="cv-section-title border-b border-zinc-300 pb-1 text-xs font-bold tracking-widest text-zinc-900 uppercase">
-              {section.title}
-            </SectionTitle>
-            <div className="mt-2">
-              <ClassicBody sectionType={section.type} items={section.items} />
-            </div>
-          </section>
-        ))}
-      </div>
+      {twoCol ? (
+        <div
+          className="cv-layout-two-col"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            columnGap: "8mm",
+            marginTop: gap,
+          }}
+        >
+          <div
+            className="cv-layout-main"
+            style={{ display: "grid", gap, alignContent: "start" }}
+          >
+            {main.map((section) => (
+              <ClassicSection key={section.id} section={section} />
+            ))}
+          </div>
+          <div
+            className="cv-layout-sidebar"
+            style={{ display: "grid", gap, alignContent: "start" }}
+          >
+            {sidebar.map((section) => (
+              <ClassicSection key={section.id} section={section} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div
+          className="cv-sections"
+          style={{ display: "grid", gap, marginTop: gap }}
+        >
+          {main.map((section) => (
+            <ClassicSection key={section.id} section={section} />
+          ))}
+        </div>
+      )}
     </article>
+  );
+}
+
+function ClassicSection({ section }: { section: ResumeSection }) {
+  return (
+    <section aria-label={section.title} className="cv-section">
+      <SectionTitle className="cv-section-title border-b border-zinc-300 pb-1 text-xs font-bold tracking-widest text-zinc-900 uppercase">
+        {section.title}
+      </SectionTitle>
+      <div className="mt-2">
+        <ClassicBody sectionType={section.type} items={section.items} />
+      </div>
+    </section>
   );
 }
 
