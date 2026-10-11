@@ -1,6 +1,20 @@
 # Roadmap futuro — Editor BuilderCV / CV Studio
 
-**Fecha:** 2026-10-11 · **Estado:** fase actual implementada (pendiente solo revisión visual manual); F1–F4 no empezadas. Este documento es la constancia para retomar el proyecto más adelante.
+**Fecha:** 2026-10-11 · **Estado:** F1 y F2 implementadas y verificadas (ver sesión de cierre abajo); pendientes F3 (opcional), E2E y despliegue. Este documento es la constancia para retomar el proyecto.
+
+## Sesión 2026-10-11 (cierre): avance y próxima sesión
+
+Hecho en esta sesión (todo verificado: tsc 0, lint 0, 49/49 tests, build OK, push Convex OK):
+- F1: `ResumeLayout {main, sidebar}` persistido (fuente de verdad de columna y orden), derivación para CV antiguos, `assertLayout` en servidor, `duplicate` remapea IDs, sidebar agrupada con botones →/←.
+- F2: dnd-kit (core 6 + sortable 10) solo en el sidebar — asa por fila, drop en columna y entre columnas, sensores ratón/táctil/teclado; flechas como fallback; preview intacto.
+- Fijado guardado en bucle (2 causas): `order` no sincronizado en local + comparación `JSON.stringify` sensible al orden de claves → `lib/compare.ts` canónica + `commitLayout` atómico.
+- Antes: 6 plantillas (lateral, elegante rediseñada, mínima) con `<select>` nativo, editor en 2 zonas (panel Contenido/Diseño + preview sticky), diseño visual (tamaño/margen/espaciado, 1–2 columnas), script `npm run convex:push`.
+
+Próxima sesión (en orden):
+1. Verificación manual pendiente: arrastre con ratón/táctil/teclado, estabilidad de "Guardado" al mover/añadir, PDF de las 6 plantillas en 1–2 columnas.
+2. F3 (opcional): reordenar elementos dentro de sección (empleos, estudios) con el mismo patrón.
+3. E2E completa tras los cambios de layout + despliegue.
+4. F4 solo con spike previo (canvas libre sigue descartado).
 **Documentos base:** `docs/design.md`, `CV_STUDIO_AGENT_BRIEF.md`, `docs/architecture.md`, `docs/implementation-plan.md`, `docs/data-model.md`.
 
 ## 1. Punto de partida (lo que ya existe)
@@ -44,12 +58,11 @@ Criterios de cierre de esta fase:
 - Servidor: `layout` opcional en esquema, `assertLayout` (sin duplicados, total, IDs conocidos), `duplicate` remapea IDs.
 - Verificado: tsc 0, lint 0, 45/45 tests, build OK, push Convex OK.
 
-### Fase F2 — Integración de dnd-kit
-- Instalar `dnd-kit` (verificar versión vigente, no mezclar generaciones de API antiguas/nuevas).
-- Alcance: reordenar secciones (grip) + mover entre columnas. Opcional después: reordenar items dentro de sección (empleos, estudios).
-- Reglas: IDs estables, guardar en Convex solo al `drop` (no por puntero), estado local optimista inmediato, validación de destino, informar + reintentar si falla el guardado, alternativa completa de teclado.
-- Columnas = diseños predefinidos; prohibido posicionamiento arbitrario x/y y redimensionado libre en esta fase.
-- Tests: mover entre columnas persiste tras recarga, funciona con ratón + teclado, sin duplicados.
+### Fase F2 — Integración de dnd-kit (implementada 2026-10-11)
+- `@dnd-kit/core 6 + sortable 10` (compatibles con React 19) solo en el sidebar; la vista previa sigue siendo de solo lectura.
+- Asa de arrastre por fila (el resto de botones intactos), soltado dentro de la columna y entre columnas (incluidas columnas vacías), sensores ratón (distancia) + táctil (retardo para no robar scroll) + teclado (Espacio + flechas).
+- Las flechas y →/← quedan como alternativa accesible. Guardado solo al soltar (vía `onLayoutChange` → `commitLayout` → autoguardado con debounce).
+- Verificado: tsc 0, lint 0, 49/49 tests, build OK, push Convex OK. Pendiente: prueba manual con ratón, táctil y teclado.
 
 ### Fase F3 — Items reordenables + pulido (opcional)
 - Reordenar elementos dentro de sección con `dnd-kit` (mismo patrón que F2).

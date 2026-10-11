@@ -124,6 +124,32 @@ export function moveSectionToColumn(
   };
 }
 
+/**
+ * Coloca una sección en una posición exacta (destino de un drop de dnd-kit).
+ * Sin cambios si ya está ahí. El índice se recorta a la columna destino.
+ */
+export function moveSectionToIndex(
+  layout: ResumeLayout,
+  sectionId: string,
+  column: "main" | "sidebar",
+  index: number,
+): ResumeLayout {
+  const ids = layout[column].filter((id) => id !== sectionId);
+  const at = Math.max(0, Math.min(index, ids.length));
+  if (layout[column][at] === sectionId) {
+    return layout;
+  }
+  const other = column === "main" ? "sidebar" : "main";
+  return {
+    main: column === "main"
+      ? [...ids.slice(0, at), sectionId, ...ids.slice(at)]
+      : layout[other].filter((id) => id !== sectionId),
+    sidebar: column === "sidebar"
+      ? [...ids.slice(0, at), sectionId, ...ids.slice(at)]
+      : layout[other].filter((id) => id !== sectionId),
+  };
+}
+
 /** Quita una sección del layout (al eliminarla del contenido). */
 export function removeSectionFromLayout(
   layout: ResumeLayout,

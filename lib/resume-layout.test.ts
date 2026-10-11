@@ -9,6 +9,7 @@ import {
   layoutFromContent,
   moveSectionInLayout,
   moveSectionToColumn,
+  moveSectionToIndex,
   remapLayout,
   removeSectionFromLayout,
   syncOrders,
@@ -94,6 +95,20 @@ test("remapLayout reasigna IDs al duplicar", () => {
     ]),
   );
   expect(remapped).toEqual({ main: ["a2", "b2"], sidebar: ["c2"] });
+});
+
+test("moveSectionToIndex coloca en posición exacta (drop de dnd-kit)", () => {
+  const layout: ResumeLayout = { main: ["a", "b", "c"], sidebar: ["x"] };
+  // Dentro de la columna.
+  expect(moveSectionToIndex(layout, "c", "main", 0).main).toEqual(["c", "a", "b"]);
+  // Entre columnas, en posición.
+  const moved = moveSectionToIndex(layout, "b", "sidebar", 0);
+  expect(moved).toEqual({ main: ["a", "c"], sidebar: ["b", "x"] });
+  // A la misma posición no cambia nada (misma identidad).
+  expect(moveSectionToIndex(layout, "b", "main", 1)).toBe(layout);
+  // Índices fuera de rango se recortan.
+  expect(moveSectionToIndex(layout, "a", "sidebar", 99).sidebar.at(-1)).toBe("a");
+  expect(moveSectionToIndex(layout, "a", "sidebar", -5).sidebar[0]).toBe("a");
 });
 
 test("syncOrders refleja main++sidebar", () => {

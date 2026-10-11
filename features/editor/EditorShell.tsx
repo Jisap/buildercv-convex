@@ -221,6 +221,15 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     [commitLayout],
   );
 
+  // Destino de un drop de dnd-kit: el sidebar ya calcula el layout
+  // completo; aquí solo se sana y sincroniza (igual que el resto).
+  const dropLayout = useCallback(
+    (next: ResumeLayout) => {
+      commitLayout(() => next);
+    },
+    [commitLayout],
+  );
+
   const deleteSection = useCallback(
     (sectionId: string) => {
       if (confirmSectionId !== sectionId) {
@@ -399,6 +408,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                   }}
                   onDelete={deleteSection}
                   onAdd={addSection}
+                  onLayoutChange={dropLayout}
                 />
                 <div className="mt-4 border-t border-zinc-200 pt-4">
                   {selected ? (
