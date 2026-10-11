@@ -13,10 +13,11 @@ export async function buildPrintHtml(
   content: ResumeContent,
   design: ResumeDesign,
   layout?: ResumeLayout | null,
+  photoUrl?: string | null,
 ): Promise<string> {
   const { renderToStaticMarkup } = await import("react-dom/server");
   const body = renderToStaticMarkup(
-    TemplateRenderer({ content, design, layout, mode: "print" }),
+    TemplateRenderer({ content, design, layout, mode: "print", photoUrl }),
   );
   const safeTitle = title.replace(/[<>&"]/g, (c) => {
     switch (c) {

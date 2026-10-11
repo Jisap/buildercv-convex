@@ -14,6 +14,7 @@ import {
   docRootStyle,
   formatRange,
   SectionTitle,
+  TemplatePhoto,
   twoColColumns,
 } from "./shared";
 import { partitionForLayout } from "./layout";
@@ -22,7 +23,7 @@ import { partitionForLayout } from "./layout";
 // listas cortas (competencias e idiomas). Mismo contenido, más CV por página.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5).
 
-export function CompactTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
+export function CompactTemplate({ content, design, layout, mode, photoUrl }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
@@ -42,7 +43,7 @@ export function CompactTemplate({ content, design, layout, mode }: ResumeTemplat
           : "cv-doc rounded-xl border border-zinc-200 bg-white text-[13px] leading-5 text-zinc-900 shadow-sm"
       }
     >
-      {person && <CompactPersonal item={person} accent={design.accentColor} />}
+      {person && <CompactPersonal item={person} accent={design.accentColor} photoUrl={photoUrl} />}
       {twoCol ? (
         <div
           className="cv-layout-two-col"
@@ -101,9 +102,11 @@ function CompactSection({ section }: { section: ResumeSection }) {
   );
 }
 
-function CompactPersonal({ item, accent }: { item: PersonalItem; accent: string }) {
+function CompactPersonal({ item, accent, photoUrl }: { item: PersonalItem; accent: string; photoUrl?: string | null }) {
   return (
-    <header className="cv-personal flex flex-wrap items-baseline justify-between gap-2 border-b-2 pb-2" style={{ borderColor: accent }}>
+    <header className="cv-personal cv-personal-photo flex items-center gap-4 border-b-2 pb-2" style={{ borderColor: accent }}>
+      {photoUrl && <TemplatePhoto url={photoUrl} sizeMm={24} />}
+      <div className="flex flex-1 flex-wrap items-baseline justify-between gap-2">
       <h2 className="cv-name text-xl font-bold text-zinc-950">{item.fullName || "Tu nombre"}</h2>
       <p className="cv-contact text-xs text-zinc-600">
         {[item.email, item.phone, item.location].filter(Boolean).join(" · ")}
@@ -111,6 +114,7 @@ function CompactPersonal({ item, accent }: { item: PersonalItem; accent: string 
           ? ` · ${item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}`
           : ""}
       </p>
+      </div>
     </header>
   );
 }

@@ -10,6 +10,8 @@ export interface ResumeTemplateProps {
   design: ResumeDesign;
   layout: ResumeLayout | null | undefined;
   mode: "preview" | "print";
+  /** URL firmada de la foto (null/sin definir = sin foto). */
+  photoUrl?: string | null;
 }
 
 export interface TemplateMeta {

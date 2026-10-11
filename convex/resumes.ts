@@ -1,11 +1,6 @@
 import { ConvexError, v } from "convex/values";
-import {
-  mutation,
-  query,
-  type MutationCtx,
-  type QueryCtx,
-} from "./_generated/server";
-import { Doc, Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
+import { Doc } from "./_generated/dataModel";
 import {
   resumeContentValidator,
   resumeDesignValidator,
@@ -20,32 +15,11 @@ import {
 import { TEMPLATE_IDS } from "../features/templates/types";
 import { HEADING_SIZES } from "../types/resume";
 import { assertContentLimits } from "./contentLimits";
+import { getIdentityUserId, requireOwnedResume } from "./access";
+import { deletePhotoIfUnreferenced, photoStorageIdsOf } from "./files";
 
 // Todas las funciones resuelven la identidad desde `ctx.auth` (JWT de Clerk
 // verificado por la plataforma). Jamás se acepta un userId del cliente.
-
-async function getIdentityUserId(
-  ctx: QueryCtx | MutationCtx,
-): Promise<string> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (identity === null) {
-    throw new ConvexError("No autenticado.");
-  }
-  return identity.subject;
-}
-
-async function requireOwnedResume(
-  ctx: QueryCtx | MutationCtx,
-  id: Id<"resumes">,
-): Promise<Doc<"resumes">> {
-  const userId = await getIdentityUserId(ctx);
-  const resume = await ctx.db.get(id);
-  if (resume === null || resume.userId !== userId) {
-    // Mismo error exista o no: no filtrar qué IDs son válidos.
-    throw new ConvexError("Currículum no encontrado.");
-  }
-  return resume;
-}
 
 function assertTitle(title: string): string {
   const trimmed = title.trim();
@@ -274,7 +248,12 @@ export const remove = mutation({
   args: { id: v.id("resumes") },
   handler: async (ctx, args) => {
     const resume = await requireOwnedResume(ctx, args.id);
+    const photoIds = photoStorageIdsOf(resume.content);
     await ctx.db.delete(resume._id);
+    // La foto se borra solo si ningún otro CV la usa (duplicar comparte).
+    for (const storageId of new Set(photoIds)) {
+      await deletePhotoIfUnreferenced(ctx, resume.userId, storageId, resume._id);
+    }
     return resume._id;
   },
 });

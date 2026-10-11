@@ -29,6 +29,13 @@ relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
   columnas) y `layoutId` (`single` | `two-col`). Rangos validados en cliente
   (Zod con defaults para migrar CV antiguos) y en servidor (`assertDesign`
   + validadores Convex).
+- Foto del candidato: el documento solo guarda `photoStorageId` (referencia
+  a Convex Storage, nunca binarios). Subida con URL firmada tras auth,
+  redimensión en cliente (768 px, JPEG), tipos JPG/PNG/WebP hasta 5 MB.
+  La URL firmada solo se sirve si el ID es el referenciado por un CV propio
+  (`files.photoUrl`); duplicar comparte el fichero y borrar lo elimina
+  únicamente sin otras referencias (`deletePhotoIfUnreferenced`). Las
+  plantillas de lectura automática (clásica, mínima) la omiten por diseño.
   Los CV guardados antes de esta fase se normalizan al hidratar
   (`withDesignDefaults` en `lib/resume.ts`). En Convex los cuatro campos
   nuevos son `v.optional` para no invalidar documentos antiguos en el push

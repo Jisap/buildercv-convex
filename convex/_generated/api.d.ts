@@ -8,7 +8,9 @@
  * @module
  */
 
+import type * as access from "../access.js";
 import type * as contentLimits from "../contentLimits.js";
+import type * as files from "../files.js";
 import type * as resumeModel from "../resumeModel.js";
 import type * as resumes from "../resumes.js";
 
@@ -19,7 +21,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  access: typeof access;
   contentLimits: typeof contentLimits;
+  files: typeof files;
   resumeModel: typeof resumeModel;
   resumes: typeof resumes;
 }>;

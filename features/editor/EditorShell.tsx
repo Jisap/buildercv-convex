@@ -10,6 +10,7 @@ import type {
   ResumeContent,
   ResumeDesign,
   ResumeLayout,
+  ResumeSection,
   SectionType,
 } from "@/types/resume";
 import { createSection, newId, withDesignDefaults } from "@/lib/resume";
@@ -190,6 +191,18 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
+
+  // Foto del primer perfil (si hay): URL firmada para la vista previa.
+  // Depende del contenido local para reflejar subidas al momento.
+  const personalSection = content?.sections.find(
+    (s): s is Extract<ResumeSection, { type: "personal" }> =>
+      s.type === "personal",
+  );
+  const photoStorageId = personalSection?.items[0]?.photoStorageId;
+  const photoUrl = useQuery(
+    api.files.photoUrl,
+    photoStorageId ? { resumeId: id, storageId: photoStorageId } : "skip",
+  );
 
   const patchSection = useCallback(
     (sectionId: string, patch: { title?: string; visible?: boolean }) => {
@@ -416,6 +429,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                       key={selected.id}
                       section={selected}
                       issues={sectionIssues && !sectionIssues.success ? sectionIssues.error.issues : []}
+                      resumeId={resumeId}
                       onPatch={(patch) => patchSection(selected.id, patch)}
                       onChangeContent={setContent}
                     />
@@ -458,7 +472,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
               </div>
             </div>
             <div className="mt-2">
-              <ResumePreview content={content} design={design} layout={healedLayout} zoom={zoom} />
+              <ResumePreview content={content} design={design} layout={healedLayout} zoom={zoom} photoUrl={photoUrl ?? null} />
             </div>
           </div>
         </section>

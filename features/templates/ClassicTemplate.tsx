@@ -99,6 +99,7 @@ function ClassicSection({ section }: { section: ResumeSection }) {
 }
 
 function ClassicPersonal({ item, accent }: { item: PersonalItem; accent: string }) {
+  // Sin foto a propósito: plantilla de lectura automática (ATS).
   return (
     <header className="cv-personal">
       <h2 className="cv-name text-3xl font-bold" style={{ color: accent }}>

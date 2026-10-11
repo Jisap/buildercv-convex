@@ -258,6 +258,54 @@ test("el layout explícito manda sobre la derivación por tipo", () => {
   expect(html.indexOf("Competencias")).toBeGreaterThan(mainIdx);
 });
 
+test("la foto aparece en modernas y se omite en ATS", () => {
+  const url = "https://fotos.example/retrato.jpg";
+  const modern = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "modern" }}
+      layout={layout}
+      mode="preview"
+      photoUrl={url}
+    />,
+  );
+  expect(modern).toContain("cv-photo");
+  expect(modern).toContain(url);
+  for (const id of ["sidebar", "elegant", "compact"]) {
+    const html = renderToStaticMarkup(
+      <TemplateRenderer
+        content={content}
+        design={{ ...design, templateId: id }}
+        layout={layout}
+        mode="preview"
+        photoUrl={url}
+      />,
+    );
+    expect(html, `${id} muestra la foto`).toContain("cv-photo");
+  }
+  for (const id of ["classic", "minimal"]) {
+    const html = renderToStaticMarkup(
+      <TemplateRenderer
+        content={content}
+        design={{ ...design, templateId: id }}
+        layout={layout}
+        mode="preview"
+        photoUrl={url}
+      />,
+    );
+    expect(html, `${id} omite la foto (ATS)`).not.toContain("cv-photo");
+  }
+  const sinFoto = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "modern" }}
+      layout={layout}
+      mode="preview"
+    />,
+  );
+  expect(sinFoto).not.toContain("cv-photo");
+});
+
 test("docRootStyle centraliza tipografía, relleno e interlineado", () => {
   const style = docRootStyle({
     ...design,

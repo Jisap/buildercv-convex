@@ -88,6 +88,7 @@ export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplat
 }
 
 function MinimalPersonal({ item }: { item: PersonalItem }) {
+  // Sin foto a propósito: plantilla de lectura automática (ATS).
   return (
     <header className="cv-personal">
       <h2 className="cv-name text-2xl font-bold text-zinc-950">

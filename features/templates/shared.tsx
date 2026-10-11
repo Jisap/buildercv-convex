@@ -41,6 +41,35 @@ export function SectionTitle({
 }
 
 /**
+ * Foto del candidato en la cabecera. Estilos en línea para que viajen
+ * intactos al PDF (Tailwind no existe allí); `cv-photo` es el gancho del
+ * CSS de impresión. Decorativa: el nombre va siempre al lado.
+ */
+export function TemplatePhoto({
+  url,
+  sizeMm = 28,
+}: {
+  url: string;
+  sizeMm?: number;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt=""
+      aria-hidden="true"
+      className="cv-photo shrink-0"
+      style={{
+        width: `${sizeMm}mm`,
+        height: `${sizeMm}mm`,
+        objectFit: "cover",
+        borderRadius: "50%",
+      }}
+    />
+  );
+}
+
+/**
  * Estilo raíz del documento: tipografía, relleno e interlineado del
  * diseño, más las variables `--cv-leading` (interlineado del cuerpo) y
  * `--cv-heading` (escala de titulares) que consumen el CSS de pantalla

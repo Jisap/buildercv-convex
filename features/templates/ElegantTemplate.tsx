@@ -14,6 +14,7 @@ import {
   docRootStyle,
   formatRange,
   SectionTitle,
+  TemplatePhoto,
   twoColColumns,
 } from "./shared";
 import { partitionForLayout } from "./layout";
@@ -26,7 +27,7 @@ import { partitionForLayout } from "./layout";
 // no existe en el PDF) mediante la clase `cv-elegant-head`.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión.
 
-export function ElegantTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
+export function ElegantTemplate({ content, design, layout, mode, photoUrl }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
@@ -48,7 +49,7 @@ export function ElegantTemplate({ content, design, layout, mode }: ResumeTemplat
       }
     >
       {person ? (
-        <ElegantPersonal item={person} accent={accent} />
+        <ElegantPersonal item={person} accent={accent} photoUrl={photoUrl} />
       ) : (
         <header className="cv-personal cv-elegant-head text-center">
           <h2 className="cv-name text-4xl font-normal tracking-wide text-zinc-950">
@@ -100,12 +101,19 @@ export function ElegantTemplate({ content, design, layout, mode }: ResumeTemplat
 function ElegantPersonal({
   item,
   accent,
+  photoUrl,
 }: {
   item: PersonalItem;
   accent: string;
+  photoUrl?: string | null;
 }) {
   return (
     <header className="cv-personal cv-elegant-head text-center">
+      {photoUrl && (
+        <div className="mb-3 flex justify-center">
+          <TemplatePhoto url={photoUrl} sizeMm={30} />
+        </div>
+      )}
       <h2 className="cv-name text-4xl font-normal tracking-wide text-zinc-950">
         {item.fullName || "Tu nombre"}
       </h2>

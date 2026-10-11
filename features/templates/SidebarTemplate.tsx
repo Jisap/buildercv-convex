@@ -14,6 +14,7 @@ import {
   docRootStyle,
   formatRange,
   SectionTitle,
+  TemplatePhoto,
   twoColColumns,
 } from "./shared";
 import { partitionForLayout } from "./layout";
@@ -24,7 +25,7 @@ import { partitionForLayout } from "./layout";
 // viaja en estilos en línea para que llegue intacto al PDF.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión.
 
-export function SidebarTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
+export function SidebarTemplate({ content, design, layout, mode, photoUrl }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
@@ -45,7 +46,7 @@ export function SidebarTemplate({ content, design, layout, mode }: ResumeTemplat
           : "cv-doc rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
-      {person && <SidebarPersonal item={person} accent={accent} />}
+      {person && <SidebarPersonal item={person} accent={accent} photoUrl={photoUrl} />}
       {twoCol ? (
         <div
           className="cv-layout-two-col"
@@ -103,9 +104,11 @@ export function SidebarTemplate({ content, design, layout, mode }: ResumeTemplat
   );
 }
 
-function SidebarPersonal({ item, accent }: { item: PersonalItem; accent: string }) {
+function SidebarPersonal({ item, accent, photoUrl }: { item: PersonalItem; accent: string; photoUrl?: string | null }) {
   return (
-    <header className="cv-personal">
+    <header className="cv-personal cv-personal-photo flex items-center gap-5">
+      {photoUrl && <TemplatePhoto url={photoUrl} sizeMm={28} />}
+      <div>
       <h2 className="cv-name text-3xl font-bold" style={{ color: accent }}>
         {item.fullName || "Tu nombre"}
       </h2>
@@ -117,6 +120,7 @@ function SidebarPersonal({ item, accent }: { item: PersonalItem; accent: string 
           {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
         </p>
       )}
+      </div>
     </header>
   );
 }

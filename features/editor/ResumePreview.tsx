@@ -23,11 +23,13 @@ export function ResumePreview({
   design,
   layout,
   zoom,
+  photoUrl,
 }: {
   content: ResumeContent;
   design: ResumeDesign;
   layout: ResumeLayout;
   zoom: number;
+  photoUrl?: string | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState(1);
@@ -56,7 +58,7 @@ export function ResumePreview({
   return (
     <div ref={containerRef} className="w-full">
       <div className="mx-auto w-full max-w-[210mm]" style={style}>
-        <TemplateRenderer content={content} design={design} layout={layout} mode="preview" />
+        <TemplateRenderer content={content} design={design} layout={layout} mode="preview" photoUrl={photoUrl} />
       </div>
     </div>
   );

@@ -37,6 +37,7 @@ export const resumeSectionValidator = v.union(
         phone: v.optional(v.string()),
         location: v.optional(v.string()),
         links: v.optional(v.array(linkValidator)),
+        photoStorageId: v.optional(v.string()),
       }),
     ),
     type: v.literal("personal"),

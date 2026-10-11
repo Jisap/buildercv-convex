@@ -73,6 +73,13 @@ html, body {
   margin: 0 0 1mm 0;
 }
 
+/* Cabecera con foto (flex de Tailwind no existe en el PDF). */
+.cv-personal-photo {
+  display: flex;
+  align-items: center;
+  gap: 5mm;
+}
+
 /* Secciones (el espaciado vertical lo da el gap del contenedor). */
 .cv-section {
   margin: 0;

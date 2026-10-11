@@ -49,6 +49,7 @@ const personalItemSchema = z.object({
   phone: z.string().max(50).optional(),
   location: z.string().max(LIMITS.maxTitle).optional(),
   links: z.array(linkSchema).max(20).optional(),
+  photoStorageId: z.string().min(1).max(200).optional(),
 });
 
 const profileItemSchema = z.object({

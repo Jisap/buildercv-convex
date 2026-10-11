@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ResumeContent, ResumeSection } from "@/types/resume";
 import { moveItemToIndex, newId } from "@/lib/resume";
+import { PhotoUploader } from "./PhotoUploader";
 import { matchesFilter, summarizeItem } from "./sectionFields";
 import {
   ADD_ITEM_LABEL,
@@ -57,6 +58,7 @@ type ItemRecord = { id: string } & Record<string, unknown>;
 interface SectionFormProps {
   section: ResumeSection;
   issues: z.ZodIssue[];
+  resumeId: string;
   onPatch: (patch: { title?: string; visible?: boolean }) => void;
   onChangeContent: React.Dispatch<
     React.SetStateAction<ResumeContent | null>
@@ -101,6 +103,7 @@ function readValue(item: Record<string, unknown>, spec: ItemFieldSpec) {
 export function SectionForm({
   section,
   issues,
+  resumeId,
   onPatch,
   onChangeContent,
 }: SectionFormProps) {
@@ -391,6 +394,20 @@ export function SectionForm({
           <Plus />
           {ADD_ITEM_LABEL[section.type]}
         </Button>
+        {section.type === "personal" && section.items[0] && (
+          <PhotoUploader
+            resumeId={resumeId}
+            storageId={
+              (section.items[0] as { photoStorageId?: string }).photoStorageId
+            }
+            onSelect={(storageId) => {
+              updateItem(section.items[0].id, "photoStorageId", storageId);
+            }}
+            onRemove={() => {
+              updateItem(section.items[0].id, "photoStorageId", undefined);
+            }}
+          />
+        )}
         {section.type === "personal" && section.items[0] && (
           <PersonalLinksEditor
             links={(section.items[0] as { links?: { id: string; label?: string; url?: string }[] })

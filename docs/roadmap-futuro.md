@@ -17,6 +17,7 @@ Próxima sesión (en orden):
 4. E2E completa tras los cambios + despliegue.
 5. Navegación (2026-10-11, pendiente revisión visual): navbar global (marca, tema, sesión) + sidebar del panel (Mis CV, Archivados, Nuevo, Mi cuenta); archivar/desarchivar en el panel; página de cuenta con UserProfile. Tarjetas de Clerk quedan en claro.
 6. Vista previa auto-ajustada al ancho (2026-10-11, verificado a 360 px sin desborde): `ResumePreview` mide su contenedor (`ResizeObserver`) y escala la hoja A4 de forma uniforme; zoom de usuario y tamaño de fuente multiplican; el PDF no cambia.
+7. Foto del candidato (2026-10-11, pendiente verificación manual): `photoStorageId` + Convex Storage, subida con redimensión, foto en moderna/lateral/elegante/compacta (clásica y mínima la omiten), PDF con espera de imagen, borrado en cascada.
 6. Temas claro/oscuro/sistema (2026-10-11, pendiente revisión visual): `next-themes` (clase `.dark`, sin FOUC), variante `dark` CSS-first, conmutador en landing/panel/editor; documento siempre en papel claro. Tarjetas de Clerk quedan en claro (limite documentado).
 7. [FUTURO] Temas de colores: `next-themes` admite N temas; migrar el chrome de `zinc-*` fijo a tokens semánticos (`bg-background`, `text-foreground`, `bg-card`, `border-border`…) y definir un bloque de variables por tema. El documento sigue en papel claro. Opcional: persistir el tema por usuario en Convex.
 8. F4 solo con spike previo (canvas libre sigue descartado).

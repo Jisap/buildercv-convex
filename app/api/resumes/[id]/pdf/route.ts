@@ -46,6 +46,7 @@ export async function GET(
   const { id } = await params;
 
   let resume;
+  let photoUrl: string | null = null;
   try {
     const token = await getToken({ template: "convex" });
     if (!token) {
@@ -54,6 +55,22 @@ export async function GET(
     const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
     convex.setAuth(token);
     resume = await convex.query(api.resumes.get, { id: id as Id<"resumes"> });
+    // La foto se resuelve aquí (URL firmada del propietario); si falla, el
+    // PDF sale sin foto en lugar de romper la exportación.
+    try {
+      const personal = resume.content.sections.find(
+        (s: { type: string }) => s.type === "personal",
+      ) as { items: { photoStorageId?: string }[] } | undefined;
+      const storageId = personal?.items[0]?.photoStorageId;
+      if (storageId) {
+        photoUrl = await convex.query(api.files.photoUrl, {
+          resumeId: id as Id<"resumes">,
+          storageId,
+        });
+      }
+    } catch {
+      photoUrl = null;
+    }
   } catch (e) {
     const message = e instanceof Error ? e.message : "";
     if (message.includes("Currículum no encontrado")) {
@@ -71,11 +88,26 @@ export async function GET(
       resume.content,
       withDesignDefaults(resume.design),
       resume.layout ?? null,
+      photoUrl,
     );
     const browser = await getBrowser();
     const page = await browser.newPage();
     try {
       await page.setContent(html, { waitUntil: "domcontentloaded" });
+      // Espera a las imágenes (foto) antes de paginar; sin foto resuelve
+      // al momento.
+      await page.evaluate(() =>
+        Promise.all(
+          Array.from(document.images).map((img) =>
+            img.complete
+              ? undefined
+              : new Promise((resolve) => {
+                  img.addEventListener("load", resolve, { once: true });
+                  img.addEventListener("error", resolve, { once: true });
+                }),
+          ),
+        ),
+      );
       const pdf = await page.pdf({
         format: "A4",
         printBackground: true,

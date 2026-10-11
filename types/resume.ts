@@ -28,6 +28,8 @@ export interface PersonalItem extends BaseItem {
   phone?: string;
   location?: string;
   links?: { id: string; label?: string; url?: string }[];
+  /** ID de objeto en Convex Storage (foto). Referencia, nunca binario. */
+  photoStorageId?: string;
 }
 
 export interface ProfileItem extends BaseItem {

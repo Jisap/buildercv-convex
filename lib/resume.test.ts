@@ -79,3 +79,37 @@ test("withDesignDefaults migra diseños antiguos a los campos nuevos", () => {
   const parsed = resumeDesignSchema.safeParse(createDefaultDesign());
   expect(parsed.success).toBe(true);
 });
+
+test("photoStorageId se valida como referencia opaca", () => {
+  const content = createDefaultContent();
+  const personal = content.sections.find((s) => s.type === "personal");
+  expect(personal).toBeDefined();
+  const withPhoto = {
+    sections: content.sections.map((s) =>
+      s.type === "personal"
+        ? {
+            ...s,
+            items: s.items.map((item) => ({
+              ...item,
+              photoStorageId: "kg123abc",
+            })),
+          }
+        : s,
+    ),
+  };
+  expect(resumeContentSchema.safeParse(withPhoto).success).toBe(true);
+  const tooLong = {
+    sections: content.sections.map((s) =>
+      s.type === "personal"
+        ? {
+            ...s,
+            items: s.items.map((item) => ({
+              ...item,
+              photoStorageId: "x".repeat(201),
+            })),
+          }
+        : s,
+    ),
+  };
+  expect(resumeContentSchema.safeParse(tooLong).success).toBe(false);
+});

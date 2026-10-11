@@ -14,6 +14,7 @@ import {
   docRootStyle,
   formatRange,
   SectionTitle,
+  TemplatePhoto,
   twoColColumns,
 } from "./shared";
 import { partitionForLayout } from "./layout";
@@ -22,7 +23,7 @@ import { partitionForLayout } from "./layout";
 // Misma estructura y contenido que el resto de plantillas.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5).
 
-export function ModernTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
+export function ModernTemplate({ content, design, layout, mode, photoUrl }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
@@ -45,7 +46,7 @@ export function ModernTemplate({ content, design, layout, mode }: ResumeTemplate
     >
       <div className="cv-band p-8 text-white" style={{ backgroundColor: accent }}>
         {person ? (
-          <ModernPersonal item={person} />
+          <ModernPersonal item={person} photoUrl={photoUrl} />
         ) : (
           <h2 className="cv-name text-3xl font-bold">Tu nombre</h2>
         )}
@@ -113,9 +114,11 @@ function ModernSection({
   );
 }
 
-function ModernPersonal({ item }: { item: PersonalItem }) {
+function ModernPersonal({ item, photoUrl }: { item: PersonalItem; photoUrl?: string | null }) {
   return (
-    <header className="cv-personal">
+    <header className="cv-personal cv-personal-photo flex items-center gap-5">
+      {photoUrl && <TemplatePhoto url={photoUrl} sizeMm={30} />}
+      <div>
       <h2 className="cv-name text-3xl font-bold text-white">{item.fullName || "Tu nombre"}</h2>
       <p className="cv-contact mt-1 text-sm text-white/90">
         {[item.email, item.phone, item.location].filter(Boolean).join(" · ")}
@@ -125,6 +128,7 @@ function ModernPersonal({ item }: { item: PersonalItem }) {
           {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
         </p>
       )}
+      </div>
     </header>
   );
 }
