@@ -119,6 +119,23 @@ function truncate(value: string, max = 60): string {
   return clean.length > max ? `${clean.slice(0, max - 1).trimEnd()}…` : clean;
 }
 
+/** Minúsculas sin tildes para comparar (p. ej. "José" = "jose"). */
+export function normalizeText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Si el resumen del elemento coincide con la búsqueda (vacía = todo). */
+export function matchesFilter(summary: string, query: string): boolean {
+  const q = normalizeText(query.trim());
+  if (q === "") {
+    return true;
+  }
+  return normalizeText(summary).includes(q);
+}
+
 /**
  * Resumen de una línea para la fila compacta del editor
  * (p. ej. "Puesto · Empresa"). Vacío si el elemento aún no tiene

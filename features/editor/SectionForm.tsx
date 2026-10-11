@@ -25,7 +25,9 @@ import {
   ChevronRight,
   GripVertical,
   Plus,
+  Search,
   Trash2,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
@@ -34,7 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ResumeContent, ResumeSection } from "@/types/resume";
 import { moveItemToIndex, newId } from "@/lib/resume";
-import { summarizeItem } from "./sectionFields";
+import { matchesFilter, summarizeItem } from "./sectionFields";
 import {
   ADD_ITEM_LABEL,
   ITEM_FIELDS,
@@ -129,6 +131,27 @@ export function SectionForm({
     });
   };
 
+  const expandAll = () => {
+    setExpandedIds(new Set(section.items.map((item) => item.id)));
+  };
+
+  const collapseAll = () => {
+    setExpandedIds(new Set());
+  };
+
+  // Filtro por texto del resumen (tildes y mayúsculas aparte). Con pocos
+  // elementos no compensa: el campo aparece a partir de 5.
+  const [filter, setFilter] = useState("");
+  const summaries = new Map(
+    section.items.map((item) => [
+      item.id,
+      summarizeItem(section.type, item as unknown as Record<string, unknown>),
+    ]),
+  );
+  const visibleItems = section.items.filter((item) =>
+    matchesFilter(summaries.get(item.id) ?? "", filter),
+  );
+
   const updateItem = (itemId: string, key: string, value: ItemPatchValue) => {
     onChangeContent((current) => {
       if (!current) {
@@ -153,9 +176,11 @@ export function SectionForm({
   };
 
   const addItem = () => {
-    // El elemento nuevo nace expandido para rellenarlo al momento.
+    // El elemento nuevo nace expandido para rellenarlo al momento; si hay
+    // un filtro activo se limpia para que no quede oculto tras crearlo.
     const id = newId();
     setExpandedIds((prev) => new Set(prev).add(id));
+    setFilter("");
     onChangeContent((current) => {
       if (!current) {
         return current;
@@ -268,40 +293,95 @@ export function SectionForm({
         </label>
       </div>
 
-      <div className="mt-4 space-y-4 border-t border-zinc-100 pt-4">
+      <div className="mt-4 space-y-3 border-t border-zinc-100 pt-4">
+        {section.items.length > 1 && (
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-500" aria-live="polite">
+              {filter.trim() === ""
+                ? `${section.items.length} elementos`
+                : `${visibleItems.length} de ${section.items.length}`}
+            </span>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={expandAll}
+                className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-50"
+              >
+                Expandir todas
+              </button>
+              <button
+                type="button"
+                onClick={collapseAll}
+                className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-50"
+              >
+                Contraer todas
+              </button>
+            </div>
+          </div>
+        )}
+        {section.items.length > 4 && (
+          <div className="relative">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-zinc-400" />
+            <Input
+              type="search"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filtrar elementos…"
+              aria-label="Filtrar elementos de la sección"
+              maxLength={100}
+              className="pr-8 pl-8"
+            />
+            {filter !== "" && (
+              <button
+                type="button"
+                onClick={() => setFilter("")}
+                title="Limpiar filtro"
+                aria-label="Limpiar filtro"
+                className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </div>
+        )}
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={section.items.map((item) => item.id)}
+            items={visibleItems.map((item) => item.id)}
             strategy={verticalListSortingStrategy}
           >
-            {section.items.map((item, itemIndex) => (
-              <SortableItemCard
-                key={item.id}
-                item={item as unknown as ItemRecord}
-                itemIndex={itemIndex}
-                total={section.items.length}
-                sectionId={section.id}
-                summary={summarizeItem(
-                  section.type,
-                  item as unknown as Record<string, unknown>,
-                )}
-                expanded={expandedIds.has(item.id)}
-                hasError={itemHasError(issues, itemIndex)}
-                specs={specs}
-                issues={issues}
-                onToggleExpand={toggleExpand}
-                onUpdateItem={updateItem}
-                onMoveItem={moveItem}
-                onDeleteItem={deleteItem}
-              />
-            ))}
+            {visibleItems.map((item) => {
+              const itemIndex = section.items.findIndex((s) => s.id === item.id);
+              return (
+                <SortableItemCard
+                  key={item.id}
+                  item={item as unknown as ItemRecord}
+                  itemIndex={itemIndex}
+                  total={section.items.length}
+                  sectionId={section.id}
+                  summary={summaries.get(item.id) ?? ""}
+                  expanded={expandedIds.has(item.id)}
+                  hasError={itemHasError(issues, itemIndex)}
+                  specs={specs}
+                  issues={issues}
+                  onToggleExpand={toggleExpand}
+                  onUpdateItem={updateItem}
+                  onMoveItem={moveItem}
+                  onDeleteItem={deleteItem}
+                />
+              );
+            })}
           </SortableContext>
         </DndContext>
-        {section.items.length > 1 && (
+        {visibleItems.length === 0 && (
+          <p className="rounded-md border border-dashed border-zinc-200 px-2 py-3 text-center text-sm text-zinc-500">
+            Sin coincidencias para «{filter.trim()}».
+          </p>
+        )}
+        {visibleItems.length > 1 && (
           <p className="text-xs text-zinc-400">
             Arrastra desde el asa para reordenar. Con teclado: enfoca el asa,
             pulsa Espacio y mueve con las flechas.

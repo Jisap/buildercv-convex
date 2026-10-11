@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { summarizeItem } from "./sectionFields";
+import { matchesFilter, normalizeText, summarizeItem } from "./sectionFields";
 
 test("summarizeItem resume cada tipo y vacía sin contenido", () => {
   expect(
@@ -28,4 +28,15 @@ test("summarizeItem resume cada tipo y vacía sin contenido", () => {
   );
   expect(summarizeItem("experience", {})).toBe("");
   expect(summarizeItem("experience", { position: "  " })).toBe("");
+});
+
+test("matchesFilter ignora mayúsculas, tildes y espacios", () => {
+  expect(normalizeText("José María Ñíguez")).toBe("jose maria niguez");
+  expect(matchesFilter("Diseñadora · Acme", "")).toBe(true);
+  expect(matchesFilter("Diseñadora · Acme", "  ")).toBe(true);
+  expect(matchesFilter("Diseñadora · Acme", "dise")).toBe(true);
+  expect(matchesFilter("Diseñadora · Acme", "DISENADORA")).toBe(true);
+  expect(matchesFilter("Diseñadora · Acme", "acme")).toBe(true);
+  expect(matchesFilter("Diseñadora · Acme", "beta")).toBe(false);
+  expect(matchesFilter("", "algo")).toBe(false);
 });

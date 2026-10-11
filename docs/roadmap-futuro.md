@@ -12,7 +12,7 @@ Hecho en esta sesión (todo verificado: tsc 0, lint 0, 49/49 tests, build OK, pu
 
 Próxima sesión (en orden):
 1. Verificación manual: arrastre con ratón/táctil/teclado ✅ y estabilidad de "Guardado" al mover/añadir ✅ (verificados por el usuario 2026-10-11). Pendiente: PDF de las 6 plantillas en 1–2 columnas.
-2. F3 implementada y verificada por el usuario (arrastre de elementos + filas compactas colapsables con resumen, auto-expand y aviso de errores).
+2. F3 implementada y verificada por el usuario (arrastre de elementos + filas compactas colapsables con resumen, auto-expand y aviso de errores). Extra 2026-10-11: secciones con muchos elementos — contador, expandir/contraer todas y filtro por texto (ignora tildes y mayúsculas, aparece con 5+).
 3. Diseño (2026-10-11, pendiente verificación manual): `lineHeight` (1.2–1.7), `headingSize` (compacto/normal/grande, zoom proporcional en titulares), `sidebarWidth` (25–40 % en dos columnas) con espejo x4 + `assertDesign`; estilo raíz centralizado (`docRootStyle` + vars `--cv-leading/--cv-heading` en pantalla e impresión); paleta de 8 acentos + color personalizado; restablecer diseño (conserva plantilla); selector de plantillas con miniaturas reales.
 4. E2E completa tras los cambios + despliegue.
 5. F4 solo con spike previo (canvas libre sigue descartado).
