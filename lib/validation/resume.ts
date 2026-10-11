@@ -125,6 +125,13 @@ export const resumeContentSchema = z.object({
   sections: z.array(resumeSectionSchema).max(LIMITS.maxSections),
 });
 
+const layoutColumnSchema = z.array(idSchema).max(LIMITS.maxSections);
+
+export const resumeLayoutSchema = z.object({
+  main: layoutColumnSchema,
+  sidebar: layoutColumnSchema,
+});
+
 export const resumeDesignSchema = z.object({
   templateId: z.string().min(1).max(100),
   templateVersion: z.number().int().min(1),
@@ -164,6 +171,7 @@ export const updateResumeSchema = z.object({
   status: resumeStatusSchema.optional(),
   content: resumeContentSchema.optional(),
   design: resumeDesignSchema.optional(),
+  layout: resumeLayoutSchema.optional(),
 });
 
 export const sectionTypeSchema = z.enum(SECTION_TYPES);

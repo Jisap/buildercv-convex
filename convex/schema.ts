@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import {
   resumeContentValidator,
   resumeDesignValidator,
+  resumeLayoutValidator,
   resumeStatusValidator,
 } from "./resumeModel";
 
@@ -17,6 +18,9 @@ const schema = defineSchema({
     status: resumeStatusValidator,
     content: resumeContentValidator,
     design: resumeDesignValidator,
+    // Opcional para no invalidar CV guardados antes de F1; el cliente
+    // deriva el layout del contenido cuando falta.
+    layout: v.optional(resumeLayoutValidator),
     updatedAt: v.number(),
   }).index("by_user", ["userId", "updatedAt"]),
 });

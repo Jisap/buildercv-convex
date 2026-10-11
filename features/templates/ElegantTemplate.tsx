@@ -21,10 +21,11 @@ import { partitionForLayout } from "./layout";
 // no existe en el PDF) mediante la clase `cv-elegant-head`.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión.
 
-export function ElegantTemplate({ content, design, mode }: ResumeTemplateProps) {
+export function ElegantTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
+    layout,
   );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
   const accent = design.accentColor;

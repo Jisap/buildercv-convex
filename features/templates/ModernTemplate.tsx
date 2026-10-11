@@ -17,10 +17,11 @@ import { partitionForLayout } from "./layout";
 // Misma estructura y contenido que el resto de plantillas.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5).
 
-export function ModernTemplate({ content, design, mode }: ResumeTemplateProps) {
+export function ModernTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
+    layout,
   );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
   const accent = design.accentColor;

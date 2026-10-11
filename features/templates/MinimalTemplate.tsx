@@ -19,10 +19,11 @@ import { partitionForLayout } from "./layout";
 // automática se recomienda usarla en una columna.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión.
 
-export function MinimalTemplate({ content, design, mode }: ResumeTemplateProps) {
+export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
+    layout,
   );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
   const accent = design.accentColor;

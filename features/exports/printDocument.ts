@@ -1,4 +1,4 @@
-import type { ResumeContent, ResumeDesign } from "@/types/resume";
+import type { ResumeContent, ResumeDesign, ResumeLayout } from "@/types/resume";
 import { TemplateRenderer } from "@/features/templates/TemplateRenderer";
 import { PRINT_CSS, buildDesignCss } from "./printCss";
 
@@ -12,10 +12,11 @@ export async function buildPrintHtml(
   title: string,
   content: ResumeContent,
   design: ResumeDesign,
+  layout?: ResumeLayout | null,
 ): Promise<string> {
   const { renderToStaticMarkup } = await import("react-dom/server");
   const body = renderToStaticMarkup(
-    TemplateRenderer({ content, design, mode: "print" }),
+    TemplateRenderer({ content, design, layout, mode: "print" }),
   );
   const safeTitle = title.replace(/[<>&"]/g, (c) => {
     switch (c) {

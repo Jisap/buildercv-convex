@@ -4,6 +4,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { useAutosave } from "./useAutosave";
+import { snapshotsEqual } from "../../lib/compare";
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -84,8 +85,7 @@ test("al desmontar sin cambios no guarda", async () => {
   expect(onSave).not.toHaveBeenCalled();
 });
 
-test("error visible y reintento manual", async () => {
-  const onSave = vi.fn().mockRejectedValueOnce(new Error("caído"));
+test("error visible y reintento manual", async () => {  const onSave = vi.fn().mockRejectedValueOnce(new Error("caído"));
   const { result, rerender } = renderHook(
     ({ value, savedValue }) =>
       useAutosave({ value, savedValue, onSave, enabled: true }),
@@ -106,4 +106,42 @@ test("error visible y reintento manual", async () => {
   });
   expect(onSave).toHaveBeenCalledTimes(2);
   expect(result.current.status).toBe("saved");
+});
+
+test("snapshotsEqual ignora el orden de las claves", () => {
+  expect(snapshotsEqual({ a: 1, b: 2 }, { b: 2, a: 1 })).toBe(true);
+  expect(
+    snapshotsEqual(
+      { sections: [{ id: "x", order: 0, title: "T" }] },
+      { sections: [{ title: "T", id: "x", order: 0 }] },
+    ),
+  ).toBe(true);
+  expect(snapshotsEqual({ a: 1 }, { a: 2 })).toBe(false);
+  expect(snapshotsEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+});
+
+test("el eco del servidor con otro orden de claves no re-gurada en bucle", async () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const local = { title: "CV", content: { order: 1, id: "s1" } };
+  const echo = { content: { id: "s1", order: 1 }, title: "CV" };
+  const { result, rerender } = renderHook(
+    ({ value, savedValue }) =>
+      useAutosave({ value, savedValue, onSave, enabled: true }),
+    { initialProps: { value: local, savedValue: { title: "viejo", content: {} } } },
+  );
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(800);
+  });
+  expect(onSave).toHaveBeenCalledTimes(1);
+
+  // El servidor confirma con las claves en otro orden: debe quedar guardado
+  // y no programar otro guardado.
+  rerender({ value: local, savedValue: echo });
+  expect(result.current.status).toBe("saved");
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(5000);
+  });
+  expect(onSave).toHaveBeenCalledTimes(1);
+  expect(result.current.dirty).toBe(false);
 });

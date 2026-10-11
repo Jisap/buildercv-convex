@@ -42,6 +42,7 @@ relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
 | `status`   | `"draft"` \| `"archived"` | `draft` al crear/duplicar. |
 | `content`  | `ResumeContent`         | Unión discriminada por `type` (9 tipos). |
 | `design`   | `ResumeDesign`          | Ver arriba. |
+| `layout`   | `ResumeLayout` (opcional en lectura) | `{ main: string[], sidebar: string[] }`: IDs de sección, cada uno exactamente una vez. Fuente de verdad de columna y orden; `order` se sincroniza como higiene. |
 | `updatedAt`| `number`                | `Date.now()` en cada mutación; orden del panel. |
 
 Índice `by_user` sobre `["userId", "updatedAt"]`: el listado filtra por

@@ -64,10 +64,13 @@ export async function GET(
 
   try {
     // Normaliza diseños guardados antes de la fase de personalización visual.
+    // El layout viaja tal cual (puede faltar en CV antiguos): el renderizador
+    // lo deriva del contenido cuando es nulo.
     const html = await buildPrintHtml(
       resume.title,
       resume.content,
       withDesignDefaults(resume.design),
+      resume.layout ?? null,
     );
     const browser = await getBrowser();
     const page = await browser.newPage();

@@ -2,18 +2,29 @@
 
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import type {
   ResumeContent,
   ResumeDesign,
+  ResumeLayout,
   SectionType,
 } from "@/types/resume";
-import { createSection, newId, withDesignDefaults } from "@/lib/resume";import {
+import { createSection, newId, withDesignDefaults } from "@/lib/resume";
+import {
+  addSectionToLayout,
+  healLayout,
+  moveSectionInLayout,
+  moveSectionToColumn,
+  removeSectionFromLayout,
+  syncOrders,
+} from "@/lib/resume-layout";
+import {
   resumeContentSchema,
   resumeDesignSchema,
+  resumeLayoutSchema,
   resumeSectionSchema,
   resumeTitleSchema,
 } from "@/lib/validation/resume";
@@ -28,20 +39,6 @@ type MobileTab = "edit" | "preview";
 
 type PanelTab = "content" | "design";
 
-function moveInArray<T extends { order: number }>(
-  arr: T[],
-  index: number,
-  dir: -1 | 1,
-): T[] {
-  const next = [...arr];
-  const target = index + dir;
-  if (target < 0 || target >= next.length) {
-    return next;
-  }
-  [next[index], next[target]] = [next[target], next[index]];
-  return next.map((item, i) => ({ ...item, order: i }));
-}
-
 export function EditorShell({ resumeId }: { resumeId: string }) {
   const id = resumeId as Id<"resumes">;
   const serverDoc = useQuery(api.resumes.get, { id });
@@ -50,6 +47,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<ResumeContent | null>(null);
   const [design, setDesign] = useState<ResumeDesign | null>(null);
+  const [layout, setLayout] = useState<ResumeLayout | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [confirmSectionId, setConfirmSectionId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("edit");
@@ -58,16 +56,50 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
 
+  // Espejos para mutar contenido+layout de forma atómica desde manejadores
+  // (evita cierres obsoletos y clics rápidos perdidos). Se sincronizan en
+  // efecto (nunca durante el render) y tras cada mutación propia.
+  const contentRef = useRef<ResumeContent | null>(null);
+  const layoutRef = useRef<ResumeLayout | null>(null);
+  useEffect(() => {
+    contentRef.current = content;
+    layoutRef.current = layout;
+  });
+
+  /**
+   * Aplica un cambio de layout sincronizando `order` en el contenido local.
+   * Sin esto, lo enviado (sincronizado en onSave) nunca igualaría lo local
+   * y el autoguardado entraría en bucle mostrando "Guardando" sin fin.
+   */
+  const commitLayout = useCallback(
+    (fn: (layout: ResumeLayout) => ResumeLayout) => {
+      const c = contentRef.current;
+      const l = layoutRef.current;
+      if (c === null || l === null) {
+        return;
+      }
+      const next = healLayout(c.sections, fn(l));
+      const synced = syncOrders(c, next);
+      layoutRef.current = next;
+      contentRef.current = synced;
+      setLayout(next);
+      setContent(synced);
+    },
+    [],
+  );
+
   // Hidratación inicial desde el servidor. Ajuste durante el render
   // (patrón documentado de React): solo se aplica una vez por documento.
   // El diseño se normaliza con valores por defecto para migrar CV guardados
-  // antes de la fase de personalización visual.
+  // antes de la fase de personalización visual; el layout se sana frente
+  // al contenido (CV antiguos sin layout se derivan por tipo).
   const [hydratedFor, setHydratedFor] = useState<string | null>(null);
   if (serverDoc && hydratedFor !== serverDoc._id) {
     setHydratedFor(serverDoc._id);
     setTitle(serverDoc.title);
     setContent(serverDoc.content);
     setDesign(withDesignDefaults(serverDoc.design));
+    setLayout(healLayout(serverDoc.content.sections, serverDoc.layout ?? null));
     setSelectedId((current) =>
       current && serverDoc.content.sections.some((s) => s.id === current)
         ? current
@@ -76,8 +108,11 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   }
 
   const draft = useMemo(
-    () => (content === null || design === null ? null : { title, content, design }),
-    [title, content, design],
+    () =>
+      content === null || design === null || layout === null
+        ? null
+        : { title, content, design, layout },
+    [title, content, design, layout],
   );
   const saved = useMemo(
     () =>
@@ -87,12 +122,18 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
             title: serverDoc.title,
             content: serverDoc.content,
             design: withDesignDefaults(serverDoc.design),
+            layout: healLayout(serverDoc.content.sections, serverDoc.layout ?? null),
           },
     [serverDoc],
   );
 
   const onSave = useCallback(
-    async (value: { title: string; content: ResumeContent; design: ResumeDesign }) => {
+    async (value: {
+      title: string;
+      content: ResumeContent;
+      design: ResumeDesign;
+      layout: ResumeLayout;
+    }) => {
       const titleParsed = resumeTitleSchema.safeParse(value.title);
       if (!titleParsed.success) {
         setTitleError(
@@ -101,7 +142,11 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         throw new Error("invalid-title");
       }
       setTitleError(null);
-      const contentParsed = resumeContentSchema.safeParse(value.content);
+      // El layout manda: se sana frente al contenido y se sincroniza `order`
+      // antes de validar y enviar, así el guardado nunca deja mitades.
+      const healedLayout = healLayout(value.content.sections, value.layout);
+      const syncedContent = syncOrders(value.content, healedLayout);
+      const contentParsed = resumeContentSchema.safeParse(syncedContent);
       if (!contentParsed.success) {
         setValidationError(
           "Hay campos con errores. Revísalos antes de guardar.",
@@ -114,11 +159,17 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         setValidationError("La configuración de diseño no es válida.");
         throw new Error("invalid-design");
       }
+      const layoutParsed = resumeLayoutSchema.safeParse(healedLayout);
+      if (!layoutParsed.success) {
+        setValidationError("La distribución de secciones no es válida.");
+        throw new Error("invalid-layout");
+      }
       await updateResume({
         id,
         title: titleParsed.data,
         content: contentParsed.data,
         design: designParsed.data,
+        layout: layoutParsed.data,
       });
     },
     [id, updateResume],
@@ -158,18 +209,16 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   const moveSection = useCallback(
     (sectionId: string, dir: -1 | 1) => {
-      setContent((current) => {
-        if (!current) {
-          return current;
-        }
-        const index = current.sections.findIndex((s) => s.id === sectionId);
-        if (index === -1) {
-          return current;
-        }
-        return { sections: moveInArray(current.sections, index, dir) };
-      });
+      commitLayout((current) => moveSectionInLayout(current, sectionId, dir));
     },
-    [],
+    [commitLayout],
+  );
+
+  const moveSectionColumn = useCallback(
+    (sectionId: string, column: "main" | "sidebar") => {
+      commitLayout((current) => moveSectionToColumn(current, sectionId, column));
+    },
+    [commitLayout],
   );
 
   const deleteSection = useCallback(
@@ -179,13 +228,20 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         return;
       }
       setConfirmSectionId(null);
-      setContent((current) => {
-        if (!current) {
-          return current;
-        }
-        const sections = current.sections.filter((s) => s.id !== sectionId);
-        return { sections: sections.map((s, i) => ({ ...s, order: i })) };
-      });
+      const c = contentRef.current;
+      const l = layoutRef.current;
+      if (c !== null && l !== null) {
+        const sections = c.sections.filter((s) => s.id !== sectionId);
+        const nextLayout = healLayout(
+          sections,
+          removeSectionFromLayout(l, sectionId),
+        );
+        const synced = syncOrders({ sections }, nextLayout);
+        layoutRef.current = nextLayout;
+        contentRef.current = synced;
+        setLayout(nextLayout);
+        setContent(synced);
+      }
       setSelectedId((current) => (current === sectionId ? null : current));
     },
     [confirmSectionId],
@@ -193,21 +249,29 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   // Puro: sin efectos secundarios dentro del actualizador (React puede
   // reejecutarlo en comprobaciones de desarrollo).
-  const addSection = useCallback((type: SectionType) => {
-    const id = newId();
-    setSelectedId(id);
-    setContent((current) => {
-      if (!current) {
-        return current;
+  const addSection = useCallback(
+    (type: SectionType) => {
+      const c = contentRef.current;
+      const l = layoutRef.current;
+      if (c === null || l === null) {
+        return;
       }
-      return {
-        sections: [
-          ...current.sections,
-          createSection(type, current.sections.length, id),
-        ],
-      };
-    });
-  }, []);
+      const id = newId();
+      setSelectedId(id);
+      const section = createSection(type, c.sections.length, id);
+      const nextContent = { sections: [...c.sections, section] };
+      const nextLayout = healLayout(
+        nextContent.sections,
+        addSectionToLayout(l, section),
+      );
+      const synced = syncOrders(nextContent, nextLayout);
+      layoutRef.current = nextLayout;
+      contentRef.current = synced;
+      setLayout(nextLayout);
+      setContent(synced);
+    },
+    [],
+  );
 
   if (serverDoc === undefined) {
     return (
@@ -231,7 +295,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     );
   }
 
-  if (content === null || design === null) {
+  if (content === null || design === null || layout === null) {
     return (
       <p className="p-6 text-sm text-zinc-600" role="status">
         Preparando el editor…
@@ -239,8 +303,10 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     );
   }
 
-  const sorted = [...content.sections].sort((a, b) => a.order - b.order);
-  const selected = sorted.find((s) => s.id === selectedId) ?? null;
+  // El layout se sana en cada render: cualquier desajuste (sección nueva
+  // aún no registrada, IDs antiguos) se corrige aquí y al guardar.
+  const healedLayout = healLayout(content.sections, layout);
+  const selected = content.sections.find((s) => s.id === selectedId) ?? null;
   const sectionIssues = selected
     ? resumeSectionSchema.safeParse(selected)
     : null;
@@ -317,11 +383,14 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
             {panelTab === "content" ? (
               <div>
                 <ContentSidebar
-                  sections={sorted}
+                  sections={content.sections}
+                  layout={healedLayout}
+                  layoutId={design.layoutId}
                   selectedId={selectedId}
                   confirmSectionId={confirmSectionId}
                   onSelect={setSelectedId}
                   onMove={moveSection}
+                  onMoveColumn={moveSectionColumn}
                   onToggleVisible={(id) => {
                     const target = content.sections.find((s) => s.id === id);
                     if (target) {
@@ -379,7 +448,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
               </div>
             </div>
             <div className="mt-2">
-              <ResumePreview content={content} design={design} zoom={zoom} />
+              <ResumePreview content={content} design={design} layout={healedLayout} zoom={zoom} />
             </div>
           </div>
         </section>

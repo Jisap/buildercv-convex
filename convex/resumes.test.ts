@@ -117,8 +117,7 @@ test("duplicar copia contenido con IDs nuevos", async () => {  const { alice } =
   }
 });
 
-test("crear usa diseño con valores por defecto y valida rangos", async () => {
-  const { alice } = setup();
+test("crear usa diseño con valores por defecto y valida rangos", async () => {  const { alice } = setup();
   const id = await alice.mutation(api.resumes.create, { title: "Con diseño" });
   const doc = await alice.query(api.resumes.get, { id });
   expect(doc.design.fontSize).toBe(11);
@@ -138,4 +137,50 @@ test("crear usa diseño con valores por defecto y valida rangos", async () => {
       design: { ...doc.design, layoutId: "libre" as "single" },
     }),
   ).rejects.toThrow();
+});
+
+test("crear genera layout total y update lo valida", async () => {
+  const { alice } = setup();
+  const id = await alice.mutation(api.resumes.create, { title: "Con layout" });
+  const doc = await alice.query(api.resumes.get, { id });
+  const sectionIds = new Set(doc.content.sections.map((s) => s.id));
+  const layoutIds = [...(doc.layout?.main ?? []), ...(doc.layout?.sidebar ?? [])];
+  expect(new Set(layoutIds)).toEqual(sectionIds);
+
+  // Duplicadas fallan.
+  const dup = [...layoutIds];
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      layout: { main: [dup[0]!, dup[0]!], sidebar: layoutIds.slice(1) },
+    }),
+  ).rejects.toThrow("duplicadas");
+
+  // Incompleto falla.
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      layout: { main: layoutIds.slice(1), sidebar: [] },
+    }),
+  ).rejects.toThrow("incompleta");
+
+  // Mover una sección de columna persiste (experience está en la principal).
+  const exp = doc.content.sections.find((s) => s.type === "experience")!;
+  const next = {
+    main: (doc.layout?.main ?? []).filter((x) => x !== exp.id),
+    sidebar: [...(doc.layout?.sidebar ?? []), exp.id],
+  };
+  await alice.mutation(api.resumes.update, { id, layout: next });
+  const updated = await alice.query(api.resumes.get, { id });
+  expect(updated.layout).toEqual(next);
+});
+
+test("duplicar remapea el layout a los IDs nuevos", async () => {
+  const { alice } = setup();
+  const id = await alice.mutation(api.resumes.create, { title: "Original" });
+  const copyId = await alice.mutation(api.resumes.duplicate, { id });
+  const fetched = await alice.query(api.resumes.get, { id: copyId });
+  const contentIds = new Set(fetched.content.sections.map((s) => s.id));
+  const layoutIds = [...(fetched.layout?.main ?? []), ...(fetched.layout?.sidebar ?? [])];
+  expect(new Set(layoutIds)).toEqual(contentIds);
 });

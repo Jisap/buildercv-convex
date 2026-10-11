@@ -18,10 +18,11 @@ import { partitionForLayout } from "./layout";
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión (Fase 5);
 // no alteran el aspecto en pantalla.
 
-export function ClassicTemplate({ content, design, mode }: ResumeTemplateProps) {
+export function ClassicTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
+    layout,
   );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
   const twoCol = design.layoutId === "two-col" && sidebar.length > 0;

@@ -102,6 +102,17 @@ export interface ResumeContent {
   sections: ResumeSection[];
 }
 
+/**
+ * Distribución por columnas (F1): arrays de IDs estables de sección.
+ * Es la fuente de verdad de la columna Y del orden dentro de ella.
+ * Toda sección existe exactamente una vez entre ambas columnas,
+ * esté visible o no. Sin posicionamiento libre.
+ */
+export interface ResumeLayout {
+  main: string[];
+  sidebar: string[];
+}
+
 export const FONT_FAMILIES = ["inter", "georgia", "system"] as const;
 
 export type FontFamily = (typeof FONT_FAMILIES)[number];
@@ -154,5 +165,7 @@ export interface ResumeDoc {
   status: ResumeStatus;
   content: ResumeContent;
   design: ResumeDesign;
+  /** Distribución por columnas (F1). Opcional en lectura para CV antiguos. */
+  layout?: ResumeLayout;
   updatedAt: number;
 }

@@ -155,13 +155,23 @@ function regenerateItemIds(items: { id: string }[]): { id: string }[] {
   });
 }
 
-/** Copia profunda del contenido con IDs nuevos (para duplicar CV). */
-export function cloneContentWithNewIds(content: ResumeContent): ResumeContent {
-  return {
-    sections: content.sections.map((section) => ({
+/**
+ * Copia profunda del contenido con IDs nuevos (para duplicar CV).
+ * Devuelve también el mapa antiguo→nuevo para remapear el layout.
+ */
+export function cloneContentWithNewIds(content: ResumeContent): {
+  content: ResumeContent;
+  idMap: Map<string, string>;
+} {
+  const idMap = new Map<string, string>();
+  const sections = content.sections.map((section) => {
+    const newSectionId = newId();
+    idMap.set(section.id, newSectionId);
+    return {
       ...section,
-      id: newId(),
+      id: newSectionId,
       items: regenerateItemIds(section.items),
-    })) as ResumeContent["sections"],
-  };
+    };
+  }) as ResumeContent["sections"];
+  return { content: { sections }, idMap };
 }

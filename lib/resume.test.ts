@@ -19,9 +19,9 @@ test("createSection es pura y válida", () => {
   expect(parsed.success).toBe(true);
 });
 
-test("cloneContentWithNewIds no reutiliza IDs", () => {
+test("cloneContentWithNewIds no reutiliza IDs y mapea el layout", () => {
   const content = createDefaultContent();
-  const clone = cloneContentWithNewIds(content);
+  const { content: clone, idMap } = cloneContentWithNewIds(content);
   const before = new Set(
     content.sections.flatMap((s) => [s.id, ...s.items.map((i) => i.id)]),
   );
@@ -32,4 +32,9 @@ test("cloneContentWithNewIds no reutiliza IDs", () => {
     }
   }
   expect(clone.sections.length).toBe(content.sections.length);
+  for (const s of content.sections) {
+    const mapped = idMap.get(s.id);
+    expect(mapped).toBeTypeOf("string");
+    expect(clone.sections.some((c) => c.id === mapped)).toBe(true);
+  }
 });

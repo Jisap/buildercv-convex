@@ -1,11 +1,14 @@
-import type { ResumeContent, ResumeDesign } from "../../types/resume";
+import type { ResumeContent, ResumeDesign, ResumeLayout } from "../../types/resume";
 
-// Contrato único de plantilla (Fase 4). Todo renderizador recibe los mismos
-// datos y la misma configuración; las diferencias son solo visuales.
-// `mode: "print"` lo usará la exportación PDF (Fase 5).
+// Contrato único de plantilla (Fase 4, ampliado en F1). Todo renderizador
+// recibe los mismos datos, la misma configuración y la misma distribución;
+// las diferencias son solo visuales.
+// `mode: "print"` lo usa la exportación PDF. `layout` puede venir sanado
+// (healLayout) o derivarse del contenido cuando es nulo (CV antiguos).
 export interface ResumeTemplateProps {
   content: ResumeContent;
   design: ResumeDesign;
+  layout: ResumeLayout | null | undefined;
   mode: "preview" | "print";
 }
 

@@ -19,10 +19,11 @@ import { partitionForLayout } from "./layout";
 // viaja en estilos en línea para que llegue intacto al PDF.
 // Clases `cv-*`: ganchos semánticos para el CSS de impresión.
 
-export function SidebarTemplate({ content, design, mode }: ResumeTemplateProps) {
+export function SidebarTemplate({ content, design, layout, mode }: ResumeTemplateProps) {
   const { personal, main, sidebar } = partitionForLayout(
     content.sections,
     design.layoutId,
+    layout,
   );
   const person = personal?.type === "personal" ? personal.items[0] : undefined;
   const accent = design.accentColor;

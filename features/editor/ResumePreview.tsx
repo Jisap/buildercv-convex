@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import type { ResumeContent, ResumeDesign } from "@/types/resume";
+import type { ResumeContent, ResumeDesign, ResumeLayout } from "@/types/resume";
 import { TemplateRenderer } from "@/features/templates/TemplateRenderer";
 
 /**
@@ -16,10 +16,12 @@ import { TemplateRenderer } from "@/features/templates/TemplateRenderer";
 export function ResumePreview({
   content,
   design,
+  layout,
   zoom,
 }: {
   content: ResumeContent;
   design: ResumeDesign;
+  layout: ResumeLayout;
   zoom: number;
 }) {
   const style = {
@@ -27,7 +29,7 @@ export function ResumePreview({
   } as CSSProperties;
   return (
     <div className="mx-auto w-full max-w-[210mm]" style={style}>
-      <TemplateRenderer content={content} design={design} mode="preview" />
+      <TemplateRenderer content={content} design={design} layout={layout} mode="preview" />
     </div>
   );
 }

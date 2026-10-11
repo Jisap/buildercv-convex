@@ -9,9 +9,14 @@ import { Doc, Id } from "./_generated/dataModel";
 import {
   resumeContentValidator,
   resumeDesignValidator,
+  resumeLayoutValidator,
   resumeStatusValidator,
 } from "./resumeModel";
 import { cloneContentWithNewIds, createDefaultContent, createDefaultDesign, withDesignDefaults } from "../lib/resume";
+import {
+  layoutFromContent,
+  remapLayout,
+} from "../lib/resume-layout";
 import { TEMPLATE_IDS } from "../features/templates/types";
 import { assertContentLimits } from "./contentLimits";
 
@@ -102,6 +107,35 @@ function assertDesign(design: {
   }
 }
 
+function assertLayout(
+  layout: { main: string[]; sidebar: string[] },
+  sections: { id: string }[],
+): void {
+  const ids = new Set(sections.map((s) => s.id));
+  const seen = new Set<string>();
+  for (const column of [layout.main, layout.sidebar]) {
+    if (column.length > 30) {
+      failLayout("Demasiadas secciones en una columna.");
+    }
+    for (const id of column) {
+      if (seen.has(id)) {
+        failLayout("Distribución con secciones duplicadas.");
+      }
+      seen.add(id);
+      if (!ids.has(id)) {
+        failLayout("Distribución con secciones desconocidas.");
+      }
+    }
+  }
+  if (seen.size !== ids.size) {
+    failLayout("Distribución incompleta: falta alguna sección.");
+  }
+}
+
+function failLayout(message: string): never {
+  throw new ConvexError(message);
+}
+
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -131,12 +165,14 @@ export const create = mutation({
     const title = assertTitle(args.title);
     const design = createDefaultDesign(args.templateId?.trim() || "classic", 1);
     assertDesign(design);
+    const content = createDefaultContent();
     return await ctx.db.insert("resumes", {
       userId,
       title,
       status: "draft",
-      content: createDefaultContent(),
+      content,
       design,
+      layout: layoutFromContent(content),
       updatedAt: Date.now(),
     });
   },
@@ -149,6 +185,7 @@ export const update = mutation({
     status: v.optional(resumeStatusValidator),
     content: v.optional(resumeContentValidator),
     design: v.optional(resumeDesignValidator),
+    layout: v.optional(resumeLayoutValidator),
   },
   handler: async (ctx, args) => {
     const resume = await requireOwnedResume(ctx, args.id);
@@ -158,6 +195,7 @@ export const update = mutation({
       status?: Doc<"resumes">["status"];
       content?: Doc<"resumes">["content"];
       design?: Doc<"resumes">["design"];
+      layout?: Doc<"resumes">["layout"];
     } = { updatedAt: Date.now() };
     if (args.title !== undefined) {
       patch.title = assertTitle(args.title);
@@ -176,6 +214,10 @@ export const update = mutation({
       // nuevos) nunca debe borrar valores existentes.
       patch.design = withDesignDefaults({ ...resume.design, ...args.design });
     }
+    if (args.layout !== undefined) {
+      assertLayout(args.layout, (patch.content ?? resume.content).sections);
+      patch.layout = args.layout;
+    }
     await ctx.db.patch(resume._id, patch);
     return resume._id;
   },
@@ -186,12 +228,17 @@ export const duplicate = mutation({
   handler: async (ctx, args) => {
     const resume = await requireOwnedResume(ctx, args.id);
     const userId = await getIdentityUserId(ctx);
+    const { content, idMap } = cloneContentWithNewIds(resume.content);
     return await ctx.db.insert("resumes", {
       userId,
       title: `Copia de ${resume.title}`.slice(0, 200),
       status: "draft",
-      content: cloneContentWithNewIds(resume.content),
+      content,
       design: resume.design,
+      layout: remapLayout(
+        resume.layout ?? layoutFromContent(resume.content),
+        idMap,
+      ),
       updatedAt: Date.now(),
     });
   },

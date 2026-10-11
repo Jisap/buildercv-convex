@@ -4,6 +4,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import type { ResumeContent, ResumeDesign } from "@/types/resume";
+import { layoutFromContent } from "@/lib/resume-layout";
 import { TEMPLATES } from "./types";
 import { TemplateRenderer } from "./TemplateRenderer";
 
@@ -140,8 +141,9 @@ const design: ResumeDesign = {
   layoutId: "single",
 };
 
-const MUST_CONTAIN = [
-  "María López García",
+const layout = layoutFromContent(content);
+
+const MUST_CONTAIN = [  "María López García",
   "maria@example.es",
   "LinkedIn",
   "Diseñadora con diez años",
@@ -172,6 +174,7 @@ test("las seis plantillas usan el mismo modelo de contenido", () => {
       <TemplateRenderer
         content={content}
         design={{ ...design, templateId: meta.id }}
+        layout={layout}
         mode="preview"
       />,
     );
@@ -188,7 +191,7 @@ test("las seis plantillas usan el mismo modelo de contenido", () => {
 
 test("mode print no añade cromo de previsualización", () => {
   const html = renderToStaticMarkup(
-    <TemplateRenderer content={content} design={design} mode="print" />,
+    <TemplateRenderer content={content} design={design} layout={layout} mode="print" />,
   );
   expect(html).not.toContain("shadow-sm");
   expect(html).toContain("María López García");
@@ -199,6 +202,7 @@ test("lateral en dos columnas usa banda con acento", () => {
     <TemplateRenderer
       content={content}
       design={{ ...design, templateId: "sidebar", layoutId: "two-col" }}
+      layout={layout}
       mode="preview"
     />,
   );
@@ -213,6 +217,7 @@ test("elegante centra solo la cabecera y usa acento en su filete", () => {
     <TemplateRenderer
       content={content}
       design={{ ...design, templateId: "elegant" }}
+      layout={layout}
       mode="preview"
     />,
   );
@@ -225,10 +230,26 @@ test("mínima no usa pills ni bandas", () => {
     <TemplateRenderer
       content={content}
       design={{ ...design, templateId: "minimal" }}
+      layout={layout}
       mode="preview"
     />,
   );
   expect(html).not.toContain("cv-pills");
   expect(html).not.toContain("cv-band");
   expect(html).toContain("#b91c1c");
+});
+
+test("el layout explícito manda sobre la derivación por tipo", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "classic", layoutId: "two-col" }}
+      layout={{ main: ["s-exp", "s-skills"], sidebar: ["s-lang"] }}
+      mode="preview"
+    />,
+  );
+  // Competencias en la principal aunque su tipo sea de lateral.
+  const mainIdx = html.indexOf("cv-layout-main");
+  expect(mainIdx).toBeGreaterThan(-1);
+  expect(html.indexOf("Competencias")).toBeGreaterThan(mainIdx);
 });

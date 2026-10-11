@@ -1,12 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { snapshotsEqual } from "../../lib/compare";
 
 export type SaveStatus = "loading" | "saved" | "saving" | "error";
-
-function snapshotsEqual(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
 
 interface UseAutosaveOptions<T> {
   /** Estado local actual (lo que ve el usuario). `null` = aún no cargado. */

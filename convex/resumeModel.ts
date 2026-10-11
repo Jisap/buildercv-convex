@@ -130,6 +130,11 @@ export const resumeSectionValidator = v.union(
   }),
 );
 
+export const resumeLayoutValidator = v.object({
+  main: v.array(v.string()),
+  sidebar: v.array(v.string()),
+});
+
 export const resumeContentValidator = v.object({
   sections: v.array(resumeSectionValidator),
 });

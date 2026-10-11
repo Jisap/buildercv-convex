@@ -37,12 +37,12 @@ Criterios de cierre de esta fase:
 
 ## 3. Fases futuras (no empezar hasta cerrar la §2)
 
-### Fase F1 — Modelo de distribución por columnas (sin drag todavía)
-- Introducir `ResumeLayout = { columns: { main: string[], sidebar: string[] } }` con IDs estables de sección (no títulos).
-- Decidir y documentar: ¿`order` se elimina o se deriva de `columns`? Recomendación actual: `columns` pasa a ser la única fuente de orden; `order` se elimina o se deja como derivado en migración. Evitar doble fuente de verdad.
-- Migración + backfill de CV existentes (`order` → `columns` según `layoutId` + plantilla), validación en los 4 ficheros del espejo, reglas: sin duplicados, sin IDs huérfanos, secciones ocultas (`visible=false`) permanecen en `columns` pero no se renderizan.
-- UI sin drag: botones "subir / bajar / mover a otra columna" (esto además será el fallback accesible de la fase F2).
-- Criterio: cambiar de plantilla 2col → 1col no pierde ni duplica secciones.
+### Fase F1 — Modelo de distribución por columnas (implementada 2026-10-11)
+- `ResumeLayout = { main: string[], sidebar: string[] }` persistido (fuente de verdad de columna y orden; `order` sincronizado como higiene).
+- CV antiguos sin layout se derivan por tipo sin sorpresas visuales; `healLayout` sanea en cada render y al guardar.
+- UI sin drag: subir/bajar dentro de columna + botones →/← entre columnas (es el fallback accesible de F2). Sidebar agrupada Principal/Lateral.
+- Servidor: `layout` opcional en esquema, `assertLayout` (sin duplicados, total, IDs conocidos), `duplicate` remapea IDs.
+- Verificado: tsc 0, lint 0, 45/45 tests, build OK, push Convex OK.
 
 ### Fase F2 — Integración de dnd-kit
 - Instalar `dnd-kit` (verificar versión vigente, no mezclar generaciones de API antiguas/nuevas).
