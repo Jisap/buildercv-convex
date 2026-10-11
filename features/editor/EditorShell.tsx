@@ -24,7 +24,9 @@ import { DesignSidebar } from "./DesignSidebar";
 import { EditorToolbar } from "./EditorToolbar";
 import { ResumePreview } from "./ResumePreview";
 
-type MobileTab = "sections" | "edit" | "design" | "preview";
+type MobileTab = "edit" | "preview";
+
+type PanelTab = "content" | "design";
 
 function moveInArray<T extends { order: number }>(
   arr: T[],
@@ -51,6 +53,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [confirmSectionId, setConfirmSectionId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("edit");
+  const [panelTab, setPanelTab] = useState<PanelTab>("content");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -261,9 +264,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
       <div className="mt-3 flex gap-2 md:hidden" role="tablist" aria-label="Vistas del editor">
         {(
           [
-            ["sections", "Secciones"],
             ["edit", "Editar"],
-            ["design", "Diseño"],
             ["preview", "Vista previa"],
           ] as [MobileTab, string][]
         ).map(([tab, label]) => (
@@ -280,83 +281,106 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         ))}
       </div>
 
-      <div className="mt-3 grid flex-1 gap-4 md:grid-cols-[260px_minmax(0,1fr)_minmax(0,1fr)]">
-        <nav
-          aria-label="Secciones"
-          className={mobileTab === "sections" ? "block" : "hidden md:block"}
-        >
-          <ContentSidebar
-            sections={sorted}
-            selectedId={selectedId}
-            confirmSectionId={confirmSectionId}
-            onSelect={(id) => {
-              setSelectedId(id);
-              setMobileTab("edit");
-            }}
-            onMove={moveSection}
-            onToggleVisible={(id) => {
-              const target = content.sections.find((s) => s.id === id);
-              if (target) {
-                patchSection(id, { visible: !target.visible });
-              }
-            }}
-            onDelete={deleteSection}
-            onAdd={addSection}
-          />
-        </nav>
-
+      <div className="mt-3 grid flex-1 items-start gap-4 md:grid-cols-[380px_minmax(0,1fr)] lg:grid-cols-[420px_minmax(0,1fr)]">
         <section
-          aria-label="Formulario"
+          aria-label="Panel de edición"
           className={mobileTab === "edit" ? "block" : "hidden md:block"}
         >
-          {selected ? (
-            <SectionForm
-              key={selected.id}
-              section={selected}
-              issues={sectionIssues && !sectionIssues.success ? sectionIssues.error.issues : []}
-              onPatch={(patch) => patchSection(selected.id, patch)}
-              onChangeContent={setContent}
-            />
-          ) : (
-            <p className="text-sm text-zinc-500">
-              Selecciona una sección para editarla.
-            </p>
-          )}
+          <div
+            className="flex gap-1 rounded-lg bg-zinc-100 p-1"
+            role="tablist"
+            aria-label="Contenido o diseño"
+          >
+            {(
+              [
+                ["content", "Contenido"],
+                ["design", "Diseño"],
+              ] as [PanelTab, string][]
+            ).map(([tab, label]) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={panelTab === tab}
+                onClick={() => setPanelTab(tab)}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${
+                  panelTab === tab
+                    ? "bg-white text-zinc-900 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-900"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3">
+            {panelTab === "content" ? (
+              <div>
+                <ContentSidebar
+                  sections={sorted}
+                  selectedId={selectedId}
+                  confirmSectionId={confirmSectionId}
+                  onSelect={setSelectedId}
+                  onMove={moveSection}
+                  onToggleVisible={(id) => {
+                    const target = content.sections.find((s) => s.id === id);
+                    if (target) {
+                      patchSection(id, { visible: !target.visible });
+                    }
+                  }}
+                  onDelete={deleteSection}
+                  onAdd={addSection}
+                />
+                <div className="mt-4 border-t border-zinc-200 pt-4">
+                  {selected ? (
+                    <SectionForm
+                      key={selected.id}
+                      section={selected}
+                      issues={sectionIssues && !sectionIssues.success ? sectionIssues.error.issues : []}
+                      onPatch={(patch) => patchSection(selected.id, patch)}
+                      onChangeContent={setContent}
+                    />
+                  ) : (
+                    <p className="text-sm text-zinc-500">
+                      Selecciona una sección para editarla.
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <DesignSidebar design={design} onChange={setDesign} />
+            )}
+          </div>
         </section>
-
-        <div className={mobileTab === "design" ? "block md:hidden" : "hidden"}>
-          <DesignSidebar design={design} onChange={setDesign} />
-        </div>
 
         <section
           aria-label="Vista previa"
           className={mobileTab === "preview" ? "block" : "hidden md:block"}
         >
-          <div className="hidden md:block">
-            <DesignSidebar design={design} onChange={setDesign} />
-          </div>
-          <div
-            className="mt-3 flex items-center justify-between gap-2 md:mt-4"
-            role="group"
-            aria-label="Zoom de la vista previa"
-          >
-            <p className="text-xs font-medium text-zinc-500">VISTA PREVIA</p>
-            <div className="flex gap-1">
-              {([0.75, 1, 1.25] as const).map((z) => (
-                <Button
-                  key={z}
-                  size="sm"
-                  variant={zoom === z ? "default" : "outline"}
-                  aria-pressed={zoom === z}
-                  onClick={() => setZoom(z)}
-                >
-                  {Math.round(z * 100)} %
-                </Button>
-              ))}
+          <div className="md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:self-start md:overflow-y-auto md:rounded-xl md:border md:border-zinc-200 md:bg-zinc-50 md:p-3">
+            <div
+              className="flex items-center justify-between gap-2 md:sticky md:top-0 md:z-10 md:bg-zinc-50/95 md:py-1 md:backdrop-blur"
+              role="group"
+              aria-label="Zoom de la vista previa"
+            >
+              <p className="text-xs font-medium text-zinc-500">VISTA PREVIA · A4</p>
+              <div className="flex gap-1">
+                {([0.75, 1, 1.25] as const).map((z) => (
+                  <Button
+                    key={z}
+                    size="sm"
+                    variant={zoom === z ? "default" : "outline"}
+                    aria-pressed={zoom === z}
+                    onClick={() => setZoom(z)}
+                  >
+                    {Math.round(z * 100)} %
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="mt-2">
-            <ResumePreview content={content} design={design} zoom={zoom} />
+            <div className="mt-2">
+              <ResumePreview content={content} design={design} zoom={zoom} />
+            </div>
           </div>
         </section>
       </div>
