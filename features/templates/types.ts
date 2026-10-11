@@ -77,4 +77,7 @@ export const FONT_STACKS: Record<ResumeDesign["fontFamily"], string> = {
   inter: "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif",
   georgia: "Georgia, 'Times New Roman', serif",
   system: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+  arial: "Arial, Helvetica, sans-serif",
+  calibri: "Calibri, Carlito, 'Segoe UI', sans-serif",
+  verdana: "Verdana, Geneva, sans-serif",
 };

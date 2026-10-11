@@ -10,6 +10,9 @@ const FONT_LABELS: Record<FontFamily, string> = {
   inter: "Inter (moderna)",
   georgia: "Georgia (serif)",
   system: "Sistema",
+  arial: "Arial (universal)",
+  calibri: "Calibri (ofimática)",
+  verdana: "Verdana (legible)",
 };
 
 /** Acentos curados: un clic sin tener que afinar el selector de color. */

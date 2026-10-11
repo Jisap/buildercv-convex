@@ -1,4 +1,5 @@
 import type {
+  FontFamily,
   HeadingSize,
   LayoutId,
   ResumeContent,
@@ -6,7 +7,7 @@ import type {
   ResumeSection,
   SectionType,
 } from "../types/resume";
-import { DESIGN_LIMITS } from "../types/resume";
+import { DESIGN_LIMITS, FONT_FAMILIES } from "../types/resume";
 
 /** IDs estables (UUID v4). Compartido por cliente y servidor. */
 export function newId(): string {
@@ -116,10 +117,11 @@ export function withDesignDefaults(input: unknown): ResumeDesign {
       /^#[0-9a-fA-F]{6}$/.test(d.accentColor)
         ? d.accentColor
         : "#1d4ed8",
-    fontFamily:
-      d.fontFamily === "georgia" || d.fontFamily === "system"
-        ? d.fontFamily
-        : "inter",
+    fontFamily: (FONT_FAMILIES as readonly string[]).includes(
+      d.fontFamily ?? "",
+    )
+      ? (d.fontFamily as FontFamily)
+      : "inter",
     fontSize: clamp(
       d.fontSize,
       DESIGN_LIMITS.minFontSize,

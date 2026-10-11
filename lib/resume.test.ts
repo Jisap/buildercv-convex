@@ -78,6 +78,11 @@ test("withDesignDefaults migra diseños antiguos a los campos nuevos", () => {
   });
   const parsed = resumeDesignSchema.safeParse(createDefaultDesign());
   expect(parsed.success).toBe(true);
+  // Las tipografías nuevas se conservan; las desconocidas caen a inter.
+  expect(withDesignDefaults({ fontFamily: "calibri" }).fontFamily).toBe(
+    "calibri",
+  );
+  expect(withDesignDefaults({ fontFamily: "comic" }).fontFamily).toBe("inter");
 });
 
 test("photoStorageId se valida como referencia opaca", () => {

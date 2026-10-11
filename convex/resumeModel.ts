@@ -148,6 +148,9 @@ export const resumeDesignValidator = v.object({
     v.literal("inter"),
     v.literal("georgia"),
     v.literal("system"),
+    v.literal("arial"),
+    v.literal("calibri"),
+    v.literal("verdana"),
   ),
   /** Tamaño base del cuerpo en pt (9–13). Rango validado en servidor. */
   fontSize: v.optional(v.number()),

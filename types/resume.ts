@@ -115,7 +115,14 @@ export interface ResumeLayout {
   sidebar: string[];
 }
 
-export const FONT_FAMILIES = ["inter", "georgia", "system"] as const;
+export const FONT_FAMILIES = [
+  "inter",
+  "georgia",
+  "system",
+  "arial",
+  "calibri",
+  "verdana",
+] as const;
 
 export type FontFamily = (typeof FONT_FAMILIES)[number];
 
