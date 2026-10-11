@@ -54,6 +54,19 @@ html, body {
   line-height: 1.15;
   margin: 0 0 2mm 0;
 }
+
+/* Diseño del usuario: las variables viajan en línea desde docRootStyle
+   (mismo árbol React que la vista previa).
+   - Titulares (zoom): escala proporcional, pagina sin sorpresas.
+   - Cuerpo: interlineado del diseño; los titulares conservan el suyo. */
+.cv-doc .cv-name,
+.cv-doc .cv-section-title,
+.cv-doc .cv-entry-title {
+  zoom: var(--cv-heading, 1);
+}
+.cv-doc :where(p, li, span):not(.cv-entry-title) {
+  line-height: var(--cv-leading, 1.5);
+}
 .cv-contact, .cv-links {
   font-size: 9.5pt;
   color: #52525b;

@@ -121,6 +121,18 @@ export const LAYOUT_IDS = ["single", "two-col"] as const;
 
 export type LayoutId = (typeof LAYOUT_IDS)[number];
 
+/** Tamaño de titulares: compacto, normal o grande. */
+export const HEADING_SIZES = ["compact", "regular", "large"] as const;
+
+export type HeadingSize = (typeof HEADING_SIZES)[number];
+
+/** Factor de escala de titulares aplicado en vista previa y PDF. */
+export const HEADING_SCALES: Record<HeadingSize, number> = {
+  compact: 0.9,
+  regular: 1,
+  large: 1.15,
+};
+
 /** Límites del diseño visual (fase actual, sin dnd-kit). */
 export const DESIGN_LIMITS = {
   /** Tamaño base del cuerpo en pt. */
@@ -135,6 +147,14 @@ export const DESIGN_LIMITS = {
   minSectionSpacing: 2,
   maxSectionSpacing: 10,
   defaultSectionSpacing: 5,
+  /** Interlineado del cuerpo (sin unidad). */
+  minLineHeight: 1.2,
+  maxLineHeight: 1.7,
+  defaultLineHeight: 1.5,
+  /** Ancho de la columna lateral en % (solo dos columnas). */
+  minSidebarWidth: 25,
+  maxSidebarWidth: 40,
+  defaultSidebarWidth: 33,
 } as const;
 
 export interface ResumeDesign {
@@ -149,6 +169,12 @@ export interface ResumeDesign {
   pageMargin: number;
   /** Separación entre secciones en mm (2–10). */
   sectionSpacing: number;
+  /** Interlineado del cuerpo (1.2–1.7). */
+  lineHeight: number;
+  /** Tamaño de titulares (nombre, secciones, entradas). */
+  headingSize: HeadingSize;
+  /** Ancho de la columna lateral en % (25–40, solo dos columnas). */
+  sidebarWidth: number;
   /** Distribución predefinida (sin drag en esta fase). */
   layoutId: LayoutId;
 }

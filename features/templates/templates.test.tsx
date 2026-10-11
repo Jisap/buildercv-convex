@@ -7,6 +7,7 @@ import type { ResumeContent, ResumeDesign } from "@/types/resume";
 import { layoutFromContent } from "@/lib/resume-layout";
 import { TEMPLATES } from "./types";
 import { TemplateRenderer } from "./TemplateRenderer";
+import { docRootStyle, twoColColumns } from "./shared";
 
 // Fixture largo: todos los tipos de sección, varias experiencias, listas
 // extensas, caracteres españoles y una sección oculta.
@@ -138,6 +139,9 @@ const design: ResumeDesign = {
   fontSize: 11,
   pageMargin: 13,
   sectionSpacing: 5,
+  lineHeight: 1.5,
+  headingSize: "regular",
+  sidebarWidth: 33,
   layoutId: "single",
 };
 
@@ -252,4 +256,42 @@ test("el layout explícito manda sobre la derivación por tipo", () => {
   const mainIdx = html.indexOf("cv-layout-main");
   expect(mainIdx).toBeGreaterThan(-1);
   expect(html.indexOf("Competencias")).toBeGreaterThan(mainIdx);
+});
+
+test("docRootStyle centraliza tipografía, relleno e interlineado", () => {
+  const style = docRootStyle({
+    ...design,
+    lineHeight: 1.6,
+    headingSize: "large",
+  }) as Record<string, unknown>;
+  expect(style.fontFamily).toContain("Georgia");
+  expect(style.padding).toBe("13mm");
+  expect(style.lineHeight).toBe(1.6);
+  expect(style["--cv-leading"]).toBe("1.6");
+  expect(style["--cv-heading"]).toBe("1.15");
+});
+
+test("twoColColumns reparte el ancho lateral a cada lado", () => {
+  expect(twoColColumns("right", 33)).toBe("67fr 33fr");
+  expect(twoColColumns("left", 25)).toBe("25fr 75fr");
+});
+
+test("el ancho lateral y las variables viajan en el HTML", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{
+        ...design,
+        templateId: "classic",
+        layoutId: "two-col",
+        sidebarWidth: 30,
+        headingSize: "compact",
+      }}
+      layout={layout}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain("70fr 30fr");
+  expect(html).toContain("--cv-heading:0.9");
+  expect(html).toContain("--cv-leading:1.5");
 });

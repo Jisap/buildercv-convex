@@ -23,9 +23,12 @@ relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
 - Sin CSS arbitrario: el diseño solo admite `templateId`, `templateVersion`,
   `accentColor` (hex `#rrggbb`, validado en servidor), `fontFamily` de una
   lista cerrada (`inter` | `georgia` | `system`), `fontSize` en pt (9–13),
-  `pageMargin` en mm (8–20), `sectionSpacing` en mm (2–10) y `layoutId`
-  (`single` | `two-col`). Rangos validados en cliente (Zod con defaults para
-  migrar CV antiguos) y en servidor (`assertDesign` + validadores Convex).
+  `pageMargin` en mm (8–20), `sectionSpacing` en mm (2–10),
+  `lineHeight` (1.2–1.7), `headingSize` (`compact` | `regular` | `large`,
+  escala 0.9/1/1.15 sobre titulares), `sidebarWidth` en % (25–40, solo dos
+  columnas) y `layoutId` (`single` | `two-col`). Rangos validados en cliente
+  (Zod con defaults para migrar CV antiguos) y en servidor (`assertDesign`
+  + validadores Convex).
   Los CV guardados antes de esta fase se normalizan al hidratar
   (`withDesignDefaults` en `lib/resume.ts`). En Convex los cuatro campos
   nuevos son `v.optional` para no invalidar documentos antiguos en el push

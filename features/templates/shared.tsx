@@ -1,5 +1,7 @@
-import type { ReactNode } from "react";
-import type { ResumeSection } from "@/types/resume";
+import type { CSSProperties, ReactNode } from "react";
+import type { ResumeDesign, ResumeSection } from "@/types/resume";
+import { FONT_STACKS } from "./types";
+import { HEADING_SCALES } from "@/types/resume";
 
 // Piezas compartidas por los tres renderizadores: la lógica de contenido
 // vive aquí una sola vez; las plantillas solo aportan estilo.
@@ -36,4 +38,35 @@ export function SectionTitle({
   className?: string;
 }) {
   return <h3 className={className}>{children}</h3>;
+}
+
+/**
+ * Estilo raíz del documento: tipografía, relleno e interlineado del
+ * diseño, más las variables `--cv-leading` (interlineado del cuerpo) y
+ * `--cv-heading` (escala de titulares) que consumen el CSS de pantalla
+ * (`app/globals.css`) y el de impresión (`features/exports/printCss.ts`).
+ * Centralizado para que las seis plantillas respondan igual.
+ */
+export function docRootStyle(design: ResumeDesign): CSSProperties {
+  return {
+    fontFamily: FONT_STACKS[design.fontFamily],
+    padding: `${design.pageMargin}mm`,
+    lineHeight: design.lineHeight,
+    "--cv-leading": String(design.lineHeight),
+    "--cv-heading": String(HEADING_SCALES[design.headingSize]),
+  } as CSSProperties;
+}
+
+/**
+ * Columnas de la distribución en dos (`fr` proporcionales: el `gap` lo
+ * gestiona el grid). `side` indica en qué lado va la columna lateral.
+ */
+export function twoColColumns(
+  side: "left" | "right",
+  sidebarWidth: number,
+): string {
+  const main = 100 - sidebarWidth;
+  return side === "left"
+    ? `${sidebarWidth}fr ${main}fr`
+    : `${main}fr ${sidebarWidth}fr`;
 }

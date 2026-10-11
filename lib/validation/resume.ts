@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   DESIGN_LIMITS,
   FONT_FAMILIES,
+  HEADING_SIZES,
   LAYOUT_IDS,
   RESUME_STATUSES,
   SECTION_TYPES,
@@ -155,6 +156,17 @@ export const resumeDesignSchema = z.object({
     .min(DESIGN_LIMITS.minSectionSpacing)
     .max(DESIGN_LIMITS.maxSectionSpacing)
     .default(DESIGN_LIMITS.defaultSectionSpacing),
+  lineHeight: z
+    .number()
+    .min(DESIGN_LIMITS.minLineHeight)
+    .max(DESIGN_LIMITS.maxLineHeight)
+    .default(DESIGN_LIMITS.defaultLineHeight),
+  headingSize: z.enum(HEADING_SIZES).default("regular"),
+  sidebarWidth: z
+    .number()
+    .min(DESIGN_LIMITS.minSidebarWidth)
+    .max(DESIGN_LIMITS.maxSidebarWidth)
+    .default(DESIGN_LIMITS.defaultSidebarWidth),
   layoutId: z.enum(LAYOUT_IDS).default("single"),
 });
 

@@ -154,6 +154,18 @@ export const resumeDesignValidator = v.object({
   pageMargin: v.optional(v.number()),
   /** Separación entre secciones en mm (2–10). */
   sectionSpacing: v.optional(v.number()),
+  /** Interlineado del cuerpo (1.2–1.7). Rango validado en servidor. */
+  lineHeight: v.optional(v.number()),
+  /** Tamaño de titulares. */
+  headingSize: v.optional(
+    v.union(
+      v.literal("compact"),
+      v.literal("regular"),
+      v.literal("large"),
+    ),
+  ),
+  /** Ancho de la columna lateral en % (25–40). */
+  sidebarWidth: v.optional(v.number()),
   /** Distribución predefinida (sin drag en esta fase). */
   layoutId: v.optional(v.union(v.literal("single"), v.literal("two-col"))),
 });

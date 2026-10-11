@@ -2,10 +2,12 @@ import { expect, test } from "vitest";
 import {
   cloneContentWithNewIds,
   createDefaultContent,
+  createDefaultDesign,
   createSection,
   moveItemToIndex,
+  withDesignDefaults,
 } from "./resume";
-import { resumeContentSchema } from "./validation/resume";
+import { resumeContentSchema, resumeDesignSchema } from "./validation/resume";
 
 test("createSection es pura y válida", () => {
   const a = createSection("experience", 2, "fijo");
@@ -55,4 +57,25 @@ test("cloneContentWithNewIds no reutiliza IDs y mapea el layout", () => {
     expect(mapped).toBeTypeOf("string");
     expect(clone.sections.some((c) => c.id === mapped)).toBe(true);
   }
+});
+
+test("withDesignDefaults migra diseños antiguos a los campos nuevos", () => {
+  const migrated = withDesignDefaults({
+    templateId: "modern",
+    templateVersion: 1,
+  });
+  expect(migrated.lineHeight).toBe(1.5);
+  expect(migrated.headingSize).toBe("regular");
+  expect(migrated.sidebarWidth).toBe(33);
+  // Fuera de rango se recorta al límite (igual que el resto de campos),
+  // desconocidos o ausentes → defecto, nunca excepción.
+  expect(
+    withDesignDefaults({ lineHeight: 9, headingSize: "gigante", sidebarWidth: 1 }),
+  ).toMatchObject({
+    lineHeight: 1.7,
+    headingSize: "regular",
+    sidebarWidth: 25,
+  });
+  const parsed = resumeDesignSchema.safeParse(createDefaultDesign());
+  expect(parsed.success).toBe(true);
 });

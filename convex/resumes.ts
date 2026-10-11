@@ -18,6 +18,7 @@ import {
   remapLayout,
 } from "../lib/resume-layout";
 import { TEMPLATE_IDS } from "../features/templates/types";
+import { HEADING_SIZES } from "../types/resume";
 import { assertContentLimits } from "./contentLimits";
 
 // Todas las funciones resuelven la identidad desde `ctx.auth` (JWT de Clerk
@@ -60,6 +61,9 @@ function assertDesign(design: {
   fontSize?: number;
   pageMargin?: number;
   sectionSpacing?: number;
+  lineHeight?: number;
+  headingSize?: string;
+  sidebarWidth?: number;
   layoutId?: string;
 }): void {
   if (
@@ -104,6 +108,28 @@ function assertDesign(design: {
     design.layoutId !== "two-col"
   ) {
     throw new ConvexError("Distribución desconocida.");
+  }
+  if (
+    design.lineHeight !== undefined &&
+    (!Number.isFinite(design.lineHeight) ||
+      design.lineHeight < 1.2 ||
+      design.lineHeight > 1.7)
+  ) {
+    throw new ConvexError("Interlineado fuera de rango (1.2–1.7).");
+  }
+  if (
+    design.headingSize !== undefined &&
+    !(HEADING_SIZES as readonly string[]).includes(design.headingSize)
+  ) {
+    throw new ConvexError("Tamaño de titulares desconocido.");
+  }
+  if (
+    design.sidebarWidth !== undefined &&
+    (!Number.isFinite(design.sidebarWidth) ||
+      design.sidebarWidth < 25 ||
+      design.sidebarWidth > 40)
+  ) {
+    throw new ConvexError("Ancho lateral fuera de rango (25–40 %).");
   }
 }
 

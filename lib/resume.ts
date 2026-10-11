@@ -1,4 +1,5 @@
 import type {
+  HeadingSize,
   LayoutId,
   ResumeContent,
   ResumeDesign,
@@ -81,6 +82,9 @@ export function createDefaultDesign(
     fontSize: DESIGN_LIMITS.defaultFontSize,
     pageMargin: DESIGN_LIMITS.defaultPageMargin,
     sectionSpacing: DESIGN_LIMITS.defaultSectionSpacing,
+    lineHeight: DESIGN_LIMITS.defaultLineHeight,
+    headingSize: "regular",
+    sidebarWidth: DESIGN_LIMITS.defaultSidebarWidth,
     layoutId: "single",
   };
 }
@@ -139,6 +143,23 @@ export function withDesignDefaults(input: unknown): ResumeDesign {
     )
       ? (d.layoutId as LayoutId)
       : "single",
+    lineHeight: clamp(
+      d.lineHeight,
+      DESIGN_LIMITS.minLineHeight,
+      DESIGN_LIMITS.maxLineHeight,
+      DESIGN_LIMITS.defaultLineHeight,
+    ),
+    headingSize: (["compact", "regular", "large"] as HeadingSize[]).includes(
+      d.headingSize as HeadingSize,
+    )
+      ? (d.headingSize as HeadingSize)
+      : "regular",
+    sidebarWidth: clamp(
+      d.sidebarWidth,
+      DESIGN_LIMITS.minSidebarWidth,
+      DESIGN_LIMITS.maxSidebarWidth,
+      DESIGN_LIMITS.defaultSidebarWidth,
+    ),
   };
 }
 

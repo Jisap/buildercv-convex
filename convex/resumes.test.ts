@@ -124,6 +124,9 @@ test("crear usa diseño con valores por defecto y valida rangos", async () => { 
   expect(doc.design.pageMargin).toBe(13);
   expect(doc.design.sectionSpacing).toBe(5);
   expect(doc.design.layoutId).toBe("single");
+  expect(doc.design.lineHeight).toBe(1.5);
+  expect(doc.design.headingSize).toBe("regular");
+  expect(doc.design.sidebarWidth).toBe(33);
 
   await expect(
     alice.mutation(api.resumes.update, {
@@ -131,6 +134,25 @@ test("crear usa diseño con valores por defecto y valida rangos", async () => { 
       design: { ...doc.design, fontSize: 20 },
     }),
   ).rejects.toThrow("fuera de rango");
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      design: { ...doc.design, lineHeight: 3 },
+    }),
+  ).rejects.toThrow("Interlineado");
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      design: { ...doc.design, sidebarWidth: 90 },
+    }),
+  ).rejects.toThrow("Ancho lateral");
+  await expect(
+    alice.mutation(api.resumes.update, {
+      id,
+      design: { ...doc.design, headingSize: "gigante" as "regular" },
+    }),
+    // Lo rechaza el validador Convex antes de llegar a assertDesign.
+  ).rejects.toThrow();
   await expect(
     alice.mutation(api.resumes.update, {
       id,

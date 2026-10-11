@@ -9,8 +9,13 @@ import type {
   ResumeSection,
   SkillItem,
 } from "@/types/resume";
-import { FONT_STACKS, type ResumeTemplateProps } from "./types";
-import { formatRange, SectionTitle } from "./shared";
+import type { ResumeTemplateProps } from "./types";
+import {
+  docRootStyle,
+  formatRange,
+  SectionTitle,
+  twoColColumns,
+} from "./shared";
 import { partitionForLayout } from "./layout";
 
 // Lateral: banda lateral con el color de acento para las secciones
@@ -33,10 +38,7 @@ export function SidebarTemplate({ content, design, layout, mode }: ResumeTemplat
   return (
     <article
       aria-label="Currículum"
-      style={{
-        fontFamily: FONT_STACKS[design.fontFamily],
-        padding: `${design.pageMargin}mm`,
-      }}
+      style={docRootStyle(design)}
       className={
         mode === "print"
           ? "cv-doc bg-white text-zinc-900"
@@ -49,7 +51,7 @@ export function SidebarTemplate({ content, design, layout, mode }: ResumeTemplat
           className="cv-layout-two-col"
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 2fr",
+            gridTemplateColumns: twoColColumns("left", design.sidebarWidth),
             columnGap: "8mm",
             marginTop: gap,
           }}

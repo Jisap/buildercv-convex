@@ -9,8 +9,13 @@ import type {
   ResumeSection,
   SkillItem,
 } from "@/types/resume";
-import { FONT_STACKS, type ResumeTemplateProps } from "./types";
-import { formatRange, SectionTitle } from "./shared";
+import type { ResumeTemplateProps } from "./types";
+import {
+  docRootStyle,
+  formatRange,
+  SectionTitle,
+  twoColColumns,
+} from "./shared";
 import { partitionForLayout } from "./layout";
 
 // Elegante: editorial sobria. Cabecera centrada con filete fino a ancho
@@ -35,10 +40,7 @@ export function ElegantTemplate({ content, design, layout, mode }: ResumeTemplat
   return (
     <article
       aria-label="Currículum"
-      style={{
-        fontFamily: FONT_STACKS[design.fontFamily],
-        padding: `${design.pageMargin}mm`,
-      }}
+      style={docRootStyle(design)}
       className={
         mode === "print"
           ? "cv-doc cv-elegant bg-white text-zinc-900"
@@ -59,7 +61,7 @@ export function ElegantTemplate({ content, design, layout, mode }: ResumeTemplat
           className="cv-layout-two-col"
           style={{
             display: "grid",
-            gridTemplateColumns: "2fr 1fr",
+            gridTemplateColumns: twoColColumns("right", design.sidebarWidth),
             columnGap: "8mm",
             marginTop: gap,
           }}

@@ -27,3 +27,20 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Documento del CV (vista previa): los valores viajan en variables en
+   línea desde `docRootStyle` (`features/templates/shared.tsx`).
+   - Titulares (`zoom`): escala proporcional que conserva maquetación.
+   - Cuerpo: interlineado del diseño; los titulares conservan el suyo. */
+.cv-doc {
+  --cv-leading: 1.5;
+  --cv-heading: 1;
+}
+.cv-doc .cv-name,
+.cv-doc .cv-section-title,
+.cv-doc .cv-entry-title {
+  zoom: var(--cv-heading);
+}
+.cv-doc :where(p, li, span):not(.cv-entry-title) {
+  line-height: var(--cv-leading);
+}

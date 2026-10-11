@@ -11,6 +11,9 @@ export const SHORT_DESIGN: ResumeDesign = {
   fontSize: 11,
   pageMargin: 13,
   sectionSpacing: 5,
+  lineHeight: 1.5,
+  headingSize: "regular",
+  sidebarWidth: 33,
   layoutId: "single",
 };
 
