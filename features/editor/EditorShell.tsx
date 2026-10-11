@@ -284,7 +284,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   if (serverDoc === undefined) {
     return (
-      <p className="p-6 text-sm text-zinc-600" role="status">
+      <p className="p-6 text-sm text-zinc-600 dark:text-zinc-400" role="status">
         Cargando el editor…
       </p>
     );
@@ -293,8 +293,8 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   if (serverDoc === null) {
     return (
       <div className="mx-auto max-w-md p-6 text-center">
-        <p className="font-medium text-zinc-900">No se encontró el currículum</p>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="font-medium text-zinc-900 dark:text-zinc-100">No se encontró el currículum</p>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
           Puede que se haya eliminado o que no tengas acceso.
         </p>
         <Button asChild className="mt-4">
@@ -306,7 +306,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   if (content === null || design === null || layout === null) {
     return (
-      <p className="p-6 text-sm text-zinc-600" role="status">
+      <p className="p-6 text-sm text-zinc-600 dark:text-zinc-400" role="status">
         Preparando el editor…
       </p>
     );
@@ -331,7 +331,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         resumeId={resumeId}
       />
       {validationError && (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
           {validationError}
         </p>
       )}
@@ -362,7 +362,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
           className={mobileTab === "edit" ? "block" : "hidden md:block"}
         >
           <div
-            className="flex gap-1 rounded-lg bg-zinc-100 p-1"
+            className="flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900"
             role="tablist"
             aria-label="Contenido o diseño"
           >
@@ -380,8 +380,8 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                 onClick={() => setPanelTab(tab)}
                 className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${
                   panelTab === tab
-                    ? "bg-white text-zinc-900 shadow-sm"
-                    : "text-zinc-500 hover:text-zinc-900"
+                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100"
+                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                 }`}
               >
                 {label}
@@ -410,7 +410,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                   onAdd={addSection}
                   onLayoutChange={dropLayout}
                 />
-                <div className="mt-4 border-t border-zinc-200 pt-4">
+                <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800">
                   {selected ? (
                     <SectionForm
                       key={selected.id}
@@ -420,7 +420,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                       onChangeContent={setContent}
                     />
                   ) : (
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
                       Selecciona una sección para editarla.
                     </p>
                   )}
@@ -436,13 +436,13 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
           aria-label="Vista previa"
           className={mobileTab === "preview" ? "block" : "hidden md:block"}
         >
-          <div className="md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:self-start md:overflow-y-auto md:rounded-xl md:border md:border-zinc-200 md:bg-zinc-50 md:p-3">
+          <div className="md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:self-start md:overflow-y-auto md:rounded-xl md:border md:border-zinc-200 md:bg-zinc-50 md:p-3 dark:md:border-zinc-800 dark:md:bg-zinc-900">
             <div
-              className="flex items-center justify-between gap-2 md:sticky md:top-0 md:z-10 md:bg-zinc-50/95 md:py-1 md:backdrop-blur"
+              className="flex items-center justify-between gap-2 md:sticky md:top-0 md:z-10 md:bg-zinc-50/95 md:py-1 md:backdrop-blur dark:md:bg-zinc-900/95"
               role="group"
               aria-label="Zoom de la vista previa"
             >
-              <p className="text-xs font-medium text-zinc-500">VISTA PREVIA · A4</p>
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">VISTA PREVIA · A4</p>
               <div className="flex gap-1">
                 {([0.75, 1, 1.25] as const).map((z) => (
                   <Button

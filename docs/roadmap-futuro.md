@@ -15,7 +15,11 @@ Próxima sesión (en orden):
 2. F3 implementada y verificada por el usuario (arrastre de elementos + filas compactas colapsables con resumen, auto-expand y aviso de errores). Extra 2026-10-11: secciones con muchos elementos — contador, expandir/contraer todas y filtro por texto (ignora tildes y mayúsculas, aparece con 5+).
 3. Diseño (2026-10-11, pendiente verificación manual): `lineHeight` (1.2–1.7), `headingSize` (compacto/normal/grande, zoom proporcional en titulares), `sidebarWidth` (25–40 % en dos columnas) con espejo x4 + `assertDesign`; estilo raíz centralizado (`docRootStyle` + vars `--cv-leading/--cv-heading` en pantalla e impresión); paleta de 8 acentos + color personalizado; restablecer diseño (conserva plantilla); selector de plantillas con miniaturas reales.
 4. E2E completa tras los cambios + despliegue.
-5. F4 solo con spike previo (canvas libre sigue descartado).
+5. Navegación (2026-10-11, pendiente revisión visual): navbar global (marca, tema, sesión) + sidebar del panel (Mis CV, Archivados, Nuevo, Mi cuenta); archivar/desarchivar en el panel; página de cuenta con UserProfile. Tarjetas de Clerk quedan en claro.
+6. Vista previa auto-ajustada al ancho (2026-10-11, verificado a 360 px sin desborde): `ResumePreview` mide su contenedor (`ResizeObserver`) y escala la hoja A4 de forma uniforme; zoom de usuario y tamaño de fuente multiplican; el PDF no cambia.
+6. Temas claro/oscuro/sistema (2026-10-11, pendiente revisión visual): `next-themes` (clase `.dark`, sin FOUC), variante `dark` CSS-first, conmutador en landing/panel/editor; documento siempre en papel claro. Tarjetas de Clerk quedan en claro (limite documentado).
+7. [FUTURO] Temas de colores: `next-themes` admite N temas; migrar el chrome de `zinc-*` fijo a tokens semánticos (`bg-background`, `text-foreground`, `bg-card`, `border-border`…) y definir un bloque de variables por tema. El documento sigue en papel claro. Opcional: persistir el tema por usuario en Convex.
+8. F4 solo con spike previo (canvas libre sigue descartado).
 **Documentos base:** `docs/design.md`, `CV_STUDIO_AGENT_BRIEF.md`, `docs/architecture.md`, `docs/implementation-plan.md`, `docs/data-model.md`.
 
 ## 1. Punto de partida (lo que ya existe)

@@ -40,7 +40,8 @@ export function TemplatePicker({
       templateVersion: meta.version,
     });
   };
-  return (    <div className="mb-3 rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900">
+  return (
+    <div className="mb-3 rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
       <span id="template-label" className="text-sm font-medium">
         Plantilla
       </span>
@@ -48,7 +49,7 @@ export function TemplatePicker({
         selectedId={design.templateId}
         onSelect={pickTemplate}
       />
-      <p className="mt-1.5 text-xs text-zinc-500">{selected.description}</p>
+      <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">{selected.description}</p>
       <div className="mt-3">
         <span id="accent-label" className="text-sm font-medium">
           Acento
@@ -72,9 +73,9 @@ export function TemplatePicker({
                   onChange({ ...design, accentColor: preset.hex })
                 }
                 style={{ backgroundColor: preset.hex }}
-                className={`size-7 rounded-full border border-black/10 ${
+                className={`size-7 rounded-full border border-black/10 dark:border-white/20 ${
                   active
-                    ? "ring-2 ring-zinc-900 ring-offset-2"
+                    ? "ring-2 ring-zinc-900 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-900"
                     : "hover:scale-110"
                 }`}
               />
@@ -88,12 +89,12 @@ export function TemplatePicker({
               onChange={(e) =>
                 onChange({ ...design, accentColor: e.target.value })
               }
-              className="h-7 w-9 cursor-pointer rounded border border-zinc-200 bg-white p-0.5"
+              className="h-7 w-9 cursor-pointer rounded border border-zinc-200 bg-white p-0.5 dark:border-zinc-700 dark:bg-zinc-900"
               aria-label="Color de acento personalizado"
               title="Personalizado"
             />
             <span
-              className="text-xs text-zinc-500"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               style={{ fontFamily: FONT_STACKS[design.fontFamily] }}
             >
               {design.accentColor}
@@ -109,7 +110,7 @@ export function TemplatePicker({
           onChange={(e) =>
             onChange({ ...design, fontFamily: e.target.value as FontFamily })
           }
-          className="mt-1 flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-zinc-950"
+          className="mt-1 flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:focus-visible:ring-zinc-300"
         >
           {FONT_FAMILIES.map((f) => (
             <option key={f} value={f}>

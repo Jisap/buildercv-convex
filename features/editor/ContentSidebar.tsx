@@ -88,7 +88,9 @@ function SortableRow({
     >
       <div
         className={`flex items-center gap-1 rounded-md px-2 py-1.5 ${
-          selected ? "bg-zinc-100" : "bg-white"
+          selected
+            ? "bg-zinc-100 dark:bg-zinc-800"
+            : "bg-white dark:bg-transparent"
         }`}
       >
         <button
@@ -97,14 +99,14 @@ function SortableRow({
           aria-label={`Arrastrar ${section.title}`}
           {...attributes}
           {...listeners}
-          className="cursor-grab touch-none rounded p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 active:cursor-grabbing"
+          className="cursor-grab touch-none rounded p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 active:cursor-grabbing dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
         >
           <GripVertical className="size-4" />
         </button>
         <button
           type="button"
           onClick={() => onSelect(section.id)}
-          className="min-w-0 flex-1 truncate text-left text-sm text-zinc-900"
+          className="min-w-0 flex-1 truncate text-left text-sm text-zinc-900 dark:text-zinc-100"
           aria-current={selected}
         >
           {section.title}
@@ -116,7 +118,7 @@ function SortableRow({
           aria-label={`Subir ${section.title}`}
           disabled={isFirst}
           onClick={() => onMove(section.id, -1)}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 disabled:opacity-30"
+          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:opacity-30"
         >
           <ArrowUp className="size-4" />
         </button>
@@ -126,7 +128,7 @@ function SortableRow({
           aria-label={`Bajar ${section.title}`}
           disabled={isLast}
           onClick={() => onMove(section.id, 1)}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 disabled:opacity-30"
+          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:opacity-30"
         >
           <ArrowDown className="size-4" />
         </button>
@@ -137,7 +139,7 @@ function SortableRow({
               title="Mover a la columna lateral"
               aria-label={`Mover ${section.title} a la columna lateral`}
               onClick={() => onMoveColumn(section.id, other)}
-              className="rounded p-1 text-zinc-500 hover:bg-zinc-200"
+              className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               <ArrowRight className="size-4" />
             </button>
@@ -147,7 +149,7 @@ function SortableRow({
               title="Mover a la columna principal"
               aria-label={`Mover ${section.title} a la columna principal`}
               onClick={() => onMoveColumn(section.id, other)}
-              className="rounded p-1 text-zinc-500 hover:bg-zinc-200"
+              className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               <ArrowLeft className="size-4" />
             </button>
@@ -158,7 +160,7 @@ function SortableRow({
           aria-label={`${section.visible ? "Ocultar" : "Mostrar"} ${section.title}`}
           aria-pressed={section.visible}
           onClick={() => onToggleVisible(section.id)}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-200"
+          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
           {section.visible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
         </button>
@@ -169,8 +171,10 @@ function SortableRow({
           }
           aria-label={`Eliminar ${section.title}`}
           onClick={() => onDelete(section.id)}
-          className={`rounded p-1 hover:bg-red-100 hover:text-red-700 ${
-            confirmDelete ? "bg-red-100 text-red-700" : "text-zinc-500"
+          className={`rounded p-1 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950 dark:hover:text-red-300 ${
+            confirmDelete
+              ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+              : "text-zinc-500 dark:text-zinc-400"
           }`}
         >
           <Trash2 className="size-4" />
@@ -210,12 +214,12 @@ function ColumnGroup({
   return (
     <div>
       {label && (
-        <p className="mb-1 text-xs font-medium text-zinc-500">{label}</p>
+        <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</p>
       )}
       <div ref={setNodeRef}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           {list.length === 0 ? (
-            <p className="rounded-md border border-dashed border-zinc-200 px-2 py-1.5 text-xs text-zinc-400">
+            <p className="rounded-md border border-dashed border-zinc-200 px-2 py-1.5 text-xs text-zinc-400 dark:border-zinc-700">
               {emptyHint}
             </p>
           ) : (
@@ -406,8 +410,8 @@ export function ContentSidebar({
         Arrastra desde el asa para reordenar. Con teclado: enfoca el asa,
         pulsa Espacio y mueve con las flechas.
       </p>
-      <div className="mt-3 border-t border-zinc-200 pt-3">
-        <p className="mb-2 text-xs font-medium text-zinc-500">AÑADIR SECCIÓN</p>
+      <div className="mt-3 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+        <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">AÑADIR SECCIÓN</p>
         <div className="flex flex-wrap gap-1.5">
           {ADD_SECTION_LABEL.map(({ type, label }) => (
             <Button

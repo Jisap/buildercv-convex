@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
+/* Temas claro/oscuro: next-themes pone `.dark` en <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -12,20 +22,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  /* Tema claro fijado a propósito: el MVP no contempla modo oscuro.
-     Sin esto, el texto heredado (casi blanco) quedaba invisible sobre
-     superficies blancas. Se reevaluará con diseño oscuro completo. */
-  :root {
-    --background: #ffffff;
-    --foreground: #171717;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* El documento del CV es papel: siempre claro, también en tema oscuro. */
+.cv-doc {
+  color-scheme: light;
 }
 
 /* Documento del CV (vista previa): los valores viajan en variables en

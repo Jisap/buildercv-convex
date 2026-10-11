@@ -32,6 +32,16 @@ test("/editor sin sesión redirige al login", async ({ request }) => {
   expect([307, 308]).toContain(response.status());
 });
 
+for (const path of ["/dashboard/archivados", "/cuenta"]) {
+  test(`${path} sin sesión redirige al login`, async ({ request }) => {
+    const response = await request.get(path, {
+      maxRedirects: 0,
+      headers: { Accept: "text/html" },
+    });
+    expect([307, 308]).toContain(response.status());
+  });
+}
+
 test("la API PDF sin sesión devuelve 401", async ({ request }) => {
   const response = await request.get("/api/resumes/abc123/pdf");
   expect(response.status()).toBe(401);

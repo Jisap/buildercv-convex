@@ -2,6 +2,7 @@
 
 import { ArrowLeft, Check, Download, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import type { SaveStatus } from "./useAutosave";
 function SaveBadge({ status }: { status: SaveStatus }) {
   if (status === "loading") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-zinc-500" role="status">
+      <span className="inline-flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden />
         Cargando…
       </span>
@@ -18,7 +19,7 @@ function SaveBadge({ status }: { status: SaveStatus }) {
   }
   if (status === "saving") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-zinc-500" role="status">
+      <span className="inline-flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden />
         Guardando…
       </span>
@@ -26,13 +27,13 @@ function SaveBadge({ status }: { status: SaveStatus }) {
   }
   if (status === "error") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-red-600" role="alert">
+      <span className="inline-flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400" role="alert">
         Error al guardar
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm text-green-700" role="status">
+    <span className="inline-flex items-center gap-1.5 text-sm text-green-700 dark:text-green-400" role="status">
       <Check className="size-4" aria-hidden />
       Guardado
     </span>
@@ -55,7 +56,7 @@ export function EditorToolbar({
   resumeId: string;
 }) {
   return (
-    <header className="flex flex-wrap items-center gap-3 border-b border-zinc-200 pb-3">
+    <header className="flex flex-wrap items-center gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
       <Button asChild size="sm" variant="ghost">
         <Link href="/dashboard" aria-label="Volver al panel">
           <ArrowLeft />
@@ -69,11 +70,11 @@ export function EditorToolbar({
           id="resume-title"
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          className="max-w-md border-transparent text-lg font-semibold shadow-none focus-visible:border-zinc-200"
+          className="max-w-md border-transparent text-lg font-semibold shadow-none focus-visible:border-zinc-200 dark:focus-visible:border-zinc-700"
           maxLength={200}
         />
         {titleError && (
-          <p role="alert" className="mt-1 text-sm text-red-600">
+          <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
             {titleError}
           </p>
         )}
@@ -91,6 +92,7 @@ export function EditorToolbar({
           PDF
         </a>
       </Button>
+      <ThemeToggle />
     </header>
   );
 }

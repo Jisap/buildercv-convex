@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-zinc-50 px-6 py-24">
+    <div className="flex flex-1 flex-col items-center justify-center bg-zinc-50 px-6 py-24 dark:bg-zinc-950">
       <main className="w-full max-w-2xl text-center">
-        <p className="text-sm font-medium text-zinc-500">CV Studio</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-zinc-950">
+        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">CV Studio</p>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
           Tus currículums, una sola fuente de información
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-zinc-600">
+        <p className="mx-auto mt-4 max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
           Crea, edita y exporta currículums profesionales en PDF con tamaño
           A4. Empieza gratis en local.
         </p>

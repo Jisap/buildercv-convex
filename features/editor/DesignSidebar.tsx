@@ -40,7 +40,7 @@ function Slider({
     <div>
       <div className="flex items-baseline justify-between">
         <Label htmlFor={id}>{label}</Label>
-        <span className="text-xs text-zinc-500" aria-live="polite">
+        <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-live="polite">
           {value} {unit}
         </span>
       </div>
@@ -52,7 +52,7 @@ function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(clamp(Number(e.target.value), min, max))}
-        className="mt-1 w-full accent-zinc-900"
+        className="mt-1 w-full accent-zinc-900 dark:accent-zinc-100"
       />
     </div>
   );
@@ -74,8 +74,8 @@ export function DesignSidebar({
     <div className="space-y-3">
       <TemplatePicker design={design} onChange={onChange} />
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900">
-        <p className="mb-2 text-xs font-medium text-zinc-500">DISTRIBUCIÓN</p>
+      <div className="rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+        <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">DISTRIBUCIÓN</p>
         <div className="grid gap-1.5" role="radiogroup" aria-label="Distribución">
           {(
             [
@@ -95,19 +95,19 @@ export function DesignSidebar({
                 onClick={() => onChange({ ...design, layoutId: id })}
                 className={`rounded-md border px-2.5 py-1.5 text-left ${
                   design.layoutId === id
-                    ? "border-zinc-900 bg-zinc-50"
-                    : "border-zinc-200 hover:bg-zinc-50"
+                    ? "border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-800"
+                    : "border-zinc-200 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
                 }`}
               >
                 <span className="block text-sm font-medium">{name}</span>
-                <span className="block text-xs text-zinc-500">{description}</span>
+                <span className="block text-xs text-zinc-500 dark:text-zinc-400">{description}</span>
               </button>
             ))}
         </div>
       </div>
 
-      <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900">
-        <p className="text-xs font-medium text-zinc-500">TAMAÑO Y ESPACIADO</p>
+      <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+        <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">TAMAÑO Y ESPACIADO</p>
         <HeadingSizePicker
           value={design.headingSize}
           onChange={(headingSize) => onChange({ ...design, headingSize })}
@@ -216,8 +216,8 @@ function HeadingSizePicker({
             onClick={() => onChange(size)}
             className={`rounded-md border px-2 py-1.5 text-sm ${
               value === size
-                ? "border-zinc-900 bg-zinc-50 font-medium"
-                : "border-zinc-200 hover:bg-zinc-50"
+                ? "border-zinc-900 bg-zinc-50 font-medium dark:border-zinc-100 dark:bg-zinc-800"
+                : "border-zinc-200 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
             }`}
           >
             {HEADING_LABELS[size]}

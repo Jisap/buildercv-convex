@@ -40,7 +40,10 @@ vacías antes.
    `AuthProviderDiscoveryFailed` (issuer propio `convex.site` inalcanzable
    desde el verificador Rust; probado con token fresco y con issuer externo
    de control que sí verifica). Clerk usa issuer externo y escapa del fallo.
-   Tablas `auth*` eliminadas del esquema (Fase 2 define las de producto).
+    Tablas `auth*` eliminadas del esquema (Fase 2 define las de producto).
+    Ojo con versiones: `@clerk/nextjs@7` (Core 3, 03/2026) eliminó
+    `<SignedIn>`/`<SignedOut>` (lanzan error al renderizar); usar `<Show
+    when="signed-in">` / `<Show when="signed-out">`.
 4. **Contenido independiente de plantilla.** `ResumeContent` con secciones
    `{ id, type, title, order, visible, items[] }`, items con `id` estable
    (no índices). Uniones discriminadas TS + Zod por tipo en cliente y
