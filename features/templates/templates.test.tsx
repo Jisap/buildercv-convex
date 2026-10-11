@@ -158,8 +158,15 @@ const MUST_CONTAIN = [
   "Voluntariado",
 ];
 
-test("las tres plantillas usan el mismo modelo de contenido", () => {
-  expect(TEMPLATES.map((t) => t.id)).toEqual(["classic", "modern", "compact"]);
+test("las seis plantillas usan el mismo modelo de contenido", () => {
+  expect(TEMPLATES.map((t) => t.id)).toEqual([
+    "classic",
+    "modern",
+    "compact",
+    "sidebar",
+    "elegant",
+    "minimal",
+  ]);
   for (const meta of TEMPLATES) {
     const html = renderToStaticMarkup(
       <TemplateRenderer
@@ -185,4 +192,43 @@ test("mode print no añade cromo de previsualización", () => {
   );
   expect(html).not.toContain("shadow-sm");
   expect(html).toContain("María López García");
+});
+
+test("lateral en dos columnas usa banda con acento", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "sidebar", layoutId: "two-col" }}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain("cv-aside");
+  expect(html).toContain("#b91c1c");
+  // Orden de lectura: principal antes que lateral en el DOM.
+  expect(html.indexOf("cv-layout-main")).toBeLessThan(html.indexOf("cv-aside"));
+});
+
+test("elegante centra solo la cabecera y usa acento en su filete", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "elegant" }}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain("cv-elegant-head");
+  expect(html).toContain("#b91c1c");
+});
+
+test("mínima no usa pills ni bandas", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "minimal" }}
+      mode="preview"
+    />,
+  );
+  expect(html).not.toContain("cv-pills");
+  expect(html).not.toContain("cv-band");
+  expect(html).toContain("#b91c1c");
 });

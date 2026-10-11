@@ -3,7 +3,7 @@
 import type { FontFamily, ResumeDesign } from "@/types/resume";
 import { FONT_FAMILIES } from "@/types/resume";
 import { Label } from "@/components/ui/label";
-import { FONT_STACKS, TEMPLATES } from "./types";
+import { getTemplateMeta, FONT_STACKS, TEMPLATES } from "./types";
 
 const FONT_LABELS: Record<FontFamily, string> = {
   inter: "Inter (moderna)",
@@ -18,30 +18,26 @@ export function TemplatePicker({
   design: ResumeDesign;
   onChange: (design: ResumeDesign) => void;
 }) {
+  const selected = getTemplateMeta(design.templateId);
   return (
     <div className="mb-3 rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900">
-      <p className="mb-2 text-xs font-medium text-zinc-500">PLANTILLA</p>
-      <div className="grid gap-1.5" role="radiogroup" aria-label="Plantilla">
+      <Label htmlFor="template">Plantilla</Label>
+      <select
+        id="template"
+        value={design.templateId}
+        onChange={(e) => {
+          const meta = getTemplateMeta(e.target.value);
+          onChange({ ...design, templateId: meta.id, templateVersion: meta.version });
+        }}
+        className="mt-1 flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-zinc-950"
+      >
         {TEMPLATES.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="radio"
-            aria-checked={design.templateId === t.id}
-            onClick={() =>
-              onChange({ ...design, templateId: t.id, templateVersion: t.version })
-            }
-            className={`rounded-md border px-2.5 py-1.5 text-left ${
-              design.templateId === t.id
-                ? "border-zinc-900 bg-zinc-50"
-                : "border-zinc-200 hover:bg-zinc-50"
-            }`}
-          >
-            <span className="block text-sm font-medium">{t.name}</span>
-            <span className="block text-xs text-zinc-500">{t.description}</span>
-          </button>
+          <option key={t.id} value={t.id}>
+            {t.name}
+          </option>
         ))}
-      </div>
+      </select>
+      <p className="mt-1.5 text-xs text-zinc-500">{selected.description}</p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div>
           <Label htmlFor="accent">Acento</Label>

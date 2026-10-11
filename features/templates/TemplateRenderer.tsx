@@ -1,6 +1,9 @@
 import { ClassicTemplate } from "./ClassicTemplate";
 import { CompactTemplate } from "./CompactTemplate";
+import { ElegantTemplate } from "./ElegantTemplate";
+import { MinimalTemplate } from "./MinimalTemplate";
 import { ModernTemplate } from "./ModernTemplate";
+import { SidebarTemplate } from "./SidebarTemplate";
 import type { ResumeTemplateProps } from "./types";
 
 /** Renderizador único: elige plantilla por `design.templateId`. */
@@ -10,6 +13,12 @@ export function TemplateRenderer(props: ResumeTemplateProps) {
       return <ModernTemplate {...props} />;
     case "compact":
       return <CompactTemplate {...props} />;
+    case "sidebar":
+      return <SidebarTemplate {...props} />;
+    case "elegant":
+      return <ElegantTemplate {...props} />;
+    case "minimal":
+      return <MinimalTemplate {...props} />;
     case "classic":
     default:
       return <ClassicTemplate {...props} />;

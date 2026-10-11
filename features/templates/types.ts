@@ -38,6 +38,27 @@ export const TEMPLATES: TemplateMeta[] = [
     description:
       "Densidad alta y separación cuidada para currículums con mucho contenido.",
   },
+  {
+    id: "sidebar",
+    version: 1,
+    name: "Lateral",
+    description:
+      "Banda lateral de color con competencias e idiomas; experiencia y formación en la principal.",
+  },
+  {
+    id: "elegant",
+    version: 1,
+    name: "Elegante",
+    description:
+      "Cabecera centrada y títulos sobrios. Para perfiles senior o clásicos.",
+  },
+  {
+    id: "minimal",
+    version: 1,
+    name: "Mínima / ATS",
+    description:
+      "Ultralimpia, sin adornos. Máxima compatibilidad con lectura automática (usa una columna).",
+  },
 ];
 
 export function getTemplateMeta(templateId: string): TemplateMeta {

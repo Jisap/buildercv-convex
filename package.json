@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "convex:push": "convex dev --once"
   },
   "dependencies": {
     "@clerk/localizations": "^4.23.0",

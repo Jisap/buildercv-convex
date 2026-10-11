@@ -162,6 +162,40 @@ html, body {
 .cv-layout-sidebar .cv-section {
   break-inside: avoid;
 }
+
+/* Lateral: la banda lleva el color en línea; aquí el relleno, el radio
+   y el texto claro (Tailwind no existe en el PDF). */
+.cv-aside {
+  padding: 5mm 4mm;
+  border-radius: 2mm;
+  color: #fff;
+}
+.cv-aside .cv-section-title {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.45);
+}
+.cv-aside .cv-entry-title,
+.cv-aside .cv-entry-text,
+.cv-aside .cv-inline-list,
+.cv-aside .cv-lang-list {
+  color: #fff;
+}
+.cv-aside .cv-entry-meta,
+.cv-aside .cv-contact,
+.cv-aside .cv-links {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Elegante: la cabecera va centrada (text-center es de Tailwind). */
+.cv-elegant-head {
+  text-align: center;
+}
+
+/* Mínima: el filete en acento viaja en línea; se anula el borde base. */
+.cv-minimal .cv-section-title {
+  border-bottom: none;
+  padding-bottom: 0;
+}
 `;
 
 /**
