@@ -27,7 +27,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // D3: marca en las tarjetas de Clerk (variables claras). Límite
     // documentado: Clerk no sigue el tema oscuro de la app; sus tarjetas
-    // quedan en claro también con tema oscuro.
+    // quedan en claro también con tema oscuro. Los elementos del
+    // desplegable del avatar llevan tinta explícita: varios usan
+    // `color: inherit` y en oscuro heredarían el blanco del `body`
+    // sobre tarjeta clara (blanco sobre blanco).
     <ClerkProvider
       localization={esES}
       appearance={{
@@ -41,6 +44,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           colorRing: "#4f46e5",
           borderRadius: "0.625rem",
           fontFamily: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
+        },
+        elements: {
+          userButtonPopoverCard: {
+            backgroundColor: "#ffffff",
+            color: "#18181b",
+          },
+          userButtonPopoverActionButton: { color: "#18181b" },
+          userButtonPopoverActionButtonIcon: { color: "#52525b" },
+          userButtonPopoverFooter: { color: "#52525b" },
         },
       }}
     >
