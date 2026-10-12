@@ -1,9 +1,9 @@
 "use client";
 
 import { Show, UserButton } from "@clerk/nextjs";
-import { FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Brand } from "./Brand";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
 
@@ -21,21 +21,13 @@ export function Navbar() {
         <Show
           when="signed-in"
           fallback={
-            <Link
-              href="/"
-              className="flex items-center gap-2 font-semibold text-foreground"
-            >
-              <FileText className="size-5" aria-hidden />
-              CV Studio
+            <Link href="/" aria-label="CV Studio, inicio">
+              <Brand />
             </Link>
           }
         >
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 font-semibold text-foreground"
-          >
-            <FileText className="size-5" aria-hidden />
-            CV Studio
+          <Link href="/dashboard" aria-label="CV Studio, ir al panel">
+            <Brand />
           </Link>
         </Show>
         <div className="flex items-center gap-2">

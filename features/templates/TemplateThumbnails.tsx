@@ -73,7 +73,7 @@ const THUMB_CONTENT: ResumeContent = {
 };
 
 /** Miniatura real de una plantilla (mismo renderizador que la vista previa). */
-const TemplateThumbnail = memo(function TemplateThumbnail({
+export const TemplateThumbnail = memo(function TemplateThumbnail({
   templateId,
 }: {
   templateId: string;

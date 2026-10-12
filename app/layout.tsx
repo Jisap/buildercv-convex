@@ -25,7 +25,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <ClerkProvider localization={esES}>
+    // D3: marca en las tarjetas de Clerk (variables claras). Límite
+    // documentado: Clerk no sigue el tema oscuro de la app; sus tarjetas
+    // quedan en claro también con tema oscuro.
+    <ClerkProvider
+      localization={esES}
+      appearance={{
+        variables: {
+          colorPrimary: "#312e81",
+          colorForeground: "#18181b",
+          colorBackground: "#ffffff",
+          colorInput: "#ffffff",
+          colorInputForeground: "#18181b",
+          colorBorder: "#d4d4d8",
+          colorRing: "#4f46e5",
+          borderRadius: "0.625rem",
+          fontFamily: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
+        },
+      }}
+    >
       <html
         lang="es"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
