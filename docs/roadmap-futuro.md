@@ -35,7 +35,7 @@
 3. **F4:** canvas libre solo con spike previo (sigue descartada).
 4. **Menores diferidos:** Undo/redo local (B6, opcional), zoom de vista previa más fino (hecho parcial en B2: 50–200 % + Ajustar), recorte manual de foto.
 5. **Higiene docs:** `docs/data-model.md` dice “los cuatro campos nuevos son v.optional” y ya son más; actualizar al tocar el modelo.
-6. **G3 descartada (2026-10-12):** los primitivos `dropdown-menu`/`toast` conservan identificadores en español (`fijarAbierto`, `alPulsar`, `DatosAviso`…); no se renombran a inglés.
+6. **G3 hecha (2026-10-12, `adfed5f`):** primitivos `dropdown-menu`/`toast` con identificadores en inglés (`ToastData`, `dismissToast`, `setOpen`, `triggerRef`…); textos visibles intactos en castellano. Alcance: los dos primitivos + las 2 llamadas a `toast()`; los diálogos propios del panel quedan como están.
 
 ## Ronda 2 — correcciones (2026-10-12, `docs/UI_REVISION_Y_QA_AGENTES.md`)
 
