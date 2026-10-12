@@ -114,7 +114,7 @@ export function PhotoUploader({
   };
 
   return (
-    <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+    <div className="rounded-lg border border-border p-3">
       <p className="mb-2 text-sm font-medium">Foto (opcional)</p>
       <div className="flex items-center gap-3">
         {photoUrl ? (
@@ -122,12 +122,12 @@ export function PhotoUploader({
           <img
             src={photoUrl}
             alt="Foto del candidato"
-            className="size-20 shrink-0 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+            className="size-20 shrink-0 rounded-full border border-border object-cover"
           />
         ) : (
           <span
             aria-hidden="true"
-            className="flex size-20 shrink-0 items-center justify-center rounded-full border border-dashed border-zinc-300 text-zinc-400 dark:border-zinc-700"
+            className="flex size-20 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground"
           >
             <ImagePlus className="size-6" />
           </span>
@@ -172,16 +172,16 @@ export function PhotoUploader({
         }}
       />
       {busy && (
-        <p role="status" className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+        <p role="status" className="mt-2 text-sm text-muted-foreground">
           Subiendo…
         </p>
       )}
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mt-2 text-sm text-destructive">
           {error}
         </p>
       )}
-      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mt-1 text-xs text-muted-foreground">
         JPG, PNG o WebP de hasta 5 MB. Las plantillas de lectura automática
         (clásica y mínima) no la muestran.
       </p>
