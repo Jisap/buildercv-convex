@@ -3,6 +3,7 @@
 import type { FontFamily, ResumeDesign } from "@/types/resume";
 import { FONT_FAMILIES } from "@/types/resume";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { getTemplateMeta, FONT_STACKS } from "./types";
 import { TemplateThumbnails } from "./TemplateThumbnails";
 
@@ -27,7 +28,8 @@ const ACCENT_PRESETS: { hex: string; name: string }[] = [
   { hex: "#334155", name: "Pizarra" },
 ];
 
-export function TemplatePicker({
+/** Miniaturas de plantilla + descripción (sección «Plantilla»). */
+export function SelectorPlantilla({
   design,
   onChange,
 }: {
@@ -35,25 +37,40 @@ export function TemplatePicker({
   onChange: (design: ResumeDesign) => void;
 }) {
   const selected = getTemplateMeta(design.templateId);
-  const pickTemplate = (templateId: string) => {
-    const meta = getTemplateMeta(templateId);
-    onChange({
-      ...design,
-      templateId: meta.id,
-      templateVersion: meta.version,
-    });
-  };
   return (
-    <div className="mb-3 rounded-xl border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+    <div>
       <span id="template-label" className="text-sm font-medium">
         Plantilla
       </span>
       <TemplateThumbnails
         selectedId={design.templateId}
-        onSelect={pickTemplate}
+        onSelect={(templateId) => {
+          const meta = getTemplateMeta(templateId);
+          onChange({
+            ...design,
+            templateId: meta.id,
+            templateVersion: meta.version,
+          });
+        }}
       />
-      <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">{selected.description}</p>
-      <div className="mt-3">
+      <p className="mt-1.5 text-xs text-muted-foreground">
+        {selected.description}
+      </p>
+    </div>
+  );
+}
+
+/** Acento y tipografía (sección «Color y tipografía»). */
+export function ColorTipografia({
+  design,
+  onChange,
+}: {
+  design: ResumeDesign;
+  onChange: (design: ResumeDesign) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      <div>
         <span id="accent-label" className="text-sm font-medium">
           Acento
         </span>
@@ -76,9 +93,9 @@ export function TemplatePicker({
                   onChange({ ...design, accentColor: preset.hex })
                 }
                 style={{ backgroundColor: preset.hex }}
-                className={`size-7 rounded-full border border-black/10 dark:border-white/20 ${
+                className={`size-7 rounded-full border border-black/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:border-white/20 ${
                   active
-                    ? "ring-2 ring-zinc-900 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-900"
+                    ? "ring-2 ring-ring ring-offset-2 ring-offset-card"
                     : "hover:scale-110"
                 }`}
               />
@@ -92,12 +109,12 @@ export function TemplatePicker({
               onChange={(e) =>
                 onChange({ ...design, accentColor: e.target.value })
               }
-              className="h-7 w-9 cursor-pointer rounded border border-zinc-200 bg-white p-0.5 dark:border-zinc-700 dark:bg-zinc-900"
+              className="h-7 w-9 cursor-pointer rounded border border-input bg-background p-0.5"
               aria-label="Color de acento personalizado"
               title="Personalizado"
             />
             <span
-              className="text-xs text-zinc-500 dark:text-zinc-400"
+              className="text-xs text-muted-foreground"
               style={{ fontFamily: FONT_STACKS[design.fontFamily] }}
             >
               {design.accentColor}
@@ -105,22 +122,22 @@ export function TemplatePicker({
           </div>
         </div>
       </div>
-      <div className="mt-3">
+      <div>
         <Label htmlFor="font">Tipografía</Label>
-        <select
+        <Select
           id="font"
           value={design.fontFamily}
           onChange={(e) =>
             onChange({ ...design, fontFamily: e.target.value as FontFamily })
           }
-          className="mt-1 flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:focus-visible:ring-zinc-300"
+          className="mt-1"
         >
           {FONT_FAMILIES.map((f) => (
             <option key={f} value={f}>
               {FONT_LABELS[f]}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
     </div>
   );

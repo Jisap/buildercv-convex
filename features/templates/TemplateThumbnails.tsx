@@ -85,7 +85,7 @@ export const TemplateThumbnail = memo(function TemplateThumbnail({
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none flex h-24 justify-center overflow-hidden rounded-md border border-zinc-200 bg-white select-none dark:border-zinc-700"
+      className="pointer-events-none flex h-24 justify-center overflow-hidden rounded-md border border-border bg-white select-none"
     >
       <div style={{ width: "210mm", zoom: 0.18 }}>
         <TemplateRenderer
@@ -122,14 +122,14 @@ export function TemplateThumbnails({
             role="radio"
             aria-checked={selected}
             onClick={() => onSelect(meta.id)}
-            className={`rounded-lg border p-1.5 text-left ${
+            className={`rounded-lg border p-1.5 text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
               selected
-                ? "border-zinc-900 ring-1 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100"
-                : "border-zinc-200 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                ? "border-primary ring-1 ring-ring"
+                : "border-border hover:bg-accent"
             }`}
           >
             <TemplateThumbnail templateId={meta.id} />
-            <span className="mt-1 block truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">
+            <span className="mt-1 block truncate text-xs font-medium text-foreground">
               {meta.name}
             </span>
           </button>
