@@ -87,7 +87,7 @@ export function EditorToolbar({
           Reintentar
         </Button>
       )}
-      <Button asChild size="sm" variant="outline">
+      <Button asChild size="sm" variant="outline" className="hidden md:inline-flex">
         <a href={`/api/resumes/${resumeId}/pdf`} download>
           <Download />
           PDF

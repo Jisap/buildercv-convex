@@ -76,6 +76,7 @@ function primerosElementos(contenedor: HTMLElement): HTMLButtonElement[] {
 export function DropdownMenuContent({
   className,
   children,
+  onKeyDown,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   const { abierto, fijarAbierto, referenciaDisparador } = useMenu();
@@ -145,6 +146,7 @@ export function DropdownMenuContent({
         } else if (evento.key === "Tab") {
           fijarAbierto(false);
         }
+        onKeyDown?.(evento);
       }}
       {...props}
     >

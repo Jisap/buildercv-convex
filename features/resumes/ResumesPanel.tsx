@@ -68,14 +68,13 @@ const MiniaturaCV = memo(function MiniaturaCV({ resume }: { resume: CV }) {
   // G4: el documento completo solo se monta al entrar en el viewport; el
   // recuadro (misma altura) reserva el espacio para no provocar saltos.
   const referencia = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  // Sin IntersectionObserver (entornos antiguos) se muestra directamente.
+  const [visible, setVisible] = useState(
+    () => typeof IntersectionObserver === "undefined",
+  );
   useEffect(() => {
     const nodo = referencia.current;
-    if (!nodo) {
-      return;
-    }
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true);
+    if (!nodo || visible) {
       return;
     }
     const observador = new IntersectionObserver(
@@ -89,7 +88,7 @@ const MiniaturaCV = memo(function MiniaturaCV({ resume }: { resume: CV }) {
     );
     observador.observe(nodo);
     return () => observador.disconnect();
-  }, []);
+  }, [visible]);
   return (
     <div
       ref={referencia}
@@ -405,12 +404,12 @@ export function ResumesPanel({
           {visible.map((resume) => (
             <li
               key={resume._id}
-              className="relative flex flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md"
+              className="relative flex flex-col rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md"
             >
               <Link
                 href={`/editor/${resume._id}`}
                 aria-label={`Editar ${resume.title}`}
-                className="block rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
+                className="block overflow-hidden rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
               >
                 <MiniaturaCV resume={resume} />
                 <div className="p-4">
