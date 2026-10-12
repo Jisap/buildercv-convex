@@ -4,72 +4,72 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-type MenuContexto = {
-  abierto: boolean;
-  fijarAbierto: (abierto: boolean) => void;
-  referenciaDisparador: React.RefObject<HTMLButtonElement | null>;
+type MenuContextValue = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
 };
 
-const ContextoMenu = React.createContext<MenuContexto | null>(null);
+const MenuContext = React.createContext<MenuContextValue | null>(null);
 
 function useMenu() {
-  const contexto = React.useContext(ContextoMenu);
-  if (!contexto) {
+  const context = React.useContext(MenuContext);
+  if (!context) {
     throw new Error("El elemento del menú debe estar dentro de <DropdownMenu>.");
   }
-  return contexto;
+  return context;
 }
 
 /** Contenedor del menú desplegable (sin dependencias nuevas). */
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
-  const [abierto, fijarAbierto] = React.useState(false);
-  const referenciaDisparador = React.useRef<HTMLButtonElement | null>(null);
-  const valor = React.useMemo(
-    () => ({ abierto, fijarAbierto, referenciaDisparador }),
-    [abierto],
+  const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const value = React.useMemo(
+    () => ({ open, setOpen, triggerRef }),
+    [open],
   );
   return (
-    <ContextoMenu.Provider value={valor}>
+    <MenuContext.Provider value={value}>
       <span className="relative inline-block">{children}</span>
-    </ContextoMenu.Provider>
+    </MenuContext.Provider>
   );
 }
 
-type PropiedadesDisparador = React.ButtonHTMLAttributes<HTMLButtonElement>;
+type TriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 /** Botón que abre el menú. Devuelve el foco aquí al cerrar con Esc. */
 export function DropdownMenuTrigger({
   onClick,
   onKeyDown,
   ...props
-}: PropiedadesDisparador) {
-  const { abierto, fijarAbierto, referenciaDisparador } = useMenu();
+}: TriggerProps) {
+  const { open, setOpen, triggerRef } = useMenu();
   return (
     <button
       type="button"
       aria-haspopup="menu"
-      aria-expanded={abierto}
+      aria-expanded={open}
       {...props}
-      ref={referenciaDisparador}
-      onClick={(evento) => {
-        fijarAbierto(!abierto);
-        onClick?.(evento);
+      ref={triggerRef}
+      onClick={(event) => {
+        setOpen(!open);
+        onClick?.(event);
       }}
-      onKeyDown={(evento) => {
-        if (evento.key === "ArrowDown" && !abierto) {
-          evento.preventDefault();
-          fijarAbierto(true);
+      onKeyDown={(event) => {
+        if (event.key === "ArrowDown" && !open) {
+          event.preventDefault();
+          setOpen(true);
         }
-        onKeyDown?.(evento);
+        onKeyDown?.(event);
       }}
     />
   );
 }
 
-function primerosElementos(contenedor: HTMLElement): HTMLButtonElement[] {
+function getMenuItems(container: HTMLElement): HTMLButtonElement[] {
   return Array.from(
-    contenedor.querySelectorAll<HTMLButtonElement>('[role="menuitem"]'),
-  ).filter((elemento) => !elemento.disabled);
+    container.querySelectorAll<HTMLButtonElement>('[role="menuitem"]'),
+  ).filter((item) => !item.disabled);
 }
 
 /** Contenido del menú: flechas para moverse, Esc para cerrar. */
@@ -79,74 +79,72 @@ export function DropdownMenuContent({
   onKeyDown,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { abierto, fijarAbierto, referenciaDisparador } = useMenu();
-  const referenciaContenido = React.useRef<HTMLDivElement | null>(null);
+  const { open, setOpen, triggerRef } = useMenu();
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
-    if (!abierto) {
+    if (!open) {
       return;
     }
-    const contenido = referenciaContenido.current;
-    primerosElementos(contenido!).at(0)?.focus();
+    const content = contentRef.current;
+    getMenuItems(content!).at(0)?.focus();
 
-    const alPulsarFuera = (evento: PointerEvent) => {
-      const objetivo = evento.target as Node;
+    const onPointerOutside = (event: PointerEvent) => {
+      const target = event.target as Node;
       if (
-        !referenciaContenido.current?.contains(objetivo) &&
-        !referenciaDisparador.current?.contains(objetivo)
+        !contentRef.current?.contains(target) &&
+        !triggerRef.current?.contains(target)
       ) {
-        fijarAbierto(false);
+        setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", alPulsarFuera);
-    return () => document.removeEventListener("pointerdown", alPulsarFuera);
-  }, [abierto, fijarAbierto, referenciaDisparador]);
+    document.addEventListener("pointerdown", onPointerOutside);
+    return () => document.removeEventListener("pointerdown", onPointerOutside);
+  }, [open, setOpen, triggerRef]);
 
-  if (!abierto) {
+  if (!open) {
     return null;
   }
 
-  const cerrarYDevolverFoco = () => {
-    fijarAbierto(false);
-    referenciaDisparador.current?.focus();
+  const closeAndRestoreFocus = () => {
+    setOpen(false);
+    triggerRef.current?.focus();
   };
 
   return (
     <div
-      ref={referenciaContenido}
+      ref={contentRef}
       role="menu"
       aria-orientation="vertical"
       className={cn(
         "absolute top-full right-0 z-50 mt-1 min-w-44 rounded-md border border-border bg-card p-1 text-card-foreground shadow-md",
         className,
       )}
-      onKeyDown={(evento) => {
-        const contenido = evento.currentTarget;
-        const elementos = primerosElementos(contenido);
-        const actual = elementos.indexOf(
+      onKeyDown={(event) => {
+        const content = event.currentTarget;
+        const items = getMenuItems(content);
+        const current = items.indexOf(
           document.activeElement as HTMLButtonElement,
         );
-        if (evento.key === "Escape") {
-          evento.preventDefault();
-          cerrarYDevolverFoco();
-        } else if (evento.key === "ArrowDown") {
-          evento.preventDefault();
-          elementos[(actual + 1) % elementos.length]?.focus();
-        } else if (evento.key === "ArrowUp") {
-          evento.preventDefault();
-          elementos[
-            (actual - 1 + elementos.length) % elementos.length
-          ]?.focus();
-        } else if (evento.key === "Home") {
-          evento.preventDefault();
-          elementos.at(0)?.focus();
-        } else if (evento.key === "End") {
-          evento.preventDefault();
-          elementos.at(-1)?.focus();
-        } else if (evento.key === "Tab") {
-          fijarAbierto(false);
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeAndRestoreFocus();
+        } else if (event.key === "ArrowDown") {
+          event.preventDefault();
+          items[(current + 1) % items.length]?.focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          items[(current - 1 + items.length) % items.length]?.focus();
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          items.at(0)?.focus();
+        } else if (event.key === "End") {
+          event.preventDefault();
+          items.at(-1)?.focus();
+        } else if (event.key === "Tab") {
+          setOpen(false);
         }
-        onKeyDown?.(evento);
+        onKeyDown?.(event);
       }}
       {...props}
     >
@@ -155,34 +153,33 @@ export function DropdownMenuContent({
   );
 }
 
-type PropiedadesElemento = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type ItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Acción al elegir el elemento; después se cierra y vuelve el foco. */
   onSelect?: () => void;
 };
 
 /** Elemento del menú. Conserva las `aria-label` que ya existían. */
-export const DropdownMenuItem = React.forwardRef<
-  HTMLButtonElement,
-  PropiedadesElemento
->(({ className, onSelect, onClick, ...props }, ref) => {
-  const { fijarAbierto, referenciaDisparador } = useMenu();
-  return (
-    <button
-      type="button"
-      role="menuitem"
-      ref={ref}
-      className={cn(
-        "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-card-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground disabled:pointer-events-none disabled:opacity-50",
-        className,
-      )}
-      onClick={(evento) => {
-        onClick?.(evento);
-        onSelect?.();
-        fijarAbierto(false);
-        referenciaDisparador.current?.focus();
-      }}
-      {...props}
-    />
-  );
-});
+export const DropdownMenuItem = React.forwardRef<HTMLButtonElement, ItemProps>(
+  ({ className, onSelect, onClick, ...props }, ref) => {
+    const { setOpen, triggerRef } = useMenu();
+    return (
+      <button
+        type="button"
+        role="menuitem"
+        ref={ref}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-card-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground disabled:pointer-events-none disabled:opacity-50",
+          className,
+        )}
+        onClick={(event) => {
+          onClick?.(event);
+          onSelect?.();
+          setOpen(false);
+          triggerRef.current?.focus();
+        }}
+        {...props}
+      />
+    );
+  },
+);
 DropdownMenuItem.displayName = "DropdownMenuItem";

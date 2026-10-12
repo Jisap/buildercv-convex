@@ -292,10 +292,10 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     setContent(synced);
     setSelectedId((current) => (current === sectionId ? null : current));
     toast({
-      titulo: `Sección «${eliminada.title}» eliminada.`,
-      accion: {
-        etiqueta: "Deshacer",
-        alPulsar: () => {
+      title: `Sección «${eliminada.title}» eliminada.`,
+      action: {
+        label: "Deshacer",
+        onPress: () => {
           const actual = contentRef.current;
           const layoutActual = layoutRef.current;
           if (actual === null || layoutActual === null) {

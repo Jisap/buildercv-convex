@@ -4,71 +4,71 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export type AccionAviso = {
-  etiqueta: string;
-  alPulsar: () => void;
+export type ToastAction = {
+  label: string;
+  onPress: () => void;
 };
 
-export type DatosAviso = {
-  titulo: string;
-  descripcion?: string;
-  accion?: AccionAviso;
+export type ToastData = {
+  title: string;
+  description?: string;
+  action?: ToastAction;
   /** Milisegundos visible; 0 o negativo = permanente. Por defecto 5000. */
-  duracion?: number;
+  duration?: number;
 };
 
-type Aviso = DatosAviso & { id: number };
+type Toast = ToastData & { id: number };
 
-let avisosActuales: Aviso[] = [];
-let siguienteId = 1;
-const oyentes = new Set<(avisos: Aviso[]) => void>();
+let currentToasts: Toast[] = [];
+let nextId = 1;
+const listeners = new Set<(toasts: Toast[]) => void>();
 
-function emitir() {
-  for (const oyente of oyentes) {
-    oyente([...avisosActuales]);
+function emit() {
+  for (const listener of listeners) {
+    listener([...currentToasts]);
   }
 }
 
-function descartarInterno(id: number) {
-  if (!avisosActuales.some((aviso) => aviso.id === id)) {
+function dismissInternal(id: number) {
+  if (!currentToasts.some((item) => item.id === id)) {
     return;
   }
-  avisosActuales = avisosActuales.filter((aviso) => aviso.id !== id);
-  emitir();
+  currentToasts = currentToasts.filter((item) => item.id !== id);
+  emit();
 }
 
 /**
  * Muestra un aviso ligero (una sola implementación en toda la app).
  * Pensado para “Deshacer” al eliminar secciones o currículums (flujos B/C).
  */
-export function toast(datos: DatosAviso): number {
-  const id = siguienteId++;
-  avisosActuales = [...avisosActuales, { ...datos, id }];
-  emitir();
-  const duracion = datos.duracion ?? 5000;
-  if (duracion > 0) {
-    window.setTimeout(() => descartarInterno(id), duracion);
+export function toast(data: ToastData): number {
+  const id = nextId++;
+  currentToasts = [...currentToasts, { ...data, id }];
+  emit();
+  const duration = data.duration ?? 5000;
+  if (duration > 0) {
+    window.setTimeout(() => dismissInternal(id), duration);
   }
   return id;
 }
 
-export function descartarAviso(id: number) {
-  descartarInterno(id);
+export function dismissToast(id: number) {
+  dismissInternal(id);
 }
 
 /** Región que pinta los avisos. Montar una sola vez en `app/layout.tsx`. */
 export function Toaster({ className }: { className?: string }) {
-  const [avisos, fijarAvisos] = React.useState<Aviso[]>(avisosActuales);
+  const [toasts, setToasts] = React.useState<Toast[]>(currentToasts);
 
   React.useEffect(() => {
-    const oyente = (siguientes: Aviso[]) => fijarAvisos(siguientes);
-    oyentes.add(oyente);
+    const listener = (next: Toast[]) => setToasts(next);
+    listeners.add(listener);
     return () => {
-      oyentes.delete(oyente);
+      listeners.delete(listener);
     };
   }, []);
 
-  if (avisos.length === 0) {
+  if (toasts.length === 0) {
     return null;
   }
 
@@ -80,36 +80,36 @@ export function Toaster({ className }: { className?: string }) {
         className,
       )}
     >
-      {avisos.map((aviso) => (
+      {toasts.map((item) => (
         <div
-          key={aviso.id}
+          key={item.id}
           role="status"
           className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-card-foreground shadow-lg"
         >
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{aviso.titulo}</p>
-            {aviso.descripcion && (
+            <p className="text-sm font-medium">{item.title}</p>
+            {item.description && (
               <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {aviso.descripcion}
+                {item.description}
               </p>
             )}
           </div>
-          {aviso.accion && (
+          {item.action && (
             <button
               type="button"
               onClick={() => {
-                aviso.accion!.alPulsar();
-                descartarInterno(aviso.id);
+                item.action!.onPress();
+                dismissInternal(item.id);
               }}
               className="shrink-0 rounded-md bg-primary px-2.5 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
-              {aviso.accion.etiqueta}
+              {item.action.label}
             </button>
           )}
           <button
             type="button"
             aria-label="Cerrar aviso"
-            onClick={() => descartarInterno(aviso.id)}
+            onClick={() => dismissInternal(item.id)}
             className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             ✕

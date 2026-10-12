@@ -207,11 +207,11 @@ export function DesignSidebar({
     const previo = design;
     onChange(createDefaultDesign(design.templateId, design.templateVersion));
     toast({
-      titulo: "Diseño restablecido.",
-      descripcion: "Se conservó la plantilla.",
-      accion: {
-        etiqueta: "Deshacer",
-        alPulsar: () => onChange(previo),
+      title: "Diseño restablecido.",
+      description: "Se conservó la plantilla.",
+      action: {
+        label: "Deshacer",
+        onPress: () => onChange(previo),
       },
     });
   };
