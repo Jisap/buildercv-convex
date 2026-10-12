@@ -35,6 +35,16 @@
 3. **F4:** canvas libre solo con spike previo (sigue descartada).
 4. **Menores diferidos:** Undo/redo local (B6, opcional), zoom de vista previa más fino (hecho parcial en B2: 50–200 % + Ajustar), recorte manual de foto.
 5. **Higiene docs:** `docs/data-model.md` dice “los cuatro campos nuevos son v.optional” y ya son más; actualizar al tocar el modelo.
+6. **G3 descartada (2026-10-12):** los primitivos `dropdown-menu`/`toast` conservan identificadores en español (`fijarAbierto`, `alPulsar`, `DatosAviso`…); no se renombran a inglés.
+
+## Ronda 2 — correcciones (2026-10-12, `docs/UI_REVISION_Y_QA_AGENTES.md`)
+
+Hecho y verificado (typegen+tsc 0, lint 0, 63/63 tests, build OK, e2e 50/50):
+- G1 (`4861df6`): `PhotoUploader` sin `zinc-*` ni `red-*`, solo tokens.
+- G2 (`5f8b280`): botón de zoom «Ajustar» → «100 %» (sin `aria-pressed`; la vista previa ya auto-escala al ancho).
+- G4 (`b4b791f`): miniaturas del panel con `IntersectionObserver` (`rootMargin` 200 px) y recuadro `h-40` de reserva; `memo` intacto. Medición con 30 CVs pendiente de QA manual (requiere datos reales con sesión).
+- G5 (`2e80c0c`): `overflow-hidden` movido de la tarjeta al enlace (el menú ya no se recorta); PDF de la barra superior oculto en `< md` (queda el de la inferior); `DropdownMenuContent` encadena su `onKeyDown` con el del consumidor.
+- Pendiente: QA manual H1–H7 e informe final (I).
 
 ## Sesión 2026-10-12 (cierre serie UI): avance y próxima sesión
 
