@@ -65,19 +65,47 @@ const MiniaturaCV = memo(function MiniaturaCV({ resume }: { resume: CV }) {
     () => healLayout(resume.content.sections, resume.layout ?? null),
     [resume.content.sections, resume.layout],
   );
+  // G4: el documento completo solo se monta al entrar en el viewport; el
+  // recuadro (misma altura) reserva el espacio para no provocar saltos.
+  const referencia = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const nodo = referencia.current;
+    if (!nodo) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        if (entradas.some((entrada) => entrada.isIntersecting)) {
+          setVisible(true);
+          observador.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observador.observe(nodo);
+    return () => observador.disconnect();
+  }, []);
   return (
     <div
+      ref={referencia}
       aria-hidden="true"
       className="pointer-events-none h-40 overflow-hidden border-b border-border bg-white select-none"
     >
-      <div style={{ width: "210mm", zoom: 0.22 } as CSSProperties}>
-        <TemplateRenderer
-          content={resume.content}
-          design={design}
-          layout={layout}
-          mode="preview"
-        />
-      </div>
+      {visible && (
+        <div style={{ width: "210mm", zoom: 0.22 } as CSSProperties}>
+          <TemplateRenderer
+            content={resume.content}
+            design={design}
+            layout={layout}
+            mode="preview"
+          />
+        </div>
+      )}
     </div>
   );
 });
