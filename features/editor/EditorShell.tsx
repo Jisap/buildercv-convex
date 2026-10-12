@@ -1,11 +1,21 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
+import {
+  Download,
+  FileText,
+  Minus,
+  Palette,
+  Pencil,
+  Plus,
+  TriangleAlert,
+} from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import type {
   ResumeContent,
   ResumeDesign,
@@ -16,6 +26,7 @@ import type {
 import { createSection, newId, withDesignDefaults } from "@/lib/resume";
 import {
   addSectionToLayout,
+  columnOf,
   healLayout,
   moveSectionInLayout,
   moveSectionToColumn,
@@ -40,6 +51,16 @@ type MobileTab = "edit" | "preview";
 
 type PanelTab = "content" | "design";
 
+// B2: control compacto. El rango incluye como mínimo el anterior
+// (75/100/125 %) y lo amplía a 50–200 % en pasos de 25.
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 2;
+const ZOOM_PASO = 0.25;
+
+function redondearZoom(valor: number): number {
+  return Math.round(valor * 4) / 4;
+}
+
 export function EditorShell({ resumeId }: { resumeId: string }) {
   const id = resumeId as Id<"resumes">;
   const serverDoc = useQuery(api.resumes.get, { id });
@@ -50,12 +71,13 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   const [design, setDesign] = useState<ResumeDesign | null>(null);
   const [layout, setLayout] = useState<ResumeLayout | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [confirmSectionId, setConfirmSectionId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("edit");
   const [panelTab, setPanelTab] = useState<PanelTab>("content");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  // Destino del foco al pulsar «Revisar» en el aviso de validación (B4).
+  const panelRef = useRef<HTMLElement | null>(null);
 
   // Espejos para mutar contenido+layout de forma atómica desde manejadores
   // (evita cierres obsoletos y clics rápidos perdidos). Se sincronizan en
@@ -243,31 +265,79 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     [commitLayout],
   );
 
-  const deleteSection = useCallback(
-    (sectionId: string) => {
-      if (confirmSectionId !== sectionId) {
-        setConfirmSectionId(sectionId);
-        return;
-      }
-      setConfirmSectionId(null);
-      const c = contentRef.current;
-      const l = layoutRef.current;
-      if (c !== null && l !== null) {
-        const sections = c.sections.filter((s) => s.id !== sectionId);
-        const nextLayout = healLayout(
-          sections,
-          removeSectionFromLayout(l, sectionId),
-        );
-        const synced = syncOrders({ sections }, nextLayout);
-        layoutRef.current = nextLayout;
-        contentRef.current = synced;
-        setLayout(nextLayout);
-        setContent(synced);
-      }
-      setSelectedId((current) => (current === sectionId ? null : current));
-    },
-    [confirmSectionId],
-  );
+  const deleteSection = useCallback((sectionId: string) => {
+    const c = contentRef.current;
+    const l = layoutRef.current;
+    if (c === null || l === null) {
+      return;
+    }
+    const eliminada = c.sections.find((s) => s.id === sectionId);
+    if (!eliminada) {
+      return;
+    }
+    // Posición previa para restaurar con «Deshacer» sin perder otros
+    // cambios que ocurran mientras el aviso está visible.
+    const indicePrevio = c.sections.findIndex((s) => s.id === sectionId);
+    const columnaPrevia = columnOf(l, sectionId) ?? "main";
+    const indiceColumna = l[columnaPrevia].indexOf(sectionId);
+    const sections = c.sections.filter((s) => s.id !== sectionId);
+    const nextLayout = healLayout(
+      sections,
+      removeSectionFromLayout(l, sectionId),
+    );
+    const synced = syncOrders({ sections }, nextLayout);
+    layoutRef.current = nextLayout;
+    contentRef.current = synced;
+    setLayout(nextLayout);
+    setContent(synced);
+    setSelectedId((current) => (current === sectionId ? null : current));
+    toast({
+      titulo: `Sección «${eliminada.title}» eliminada.`,
+      accion: {
+        etiqueta: "Deshacer",
+        alPulsar: () => {
+          const actual = contentRef.current;
+          const layoutActual = layoutRef.current;
+          if (actual === null || layoutActual === null) {
+            return;
+          }
+          if (actual.sections.some((s) => s.id === sectionId)) {
+            return;
+          }
+          const restauradas = [...actual.sections];
+          restauradas.splice(
+            Math.max(0, Math.min(indicePrevio, restauradas.length)),
+            0,
+            eliminada,
+          );
+          const ids = layoutActual[columnaPrevia].filter(
+            (id) => id !== sectionId,
+          );
+          const en =
+            indiceColumna < 0
+              ? ids.length
+              : Math.max(0, Math.min(indiceColumna, ids.length));
+          const restauradoLayout = healLayout(restauradas, {
+            ...layoutActual,
+            [columnaPrevia]: [
+              ...ids.slice(0, en),
+              sectionId,
+              ...ids.slice(en),
+            ],
+          });
+          const restaurado = syncOrders(
+            { sections: restauradas },
+            restauradoLayout,
+          );
+          layoutRef.current = restauradoLayout;
+          contentRef.current = restaurado;
+          setLayout(restauradoLayout);
+          setContent(restaurado);
+          setSelectedId(sectionId);
+        },
+      },
+    });
+  }, []);
 
   // Puro: sin efectos secundarios dentro del actualizador (React puede
   // reejecutarlo en comprobaciones de desarrollo).
@@ -297,7 +367,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   if (serverDoc === undefined) {
     return (
-      <p className="p-6 text-sm text-zinc-600 dark:text-zinc-400" role="status">
+      <p className="p-6 text-sm text-muted-foreground" role="status">
         Cargando el editor…
       </p>
     );
@@ -306,8 +376,8 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
   if (serverDoc === null) {
     return (
       <div className="mx-auto max-w-md p-6 text-center">
-        <p className="font-medium text-zinc-900 dark:text-zinc-100">No se encontró el currículum</p>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="font-medium text-foreground">No se encontró el currículum</p>
+        <p className="mt-1 text-sm text-muted-foreground">
           Puede que se haya eliminado o que no tengas acceso.
         </p>
         <Button asChild className="mt-4">
@@ -319,7 +389,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
 
   if (content === null || design === null || layout === null) {
     return (
-      <p className="p-6 text-sm text-zinc-600 dark:text-zinc-400" role="status">
+      <p className="p-6 text-sm text-muted-foreground" role="status">
         Preparando el editor…
       </p>
     );
@@ -333,8 +403,25 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
     ? resumeSectionSchema.safeParse(selected)
     : null;
 
+  // B4: lleva el foco a la primera sección con errores (o al panel de
+  // diseño si el diseño es lo inválido) desde el aviso de validación.
+  const revisarErrores = () => {
+    const actual = contentRef.current;
+    const primeraConError = actual?.sections.find(
+      (s) => !resumeSectionSchema.safeParse(s).success,
+    );
+    if (primeraConError) {
+      setPanelTab("content");
+      setSelectedId(primeraConError.id);
+    } else if (!resumeDesignSchema.safeParse(design).success) {
+      setPanelTab("design");
+    }
+    setMobileTab("edit");
+    requestAnimationFrame(() => panelRef.current?.focus());
+  };
+
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-4 md:px-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-4 pb-24 md:px-6 md:pb-4">
       <EditorToolbar
         title={title}
         onTitleChange={setTitle}
@@ -344,38 +431,94 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
         resumeId={resumeId}
       />
       {validationError && (
-        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
-          {validationError}
-        </p>
+        <div
+          role="alert"
+          className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-2 text-sm text-foreground"
+        >
+          <TriangleAlert className="size-4 shrink-0 text-destructive" aria-hidden />
+          <p className="min-w-0 flex-1">{validationError}</p>
+          <Button size="sm" variant="outline" onClick={revisarErrores}>
+            Revisar
+          </Button>
+        </div>
       )}
 
-      <div className="mt-3 flex gap-2 md:hidden" role="tablist" aria-label="Vistas del editor">
-        {(
-          [
-            ["edit", "Editar"],
-            ["preview", "Vista previa"],
-          ] as [MobileTab, string][]
-        ).map(([tab, label]) => (
+      <nav
+        aria-label="Vistas del editor"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      >
+        <div className="grid grid-cols-4 gap-1 px-2 pt-2">
           <Button
-            key={tab}
             size="sm"
-            role="tab"
-            aria-selected={mobileTab === tab}
-            variant={mobileTab === tab ? "default" : "outline"}
-            onClick={() => setMobileTab(tab)}
+            variant={
+              mobileTab === "edit" && panelTab === "content"
+                ? "default"
+                : "ghost"
+            }
+            aria-pressed={mobileTab === "edit" && panelTab === "content"}
+            onClick={() => {
+              setPanelTab("content");
+              setMobileTab("edit");
+            }}
+            className="h-auto flex-col gap-1 py-1.5 text-xs"
           >
-            {label}
+            <Pencil />
+            Editar
           </Button>
-        ))}
-      </div>
+          <Button
+            size="sm"
+            variant={
+              mobileTab === "edit" && panelTab === "design"
+                ? "default"
+                : "ghost"
+            }
+            aria-pressed={mobileTab === "edit" && panelTab === "design"}
+            onClick={() => {
+              setPanelTab("design");
+              setMobileTab("edit");
+            }}
+            className="h-auto flex-col gap-1 py-1.5 text-xs"
+          >
+            <Palette />
+            Diseño
+          </Button>
+          <Button
+            size="sm"
+            variant={mobileTab === "preview" ? "default" : "ghost"}
+            aria-pressed={mobileTab === "preview"}
+            onClick={() => setMobileTab("preview")}
+            className="h-auto flex-col gap-1 py-1.5 text-xs"
+          >
+            <FileText />
+            Vista previa
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="h-auto flex-col gap-1 py-1.5 text-xs"
+          >
+            <a href={`/api/resumes/${resumeId}/pdf`} download>
+              <Download />
+              PDF
+            </a>
+          </Button>
+        </div>
+      </nav>
 
       <div className="mt-3 grid flex-1 items-start gap-4 md:grid-cols-[380px_minmax(0,1fr)] lg:grid-cols-[420px_minmax(0,1fr)]">
         <section
+          ref={panelRef}
+          tabIndex={-1}
           aria-label="Panel de edición"
-          className={mobileTab === "edit" ? "block" : "hidden md:block"}
+          className={
+            mobileTab === "edit"
+              ? "block focus:outline-none"
+              : "hidden focus:outline-none md:block"
+          }
         >
           <div
-            className="flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900"
+            className="hidden gap-1 rounded-lg bg-muted p-1 md:flex"
             role="tablist"
             aria-label="Contenido o diseño"
           >
@@ -393,8 +536,8 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                 onClick={() => setPanelTab(tab)}
                 className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium ${
                   panelTab === tab
-                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {label}
@@ -409,7 +552,6 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                   layout={healedLayout}
                   layoutId={design.layoutId}
                   selectedId={selectedId}
-                  confirmSectionId={confirmSectionId}
                   onSelect={setSelectedId}
                   onMove={moveSection}
                   onMoveColumn={moveSectionColumn}
@@ -423,7 +565,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                   onAdd={addSection}
                   onLayoutChange={dropLayout}
                 />
-                <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                <div className="mt-4 border-t border-border pt-4">
                   {selected ? (
                     <SectionForm
                       key={selected.id}
@@ -434,7 +576,7 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                       onChangeContent={setContent}
                     />
                   ) : (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p className="text-sm text-muted-foreground">
                       Selecciona una sección para editarla.
                     </p>
                   )}
@@ -450,25 +592,55 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
           aria-label="Vista previa"
           className={mobileTab === "preview" ? "block" : "hidden md:block"}
         >
-          <div className="md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:self-start md:overflow-y-auto md:rounded-xl md:border md:border-zinc-200 md:bg-zinc-50 md:p-3 dark:md:border-zinc-800 dark:md:bg-zinc-900">
+          <div className="md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:self-start md:overflow-y-auto md:rounded-xl md:border md:border-border md:bg-muted md:p-3">
             <div
-              className="flex items-center justify-between gap-2 md:sticky md:top-0 md:z-10 md:bg-zinc-50/95 md:py-1 md:backdrop-blur dark:md:bg-zinc-900/95"
+              className="flex items-center justify-between gap-2 md:sticky md:top-0 md:z-10 md:bg-muted/95 md:py-1 md:backdrop-blur"
               role="group"
               aria-label="Zoom de la vista previa"
             >
-              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">VISTA PREVIA · A4</p>
-              <div className="flex gap-1">
-                {([0.75, 1, 1.25] as const).map((z) => (
-                  <Button
-                    key={z}
-                    size="sm"
-                    variant={zoom === z ? "default" : "outline"}
-                    aria-pressed={zoom === z}
-                    onClick={() => setZoom(z)}
-                  >
-                    {Math.round(z * 100)} %
-                  </Button>
-                ))}
+              <p className="text-xs font-medium text-muted-foreground">VISTA PREVIA · A4</p>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  aria-label="Reducir zoom"
+                  disabled={zoom <= ZOOM_MIN}
+                  onClick={() =>
+                    setZoom((actual) =>
+                      redondearZoom(Math.max(ZOOM_MIN, actual - ZOOM_PASO)),
+                    )
+                  }
+                >
+                  <Minus />
+                </Button>
+                <span
+                  role="status"
+                  aria-label={`Nivel de zoom: ${Math.round(zoom * 100)} por ciento`}
+                  className="min-w-14 text-center text-sm text-muted-foreground tabular-nums"
+                >
+                  {Math.round(zoom * 100)} %
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  aria-label="Ampliar zoom"
+                  disabled={zoom >= ZOOM_MAX}
+                  onClick={() =>
+                    setZoom((actual) =>
+                      redondearZoom(Math.min(ZOOM_MAX, actual + ZOOM_PASO)),
+                    )
+                  }
+                >
+                  <Plus />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-pressed={zoom === 1}
+                  onClick={() => setZoom(1)}
+                >
+                  Ajustar
+                </Button>
               </div>
             </div>
             <div className="mt-2">

@@ -3,11 +3,18 @@
 import { Show, UserButton } from "@clerk/nextjs";
 import { FileText } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
 
 /** Barra superior global: marca, tema y sesión. Fina en todas las rutas. */
 export function Navbar() {
+  const pathname = usePathname();
+  // En el editor hay una sola barra superior (la del propio editor, B1):
+  // ocultar la global gana ~56 px de alto útil.
+  if (pathname?.startsWith("/editor")) {
+    return null;
+  }
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-4 md:px-6">

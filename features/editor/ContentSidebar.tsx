@@ -24,6 +24,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  EllipsisVertical,
   Eye,
   EyeOff,
   GripVertical,
@@ -31,6 +32,12 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type {
   LayoutId,
   ResumeLayout,
@@ -44,7 +51,6 @@ type Column = "main" | "sidebar";
 function SortableRow({
   section,
   selected,
-  confirmDelete,
   isFirst,
   isLast,
   column,
@@ -57,7 +63,6 @@ function SortableRow({
 }: {
   section: ResumeSection;
   selected: boolean;
-  confirmDelete: boolean;
   isFirst: boolean;
   isLast: boolean;
   column: Column | "combined";
@@ -88,9 +93,7 @@ function SortableRow({
     >
       <div
         className={`flex items-center gap-1 rounded-md px-2 py-1.5 ${
-          selected
-            ? "bg-zinc-100 dark:bg-zinc-800"
-            : "bg-white dark:bg-transparent"
+          selected ? "bg-muted" : "bg-transparent"
         }`}
       >
         <button
@@ -99,14 +102,14 @@ function SortableRow({
           aria-label={`Arrastrar ${section.title}`}
           {...attributes}
           {...listeners}
-          className="cursor-grab touch-none rounded p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 active:cursor-grabbing dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          className="cursor-grab touch-none rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground active:cursor-grabbing"
         >
           <GripVertical className="size-4" />
         </button>
         <button
           type="button"
           onClick={() => onSelect(section.id)}
-          className="min-w-0 flex-1 truncate text-left text-sm text-zinc-900 dark:text-zinc-100"
+          className="min-w-0 flex-1 truncate text-left text-sm text-foreground"
           aria-current={selected}
         >
           {section.title}
@@ -114,71 +117,62 @@ function SortableRow({
         </button>
         <button
           type="button"
-          title="Subir"
-          aria-label={`Subir ${section.title}`}
-          disabled={isFirst}
-          onClick={() => onMove(section.id, -1)}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:opacity-30"
-        >
-          <ArrowUp className="size-4" />
-        </button>
-        <button
-          type="button"
-          title="Bajar"
-          aria-label={`Bajar ${section.title}`}
-          disabled={isLast}
-          onClick={() => onMove(section.id, 1)}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:opacity-30"
-        >
-          <ArrowDown className="size-4" />
-        </button>
-        {showColumnMove &&
-          (column === "main" ? (
-            <button
-              type="button"
-              title="Mover a la columna lateral"
-              aria-label={`Mover ${section.title} a la columna lateral`}
-              onClick={() => onMoveColumn(section.id, other)}
-              className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
-            >
-              <ArrowRight className="size-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              title="Mover a la columna principal"
-              aria-label={`Mover ${section.title} a la columna principal`}
-              onClick={() => onMoveColumn(section.id, other)}
-              className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
-            >
-              <ArrowLeft className="size-4" />
-            </button>
-          ))}
-        <button
-          type="button"
           title={section.visible ? "Ocultar" : "Mostrar"}
           aria-label={`${section.visible ? "Ocultar" : "Mostrar"} ${section.title}`}
           aria-pressed={section.visible}
           onClick={() => onToggleVisible(section.id)}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         >
           {section.visible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
         </button>
-        <button
-          type="button"
-          title={
-            confirmDelete ? "Pulsa de nuevo para confirmar" : "Eliminar sección"
-          }
-          aria-label={`Eliminar ${section.title}`}
-          onClick={() => onDelete(section.id)}
-          className={`rounded p-1 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950 dark:hover:text-red-300 ${
-            confirmDelete
-              ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-              : "text-zinc-500 dark:text-zinc-400"
-          }`}
-        >
-          <Trash2 className="size-4" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            title={`Más acciones para ${section.title}`}
+            aria-label={`Más acciones para ${section.title}`}
+            className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            <EllipsisVertical className="size-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              aria-label={`Subir ${section.title}`}
+              disabled={isFirst}
+              onSelect={() => onMove(section.id, -1)}
+            >
+              <ArrowUp className="size-4" aria-hidden />
+              Subir
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              aria-label={`Bajar ${section.title}`}
+              disabled={isLast}
+              onSelect={() => onMove(section.id, 1)}
+            >
+              <ArrowDown className="size-4" aria-hidden />
+              Bajar
+            </DropdownMenuItem>
+            {showColumnMove && (
+              <DropdownMenuItem
+                aria-label={`Mover ${section.title} a la columna ${column === "main" ? "lateral" : "principal"}`}
+                onSelect={() => onMoveColumn(section.id, other)}
+              >
+                {column === "main" ? (
+                  <ArrowRight className="size-4" aria-hidden />
+                ) : (
+                  <ArrowLeft className="size-4" aria-hidden />
+                )}
+                {column === "main" ? "A la lateral" : "A la principal"}
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
+              aria-label={`Eliminar ${section.title}`}
+              onSelect={() => onDelete(section.id)}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive focus-visible:bg-destructive/10 focus-visible:text-destructive"
+            >
+              <Trash2 className="size-4" aria-hidden />
+              Eliminar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </li>
   );
@@ -199,8 +193,8 @@ function ColumnGroup({
   emptyHint: string | null;
   rowProps: Omit<
     ComponentProps<typeof SortableRow>,
-    "section" | "isFirst" | "isLast" | "column" | "selected" | "confirmDelete"
-  > & { selectedId: string | null; confirmSectionId: string | null };
+    "section" | "isFirst" | "isLast" | "column" | "selected"
+  > & { selectedId: string | null };
 }) {
   // Zona de soltado para la columna (imprescindible cuando está vacía).
   const { setNodeRef } = useDroppable({
@@ -210,16 +204,16 @@ function ColumnGroup({
   const list = ids
     .map((id) => byId.get(id))
     .filter((s): s is ResumeSection => s !== undefined);
-  const { selectedId, confirmSectionId, ...rest } = rowProps;
+  const { selectedId, ...rest } = rowProps;
   return (
     <div>
       {label && (
-        <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</p>
+        <p className="mb-1 text-xs font-medium text-muted-foreground">{label}</p>
       )}
       <div ref={setNodeRef}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           {list.length === 0 ? (
-            <p className="rounded-md border border-dashed border-zinc-200 px-2 py-1.5 text-xs text-zinc-400 dark:border-zinc-700">
+            <p className="rounded-md border border-dashed border-border px-2 py-1.5 text-xs text-muted-foreground">
               {emptyHint}
             </p>
           ) : (
@@ -229,7 +223,6 @@ function ColumnGroup({
                   key={s.id}
                   section={s}
                   selected={s.id === selectedId}
-                  confirmDelete={confirmSectionId === s.id}
                   isFirst={i === 0}
                   isLast={i === list.length - 1}
                   column={column}
@@ -256,7 +249,6 @@ export function ContentSidebar({
   layout,
   layoutId,
   selectedId,
-  confirmSectionId,
   onSelect,
   onMove,
   onMoveColumn,
@@ -270,7 +262,6 @@ export function ContentSidebar({
   layout: ResumeLayout;
   layoutId: LayoutId;
   selectedId: string | null;
-  confirmSectionId: string | null;
   onSelect: (sectionId: string) => void;
   onMove: (sectionId: string, dir: -1 | 1) => void;
   onMoveColumn: (sectionId: string, column: Column) => void;
@@ -360,7 +351,6 @@ export function ContentSidebar({
 
   const rowProps = {
     selectedId,
-    confirmSectionId,
     showColumnMove: layoutId === "two-col",
     onSelect,
     onMove,
@@ -406,12 +396,12 @@ export function ContentSidebar({
           />
         )}
       </DndContext>
-      <p className="mt-2 text-xs text-zinc-400">
+      <p className="mt-2 text-xs text-muted-foreground">
         Arrastra desde el asa para reordenar. Con teclado: enfoca el asa,
         pulsa Espacio y mueve con las flechas.
       </p>
-      <div className="mt-3 border-t border-zinc-200 pt-3 dark:border-zinc-800">
-        <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">AÑADIR SECCIÓN</p>
+      <div className="mt-3 border-t border-border pt-3">
+        <p className="mb-2 text-xs font-medium text-muted-foreground">AÑADIR SECCIÓN</p>
         <div className="flex flex-wrap gap-1.5">
           {ADD_SECTION_LABEL.map(({ type, label }) => (
             <Button

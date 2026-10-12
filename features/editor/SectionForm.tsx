@@ -274,7 +274,7 @@ export function SectionForm({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+    <div className="rounded-xl border border-border bg-card p-4 text-card-foreground">
       <div className="grid gap-3">
         <div>
           <Label htmlFor={`section-title-${section.id}`}>Título de la sección</Label>
@@ -290,16 +290,16 @@ export function SectionForm({
             type="checkbox"
             checked={section.visible}
             onChange={(e) => onPatch({ visible: e.target.checked })}
-            className="size-4 accent-zinc-900 dark:accent-zinc-100"
+            className="size-4 accent-primary"
           />
           Visible en el documento
         </label>
       </div>
 
-      <div className="mt-4 space-y-3 border-t border-zinc-100 pt-4">
+      <div className="mt-4 space-y-3 border-t border-border pt-4">
         {section.items.length > 1 && (
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-live="polite">
+            <span className="text-xs text-muted-foreground" aria-live="polite">
               {filter.trim() === ""
                 ? `${section.items.length} elementos`
                 : `${visibleItems.length} de ${section.items.length}`}
@@ -308,14 +308,14 @@ export function SectionForm({
               <button
                 type="button"
                 onClick={expandAll}
-                className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               >
                 Expandir todas
               </button>
               <button
                 type="button"
                 onClick={collapseAll}
-                className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               >
                 Contraer todas
               </button>
@@ -324,7 +324,7 @@ export function SectionForm({
         )}
         {section.items.length > 4 && (
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-zinc-400" />
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
               value={filter}
@@ -340,7 +340,7 @@ export function SectionForm({
                 onClick={() => setFilter("")}
                 title="Limpiar filtro"
                 aria-label="Limpiar filtro"
-                className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               >
                 <X className="size-4" />
               </button>
@@ -380,12 +380,12 @@ export function SectionForm({
           </SortableContext>
         </DndContext>
         {visibleItems.length === 0 && (
-          <p className="rounded-md border border-dashed border-zinc-200 px-2 py-3 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+          <p className="rounded-md border border-dashed border-border px-2 py-3 text-center text-sm text-muted-foreground">
             Sin coincidencias para «{filter.trim()}».
           </p>
         )}
         {visibleItems.length > 1 && (
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-muted-foreground">
             Arrastra desde el asa para reordenar. Con teclado: enfoca el asa,
             pulsa Espacio y mueve con las flechas.
           </p>
@@ -474,10 +474,10 @@ function SortableItemCard({
         transition,
       }}
       aria-label={`Elemento ${itemIndex + 1}${summary ? `: ${summary}` : ""}`}
-      className={`rounded-lg border bg-white p-2.5 dark:bg-zinc-900 ${
+      className={`rounded-lg border bg-card p-2.5 ${
         hasError && !expanded
-          ? "border-red-300 dark:border-red-800"
-          : "border-zinc-200 dark:border-zinc-800"
+          ? "border-destructive/50"
+          : "border-border"
       } ${isDragging ? "relative z-10 opacity-60" : ""}`}
     >
       <div className="flex items-center gap-1">
@@ -487,7 +487,7 @@ function SortableItemCard({
           aria-label={`Arrastrar elemento ${itemIndex + 1}`}
           {...attributes}
           {...listeners}
-          className="shrink-0 cursor-grab touch-none rounded p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 active:cursor-grabbing dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+          className="shrink-0 cursor-grab touch-none rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground active:cursor-grabbing"
         >
           <GripVertical className="size-5" />
         </button>
@@ -497,21 +497,21 @@ function SortableItemCard({
           aria-expanded={expanded}
           aria-controls={fieldsId}
           title={expanded ? "Contraer" : "Expandir para editar"}
-          className="flex min-w-0 flex-1 items-center gap-1.5 rounded px-1 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="flex min-w-0 flex-1 items-center gap-1.5 rounded px-1 py-1.5 text-left hover:bg-accent"
         >
-          <ExpandIcon className="size-4 shrink-0 text-zinc-400" />
+          <ExpandIcon className="size-4 shrink-0 text-muted-foreground" />
           {summary ? (
-            <span className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <span className="truncate text-sm font-medium text-foreground">
               {summary}
             </span>
           ) : (
-            <span className="truncate text-sm text-zinc-400 dark:text-zinc-500">
+            <span className="truncate text-sm text-muted-foreground">
               Elemento {itemIndex + 1} · sin contenido
             </span>
           )}
           {hasError && !expanded && (
             <span title="Tiene campos con errores" className="shrink-0">
-              <AlertCircle className="size-4 text-red-500" />
+              <AlertCircle className="size-4 text-destructive" />
             </span>
           )}
         </button>
@@ -522,7 +522,7 @@ function SortableItemCard({
             aria-label="Subir elemento"
             disabled={itemIndex === 0}
             onClick={() => onMoveItem(item.id, -1)}
-            className="rounded p-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30"
           >
             <ArrowUp className="size-4" />
           </button>
@@ -532,7 +532,7 @@ function SortableItemCard({
             aria-label="Bajar elemento"
             disabled={itemIndex === total - 1}
             onClick={() => onMoveItem(item.id, 1)}
-            className="rounded p-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30"
           >
             <ArrowDown className="size-4" />
           </button>
@@ -541,14 +541,14 @@ function SortableItemCard({
             title="Eliminar elemento"
             aria-label="Eliminar elemento"
             onClick={() => onDeleteItem(item.id)}
-            className="rounded p-1 text-zinc-500 hover:bg-red-100 hover:text-red-700 dark:text-zinc-400 dark:hover:bg-red-950 dark:hover:text-red-300"
+            className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2 className="size-4" />
           </button>
         </div>
       </div>
       {expanded && (
-        <div id={fieldsId} className="mt-2 border-t border-zinc-100 pt-3 dark:border-zinc-800">
+        <div id={fieldsId} className="mt-2 border-t border-border pt-3">
           <ItemFields
             item={item}
             itemIndex={itemIndex}
@@ -592,7 +592,7 @@ function ItemFields({
                 onChange={(e) =>
                   onUpdateItem(item.id, spec.key, e.target.checked)
                 }
-                className="size-4 accent-zinc-900 dark:accent-zinc-100"
+                className="size-4 accent-primary"
               />
               {spec.label}
             </label>
@@ -610,10 +610,10 @@ function ItemFields({
                 }
                 rows={4}
                 placeholder={spec.placeholder}
-                className="mt-1 flex min-h-20 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus-visible:ring-zinc-300"
+                className="mt-1 flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
               {error && (
-                <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p role="alert" className="mt-1 text-sm text-destructive">
                   {error}
                 </p>
               )}
@@ -653,7 +653,7 @@ function ItemFields({
               }}
             />
             {error && (
-              <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p role="alert" className="mt-1 text-sm text-destructive">
                 {error}
               </p>
             )}
@@ -672,7 +672,7 @@ function PersonalLinksEditor({
   onChange: (links: { id: string; label?: string; url?: string }[]) => void;
 }) {
   return (
-    <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+    <div className="rounded-lg border border-border bg-card p-3">
       <p className="mb-2 text-sm font-medium">Enlaces</p>
       <div className="space-y-2">
         {links.map((link) => (
@@ -725,7 +725,7 @@ function PersonalLinksEditor({
           Añadir enlace
         </Button>
       </div>
-      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mt-1 text-xs text-muted-foreground">
         Aparecen junto a tus datos personales.
       </p>
     </div>
