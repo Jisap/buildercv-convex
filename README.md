@@ -42,8 +42,10 @@ plataforma fallaba con `AuthProviderDiscoveryFailed` (detalle en
 
 - `npm run dev` — desarrollo.
 - `npm run build` / `npm start` — build y arranque de producción.
-- `npm run lint` — ESLint (cero errores en Fase 1).
-- `npx tsc --noEmit` — tipos estrictos (cero errores en Fase 1).
+- `npm run lint` — ESLint.
+- `npx next typegen && npx tsc --noEmit` — tipos estrictos (el `typegen`
+- previo es obligatorio: sin él `tsc` falla con `Cannot find name
+- 'LayoutProps'`; no es un error real).
 - `npm test` — Vitest (backend Convex en memoria).
 - `npm run test:e2e` — Playwright (requiere `npm run dev` o lo arranca solo).
 - `npx convex dev` — backend local + codegen (requiere login Convex).
@@ -56,8 +58,14 @@ no secretos). `CLERK_SECRET_KEY` solo en servidor, nunca en el repo.
 ## Estado
 
 MVP completo (Fases 0–6): autenticación Clerk, panel, editor con
-autoguardado, 3 plantillas y exportación PDF. Detalle y criterios en
-`docs/implementation-plan.md`; decisiones en `docs/architecture.md`;
-instalación de Convex y Clerk en `docs/setup-convex-clerk.md`; modelo en
-`docs/data-model.md`; PDF en `docs/pdf-testing.md`; despliegue en
-`docs/deployment.md`.
+autoguardado, 6 plantillas y exportación PDF. Serie UI cerrada: tokens
+semánticos y fuente Geist, editor de barra única con menú «⋯» y deshacer,
+panel con miniaturas diferidas, landing real y panel de diseño plegable.
+Ronda 2 de correcciones (G1–G5) hecha. Verificación en verde: 63 tests
+unitarios y 50 e2e. Detalle y criterios en `docs/implementation-plan.md`;
+decisiones en `docs/architecture.md`; instalación de Convex y Clerk en
+`docs/setup-convex-clerk.md`; modelo en `docs/data-model.md`; PDF en
+`docs/pdf-testing.md`; despliegue en `docs/deployment.md`; mejoras de
+interfaz en `docs/UI_MEJORAS_AGENTES.md`; revisión y QA en
+`docs/UI_REVISION_Y_QA_AGENTES.md`; pendientes en `docs/roadmap-futuro.md`
+(QA manual H1–H7, E2E autenticada, despliegue Node para el PDF).
