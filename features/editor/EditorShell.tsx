@@ -636,10 +636,10 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
                 <Button
                   size="sm"
                   variant="ghost"
-                  aria-pressed={zoom === 1}
+                  aria-label="Restablecer zoom al 100 %"
                   onClick={() => setZoom(1)}
                 >
-                  Ajustar
+                  100 %
                 </Button>
               </div>
             </div>
