@@ -2,6 +2,7 @@ import { ClassicTemplate } from "./ClassicTemplate";
 import { CompactTemplate } from "./CompactTemplate";
 import { ElegantTemplate } from "./ElegantTemplate";
 import { EnergeticTemplate } from "./EnergeticTemplate";
+import { ExecutiveTemplate } from "./ExecutiveTemplate";
 import { TechnicalTemplate } from "./TechnicalTemplate";
 import { MinimalTemplate } from "./MinimalTemplate";
 import { ModernTemplate } from "./ModernTemplate";
@@ -23,6 +24,8 @@ export function TemplateRenderer(props: ResumeTemplateProps) {
       return <EnergeticTemplate {...props} />;
     case "technical":
       return <TechnicalTemplate {...props} />;
+    case "executive":
+      return <ExecutiveTemplate {...props} />;
     case "minimal":
       return <MinimalTemplate {...props} />;
     case "classic":

@@ -78,6 +78,13 @@ export const TEMPLATES: TemplateMeta[] = [
     description:
       "Línea de tiempo, barras de nivel y detalles monoespaciados. Sin foto, para ingeniería e IT.",
   },
+  {
+    id: "executive",
+    version: 1,
+    name: "Ejecutiva",
+    description:
+      "Banda superior oscura con foto y cuerpo sobrio. Para perfiles senior y dirección.",
+  },
 ];
 
 export function getTemplateMeta(templateId: string): TemplateMeta {

@@ -174,6 +174,7 @@ test("las plantillas usan el mismo modelo de contenido", () => {
     "minimal",
     "energetic",
     "technical",
+    "executive",
   ]);
   for (const meta of TEMPLATES) {
     const html = renderToStaticMarkup(
@@ -287,7 +288,7 @@ test("la foto aparece en modernas y se omite en ATS", () => {
   );
   expect(modern).toContain("cv-photo");
   expect(modern).toContain(url);
-  for (const id of ["sidebar", "elegant", "compact", "energetic"]) {
+  for (const id of ["sidebar", "elegant", "compact", "energetic", "executive"]) {
     const html = renderToStaticMarkup(
       <TemplateRenderer
         content={content}
@@ -334,6 +335,20 @@ test("técnica usa línea de tiempo, barras y secciones numeradas", () => {
   expect(html).toContain("cv-technical");
   expect(html).toContain("01");
   expect(html).toContain("5/5");
+  expect(html).toContain("#b91c1c");
+});
+
+test("ejecutiva usa banda oscura con filete en acento", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "executive" }}
+      layout={layout}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain("cv-executive");
+  expect(html).toContain("cv-band");
   expect(html).toContain("#b91c1c");
 });
 
