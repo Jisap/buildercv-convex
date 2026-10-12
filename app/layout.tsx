@@ -5,6 +5,7 @@ import { esES } from "@clerk/localizations";
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { Navbar } from "@/components/Navbar";
+import { Toaster } from "@/components/ui/toast";
 import { ThemeProvider } from "./ThemeProvider";
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ConvexClientProvider>
               <Navbar />
               {children}
+              <Toaster />
             </ConvexClientProvider>
           </ThemeProvider>
         </body>

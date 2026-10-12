@@ -38,7 +38,7 @@ export function DashboardSidebar() {
       <div className="flex gap-4 overflow-x-auto pb-1 md:flex-col md:gap-5 md:overflow-visible md:pb-0">
         {SECTIONS.map((section) => (
           <div key={section.label} className="min-w-0 md:block">
-            <p className="mb-1 hidden text-xs font-medium text-zinc-500 md:block dark:text-zinc-400">
+            <p className="mb-1 hidden text-xs font-medium text-muted-foreground md:block">
               {section.label.toUpperCase()}
             </p>
             <ul className="flex gap-1 md:flex-col">
@@ -52,8 +52,8 @@ export function DashboardSidebar() {
                       aria-current={active ? "page" : undefined}
                       className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap ${
                         active
-                          ? "bg-zinc-900 font-medium text-zinc-50 dark:bg-zinc-800 dark:text-zinc-100"
-                          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                          ? "bg-primary font-medium text-primary-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                       }`}
                     >
                       <Icon className="size-4" aria-hidden />

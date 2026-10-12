@@ -23,7 +23,7 @@ export function ThemeToggle() {
     return (
       <span
         aria-hidden="true"
-        className="inline-block h-9 w-[104px] rounded-md border border-zinc-200"
+        className="inline-block h-9 w-[104px] rounded-md border border-border bg-muted"
       />
     );
   }
@@ -31,7 +31,7 @@ export function ThemeToggle() {
     <div
       role="group"
       aria-label="Tema de la aplicación"
-      className="inline-flex items-center gap-0.5 rounded-md border border-zinc-200 bg-white p-0.5 dark:border-zinc-800 dark:bg-zinc-900"
+      className="inline-flex items-center gap-0.5 rounded-md border border-border bg-card p-0.5"
     >
       {OPTIONS.map(({ value, label, Icon }) => {
         const active = theme === value;
@@ -45,8 +45,8 @@ export function ThemeToggle() {
             onClick={() => setTheme(value)}
             className={`rounded p-1.5 ${
               active
-                ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-700 dark:text-zinc-50"
-                : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             }`}
           >
             <Icon className="size-4" />

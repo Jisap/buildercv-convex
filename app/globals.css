@@ -3,21 +3,80 @@
 /* Temas claro/oscuro: next-themes pone `.dark` en <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Tokens semánticos del chrome (flujo A del plan de mejoras).
+ * Solo afectan a la aplicación; el documento del CV (`.cv-doc`) es
+ * siempre papel claro y no usa estos tokens.
+ *
+ * Marca: índigo sobrio.
+ * - Claro: primario `#312e81` (indigo-900) con texto `#fafafa` (~10:1).
+ * - Oscuro: primario `#818cf8` (indigo-300) con texto `#09090b` (~7:1).
+ * Textos secundarios (`muted-foreground`): `#52525b` sobre blanco (~7:1)
+ * en claro y `#a1a1aa` sobre `#09090b` (~7:1) en oscuro. Se evita
+ * `zinc-400` sobre claro y `zinc-500` sin pareja, que no llegan a 4,5:1.
+ * Destructivo y éxito tienen variante clara/oscura para servir como fondo
+ * con su `*-foreground` y como texto sobre `card`/`background`.
+ */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #52525b;
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #4f46e5;
+  --primary: #312e81;
+  --primary-foreground: #fafafa;
+  --accent: #eef2ff;
+  --accent-foreground: #312e81;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --success: #15803d;
+  --success-foreground: #fafafa;
   color-scheme: light;
 }
 
 .dark {
   --background: #09090b;
   --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+  --input: #3f3f46;
+  --ring: #818cf8;
+  --primary: #818cf8;
+  --primary-foreground: #09090b;
+  --accent: #1e1b4b;
+  --accent-foreground: #e0e7ff;
+  --destructive: #f87171;
+  --destructive-foreground: #09090b;
+  --success: #4ade80;
+  --success-foreground: #09090b;
   color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -25,7 +84,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* El documento del CV es papel: siempre claro, también en tema oscuro. */
