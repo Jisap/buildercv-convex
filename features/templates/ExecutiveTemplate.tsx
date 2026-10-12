@@ -49,11 +49,11 @@ export function ExecutiveTemplate({ content, design, layout, mode, photoUrl }: R
           : "cv-doc cv-executive overflow-hidden rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
-      <div className="cv-band" style={{ backgroundColor: BANDA_OSCURA }}>
+      <div className="cv-band p-8 text-white" style={{ backgroundColor: BANDA_OSCURA }}>
         {person ? (
           <ExecutivePersonal item={person} photoUrl={photoUrl} />
         ) : (
-          <h2 className="cv-name text-3xl font-bold">Tu nombre</h2>
+          <h2 className="cv-name text-3xl font-bold text-white">Tu nombre</h2>
         )}
       </div>
       <div aria-hidden style={{ height: "1mm", backgroundColor: accent }} />
@@ -111,12 +111,12 @@ function ExecutivePersonal({
       style={{ display: "flex", alignItems: "center", gap: "5mm" }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
-        <h2 className="cv-name text-3xl font-bold">{item.fullName || "Tu nombre"}</h2>
-        <p className="cv-contact mt-1 text-sm">
+        <h2 className="cv-name text-3xl font-bold text-white">{item.fullName || "Tu nombre"}</h2>
+        <p className="cv-contact mt-1 text-sm text-white/90">
           {[item.email, item.phone, item.location].filter(Boolean).join(" · ")}
         </p>
         {item.links && item.links.length > 0 && (
-          <p className="cv-links mt-1 text-sm">
+          <p className="cv-links mt-1 text-sm text-white/90">
             {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
           </p>
         )}
