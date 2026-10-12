@@ -1,11 +1,11 @@
 # Roadmap futuro — Editor BuilderCV / CV Studio
 
-**Fecha:** 2026-10-12 · **Estado:** serie UI (flujos A–F) implementada y en verde; pendiente QA manual (ver “Sesión 2026-10-12”).
+**Fecha:** 2026-10-12 · **Estado:** serie UI + ronda 2 + 3 plantillas nuevas (9 en total) en verde (66/66 tests, e2e 50/50); pendiente QA manual consolidada.
 
 ## Próxima sesión (orden propuesto)
 
 ### A. Landing page real ✅ HECHA 2026-10-12 (flujo D, `eba91b5`)
-1. Hecho: héroe + 3 puntos de valor + mosaico de las 6 plantillas (miniaturas reales en solo lectura) + CTA por sesión. Sin pie ni “cómo funciona” (no se pidieron en el plan UI).
+1. Hecho: héroe + 3 puntos de valor + mosaico de plantillas (miniaturas reales en solo lectura, hoy 9) + CTA por sesión. Sin pie ni “cómo funciona” (no se pidieron en el plan UI).
 2. Responsive + oscuro desde el primer día; E2E axe/responsive ampliadas en F.
 3. Criterio: cumplido salvo pie (diferido).
 
@@ -22,20 +22,24 @@
 4. Criterio: pendiente revisión visual con CV reales.
 
 ### D. QA manual consolidada (todo lo pendiente de ojo humano)
-1. PDF de las 6 plantillas en 1–2 columnas (corto + largo). **Pendiente.**
-2. Foto: subida, 4 plantillas, PDF con/sin foto, duplicado y borrado. **Pendiente.**
-3. Temas: recorrer panel + editor en claro/oscuro/sistema. **Pendiente.**
+1. PDF de las 9 plantillas en 1–2 columnas (corto + largo). Ojo a las 3 nuevas: hilos de la línea de tiempo y barras (técnica), banda oscura con texto blanco (ejecutiva), bloque de acento y anillo de foto (enérgica). **Pendiente.**
+2. Foto: subida, 6 plantillas que la muestran (moderna, lateral, elegante, compacta, enérgica, ejecutiva), PDF con/sin foto, duplicado y borrado. Clásica, mínima y técnica la omiten por diseño. **Pendiente.**
+3. Temas: recorrer landing (mosaico de 9), panel + editor en claro/oscuro/sistema. **Pendiente.**
 4. Navegación: navbar, sidebar, archivados, cuenta. **Pendiente.**
 5. Preview auto-ajustada en móvil real + ventana estrecha en desktop. **Pendiente.**
 6. Nuevo: arrastre ratón/táctil/teclado tras B, deshacer de sección/diseño, editor a 380 px, tarjetas del panel a 360 px. **Pendiente.**
+7. Medición G4 con ~30 CVs (primer pintado del panel y nodos DOM, antes/después). Requiere datos reales con sesión. **Pendiente.**
 
 ### E. Lo que falta (no olvidar, próxima sesión)
 1. **Despliegue:** hosting con Node por Chromium/PDF (`docs/deployment.md`); Vercel serverless sigue descartado sin alternativa de render.
 2. **E2E autenticada:** Clerk exige su entorno de testing; hoy esos flujos son manuales.
-3. **F4:** canvas libre solo con spike previo (sigue descartada).
-4. **Menores diferidos:** Undo/redo local (B6, opcional), zoom de vista previa más fino (hecho parcial en B2: 50–200 % + Ajustar), recorte manual de foto.
+3. **F4:** canvas libre como experimento futuro (vías A→B→C, §3); sin tocar el modelo hasta tener señal de usuarios reales.
+4. **Menores diferidos:** Undo/redo local (B6, opcional), recorte manual de foto, persistir el tema por usuario en Convex (opcional), 2–3 temas de color (hoy claro/oscuro/sistema + marca única).
 5. **Higiene docs:** `docs/data-model.md` dice “los cuatro campos nuevos son v.optional” y ya son más; actualizar al tocar el modelo.
 6. **G3 hecha (2026-10-12, `adfed5f`):** primitivos `dropdown-menu`/`toast` con identificadores en inglés (`ToastData`, `dismissToast`, `setOpen`, `triggerRef`…); textos visibles intactos en castellano. Alcance: los dos primitivos + las 2 llamadas a `toast()`; los diálogos propios del panel quedan como están.
+
+### F. Regla operativa: backend y frontend van juntos
+Todo cambio en `convex/` **o en sus imports** (`features/templates/types.ts`, `lib/*`, etc.) exige `npm run convex:push` (`convex dev --once`) antes de dar por buena la funcionalidad. Sin push, el despliegue (`ardent-shrimp-95`) corre código antiguo y el guardado falla con errores engañosos — 2026-10-12: las 3 plantillas nuevas daban «Plantilla desconocida» (`assertDesign` en `convex/resumes.ts:53`) hasta el push. Regla para el agente futuro: tras tocar el backend, push + re-verificación manual del guardado con sesión.
 
 ## Ronda 2 — correcciones (2026-10-12, `docs/UI_REVISION_Y_QA_AGENTES.md`)
 
@@ -158,13 +162,14 @@ Criterios de cierre de esta fase:
 | `columns: {main, sidebar}` ahora | Diferida a F1 | Evita doble fuente de orden (`order` + `columns`) y migración prematura sin UI de drag. |
 | `dnd-kit` ahora | Diferida a F2 | Minimizar errores: primero renderer + diseño + layout por selector. |
 | `UndoRedo` en toolbar | Diferida a F3 | Choca con autosave/debounce/last-write-wins; definir solo local si se retoma. |
-| `react-grid-layout` / canvas libre | Descartada salvo spike F4 | Rompe paginación A4, fidelidad PDF, ATS y accesibilidad. |
+| `react-grid-layout` / canvas libre | Experimento futuro (F4) | Vías A→B→C; spike con paridad PDF demostrada antes de tocar el modelo. |
 | Mermaid roto en `design.md:116` | Pendiente fase actual | Limpiar o eliminar el diagrama. |
 
 ## 5. Cómo retomar (instrucciones para el agente futuro)
 
-1. Leer este archivo + `docs/design.md` + `docs/data-model.md` + `docs/implementation-plan.md`.
-2. Verificar estado de la fase §2 (criterios de cierre). Si no está cerrada, terminarla antes de tocar F1.
-3. Antes de F1: inspeccionar `types/resume.ts`, `lib/validation/resume.ts`, `convex/resumeModel.ts`, `lib/resume.ts`, `features/editor/EditorShell.tsx`, `features/templates/TemplateRenderer.tsx` y la ruta PDF. Los nombres pueden haber cambiado por el refactor de la §2; localizar los 4 componentes (toolbar, content, design, preview).
-4. Ejecutar `npm run lint`, `npx tsc --noEmit`, `npm test` y `npm run build` antes de proponer cambios; no avanzar de fase con fallos críticos.
-5. Para F1/F2, actualizar siempre los 4 ficheros del espejo + tests (`convex/resumes.test.ts`, tests de plantillas y de autosave) y documentar la migración en `docs/data-model.md`.
+1. Leer este archivo + `docs/design.md` + `docs/data-model.md` + `docs/implementation-plan.md` (+ `docs/UI_REVISION_Y_QA_AGENTES.md` si hay QA pendiente).
+2. Verificación base antes de proponer cambios: `npx next typegen && npx tsc --noEmit`, `npm run lint`, `npm test`, `npm run build` y `npm run test:e2e`. No avanzar con fallos.
+3. Ante cualquier cambio de modelo o validación, actualizar el espejo completo (`types/resume.ts` + `lib/validation/resume.ts` + `convex/resumeModel.ts` + `lib/resume.ts`) + tests y `docs/data-model.md`.
+4. Tras tocar `convex/` o sus imports: `npm run convex:push` (ver §F) + reverificación del guardado con sesión.
+5. Plantilla nueva: seguir la receta de «Plantillas nuevas (2026-10-12)» + QA visual (corto+largo, 1–2 columnas, con/sin foto) y PDFs reales.
+6. Invariante intocable salvo spike F4: **preview = print** (mismo renderizador, estilos estructurales en línea o ganchos `cv-*`; el documento siempre en papel claro).
