@@ -1,6 +1,55 @@
 # Roadmap futuro — Editor BuilderCV / CV Studio
 
-**Fecha:** 2026-10-11 · **Estado:** F1 y F2 implementadas y verificadas (ver sesión de cierre abajo); pendientes F3 (opcional), E2E y despliegue. Este documento es la constancia para retomar el proyecto.
+**Fecha:** 2026-10-12 · **Estado:** serie UI (flujos A–F) implementada y en verde; pendiente QA manual (ver “Sesión 2026-10-12”).
+
+## Próxima sesión (orden propuesto)
+
+### A. Landing page real ✅ HECHA 2026-10-12 (flujo D, `eba91b5`)
+1. Hecho: héroe + 3 puntos de valor + mosaico de las 6 plantillas (miniaturas reales en solo lectura) + CTA por sesión. Sin pie ni “cómo funciona” (no se pidieron en el plan UI).
+2. Responsive + oscuro desde el primer día; E2E axe/responsive ampliadas en F.
+3. Criterio: cumplido salvo pie (diferido).
+
+### B. Ampliar themes ✅ BASE HECHA 2026-10-12 (flujo A, `6bd8625`)
+1. Hecho: chrome migrado de `zinc-*` a 16 tokens semánticos; documento intacto (papel claro).
+2. Pendiente: 2–3 temas de color (hoy solo claro/oscuro/sistema + marca índigo única).
+3. Pendiente (opcional): persistir el tema por usuario en Convex.
+4. Criterio: lint/tsc/tests/E2E en verde ✅; revisión visual manual pendiente.
+
+### C. Vista previa en “Mis currículums” ✅ HECHA 2026-10-12 (flujo C, `6f5fa14`)
+1. Hecho: miniatura real por CV (mismo renderizador escalado, `memo`, clic → editor).
+2. Coste vigilado con `memo`; sin regresión medida (listas típicas).
+3. Decisión: foto omitida en miniatura (el listado no trae URLs firmadas); editor y PDF sí la muestran.
+4. Criterio: pendiente revisión visual con CV reales.
+
+### D. QA manual consolidada (todo lo pendiente de ojo humano)
+1. PDF de las 6 plantillas en 1–2 columnas (corto + largo). **Pendiente.**
+2. Foto: subida, 4 plantillas, PDF con/sin foto, duplicado y borrado. **Pendiente.**
+3. Temas: recorrer panel + editor en claro/oscuro/sistema. **Pendiente.**
+4. Navegación: navbar, sidebar, archivados, cuenta. **Pendiente.**
+5. Preview auto-ajustada en móvil real + ventana estrecha en desktop. **Pendiente.**
+6. Nuevo: arrastre ratón/táctil/teclado tras B, deshacer de sección/diseño, editor a 380 px, tarjetas del panel a 360 px. **Pendiente.**
+
+### E. Lo que falta (no olvidar, próxima sesión)
+1. **Despliegue:** hosting con Node por Chromium/PDF (`docs/deployment.md`); Vercel serverless sigue descartado sin alternativa de render.
+2. **E2E autenticada:** Clerk exige su entorno de testing; hoy esos flujos son manuales.
+3. **F4:** canvas libre solo con spike previo (sigue descartada).
+4. **Menores diferidos:** Undo/redo local (B6, opcional), zoom de vista previa más fino (hecho parcial en B2: 50–200 % + Ajustar), recorte manual de foto.
+5. **Higiene docs:** `docs/data-model.md` dice “los cuatro campos nuevos son v.optional” y ya son más; actualizar al tocar el modelo.
+
+## Sesión 2026-10-12 (cierre serie UI): avance y próxima sesión
+
+Hecho en esta sesión (todo verificado: tsc 0, lint 0, 63/63 tests, build OK, E2E 50/50):
+- A (`6bd8625`): fuente Geist, 16 tokens semánticos (marca índigo, contrastes medidos 4,6–12,9), primitivas `card/select/dropdown-menu/toast/skeleton`, `button/input` a tokens, chrome compartido sin `zinc-*`, `<Toaster/>` en el layout.
+- B (`fd275fd`): Navbar oculta en `/editor`, toolbar única fija (volver, título, guardado, PDF, tema, avatar), zoom compacto, filas con menú ⋯, borrado con Deshacer, banner de validación con Revisar, barra inferior móvil.
+- C (`6f5fa14`): panel en cuadrícula con miniatura real, tarjeta Nuevo CV con diálogo visual, vacío sin jerga, esqueletos, sidebar con botón primario, borrado con diálogo nativo.
+- D (`eba91b5`): landing con héroe real + CTA por sesión, `Brand` centralizado, Clerk con la marca (variables v7).
+- E (`e3d86d9`): Diseño plegable en 4 secciones, distribución con iconos, numérico con `clamp`, restablecer con Deshacer, `Select` y tokens.
+- F (`022a795`): axe en claro+oscuro (rutas públicas + tarjetas Clerk), 360 px sin desborde, espera a `Clerk.loaded`; insignia «Secured by Clerk» excluida del análisis (marca de terceros, contraste 3,33, sin API para corregirla).
+- Fix (`10fd8fe`): tinta explícita en el desplegable del avatar en oscuro (heredaba el blanco del `body`).
+
+Decisiones (ver plan en `docs/UI_MEJORAS_AGENTES.md`): nombre visible «CV Studio» (confirmado 2026-10-12); diálogo nativo para borrar CV (recrear cambiaría el ID); sin dependencias nuevas (menú y toast propios); plantillas excluidas de la migración (son papel, no chrome).
+
+Próxima sesión (deuda): QA manual del punto D de arriba, E2E autenticada, despliegue Node para PDF, avisos `middleware→proxy` y `createRouteMatcher`, higiene de `docs/data-model.md`.
 
 ## Sesión 2026-10-11 (cierre): avance y próxima sesión
 
