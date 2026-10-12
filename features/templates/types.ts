@@ -64,6 +64,13 @@ export const TEMPLATES: TemplateMeta[] = [
     description:
       "Ultralimpia, sin adornos. Máxima compatibilidad con lectura automática (usa una columna).",
   },
+  {
+    id: "energetic",
+    version: 1,
+    name: "Enérgica",
+    description:
+      "Cabecera asimétrica con bloque de acento y foto con anillo. Para perfiles creativos.",
+  },
 ];
 
 export function getTemplateMeta(templateId: string): TemplateMeta {

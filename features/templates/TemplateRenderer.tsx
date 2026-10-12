@@ -1,6 +1,7 @@
 import { ClassicTemplate } from "./ClassicTemplate";
 import { CompactTemplate } from "./CompactTemplate";
 import { ElegantTemplate } from "./ElegantTemplate";
+import { EnergeticTemplate } from "./EnergeticTemplate";
 import { MinimalTemplate } from "./MinimalTemplate";
 import { ModernTemplate } from "./ModernTemplate";
 import { SidebarTemplate } from "./SidebarTemplate";
@@ -17,6 +18,8 @@ export function TemplateRenderer(props: ResumeTemplateProps) {
       return <SidebarTemplate {...props} />;
     case "elegant":
       return <ElegantTemplate {...props} />;
+    case "energetic":
+      return <EnergeticTemplate {...props} />;
     case "minimal":
       return <MinimalTemplate {...props} />;
     case "classic":

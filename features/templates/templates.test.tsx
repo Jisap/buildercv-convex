@@ -164,7 +164,7 @@ const MUST_CONTAIN = [  "María López García",
   "Voluntariado",
 ];
 
-test("las seis plantillas usan el mismo modelo de contenido", () => {
+test("las plantillas usan el mismo modelo de contenido", () => {
   expect(TEMPLATES.map((t) => t.id)).toEqual([
     "classic",
     "modern",
@@ -172,6 +172,7 @@ test("las seis plantillas usan el mismo modelo de contenido", () => {
     "sidebar",
     "elegant",
     "minimal",
+    "energetic",
   ]);
   for (const meta of TEMPLATES) {
     const html = renderToStaticMarkup(
@@ -258,6 +259,20 @@ test("el layout explícito manda sobre la derivación por tipo", () => {
   expect(html.indexOf("Competencias")).toBeGreaterThan(mainIdx);
 });
 
+test("enérgica usa bloque de acento y píldoras con acento", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "energetic" }}
+      layout={layout}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain("cv-energetic");
+  expect(html).toContain("cv-pills");
+  expect(html).toContain("#b91c1c");
+});
+
 test("la foto aparece en modernas y se omite en ATS", () => {
   const url = "https://fotos.example/retrato.jpg";
   const modern = renderToStaticMarkup(
@@ -271,7 +286,7 @@ test("la foto aparece en modernas y se omite en ATS", () => {
   );
   expect(modern).toContain("cv-photo");
   expect(modern).toContain(url);
-  for (const id of ["sidebar", "elegant", "compact"]) {
+  for (const id of ["sidebar", "elegant", "compact", "energetic"]) {
     const html = renderToStaticMarkup(
       <TemplateRenderer
         content={content}
