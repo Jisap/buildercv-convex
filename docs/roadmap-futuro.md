@@ -46,6 +46,15 @@ Hecho y verificado (typegen+tsc 0, lint 0, 63/63 tests, build OK, e2e 50/50):
 - G5 (`2e80c0c`): `overflow-hidden` movido de la tarjeta al enlace (el menú ya no se recorta); PDF de la barra superior oculto en `< md` (queda el de la inferior); `DropdownMenuContent` encadena su `onKeyDown` con el del consumidor.
 - Pendiente: QA manual H1–H7 e informe final (I).
 
+## Plantillas nuevas (2026-10-12: enérgica, técnica, ejecutiva)
+
+Receta verificada (sin migraciones): `XTemplate.tsx` con el contrato (`partitionForLayout`, `docRootStyle`, ganchos `cv-*`, estructura en estilos en línea para que viaje al PDF) + alta en `TEMPLATES` y `TemplateRenderer`. La allowlist del servidor, miniaturas, picker y panel entran solas desde el registro.
+- Enérgica (`8d1e13c`): cabecera asimétrica con bloque de acento, foto con anillo, píldoras. No ATS.
+- Técnica (`0f856f2`): línea de tiempo, barras con texto de nivel, monoespaciada, secciones numeradas. Sin foto.
+- Ejecutiva (`7911137`): banda oscura (`cv-band` reutilizada) con foto y filete en acento, cuerpo sobrio.
+- Tests 66/66 (lista de IDs + bucle de contenido + foto + 3 tests propios). Sin cambios en `printCss` (todo viaja en línea o con ganchos existentes).
+- Pendiente: QA visual tuya (corto+largo, 1–2 columnas, con/sin foto) y PDFs reales de las 3; la matriz de `docs/pdf-testing.md` ya las incluye.
+
 ## Sesión 2026-10-12 (cierre serie UI): avance y próxima sesión
 
 Hecho en esta sesión (todo verificado: tsc 0, lint 0, 63/63 tests, build OK, E2E 50/50):
@@ -136,9 +145,11 @@ Criterios de cierre de esta fase:
 - Evaluar `UndoRedo` solo local (complejo con autosave + Convex; fuera del MVP salvo diseño simple documentado).
 - `ZoomControls` de vista previa si aporta valor (solo escala contenedor).
 
-### Fase F4 — Evaluación de posicionamiento libre (hoy descartada)
+### Fase F4 — Evaluación de posicionamiento libre (decisión 2026-10-12: experimento futuro, sin tocar el modelo)
 - Idea original del usuario ("mover todo a gusto") aparcada por coste: paginación manual, doble motor pantalla/impresión, persistencia `x,y,w,h` por breakpoint, rotura ATS, móvil y accesibilidad.
-- Condiciones para reconsiderarla: F1–F2 validadas con usuarios reales pidiendo más libertad, y spike en rama aparte que demuestre paridad PDF antes de comprometer arquitectura. Candidatos solo entonces: `react-grid-layout` u otro canvas. No instalar sin ese spike.
+- Invariante que lo bloquea: **preview = print** (mismo renderizador, mismo HTML/CSS, Chromium). La edición libre lo ataca por cinco flancos: paginación manual, segundo motor de impresión (se pierde texto seleccionable/ATS), orden de lectura DOM vs visual, espejo x4 con geometría por breakpoint, y arrastre 2D en táctil/teclado.
+- Vías ordenadas por coste: **A. libertad contenida** (más `layoutId` predefinidos y variantes de cabecera; riesgo cero sobre el invariante) → **B. decoraciones libres** (marcas/insignias sin mover el contenido) → **C. canvas real** (`react-grid-layout` o 2D propio).
+- Condiciones para C: spike en rama aparte que demuestre paridad preview≈PDF (texto extraído idéntico, sin cortes, ATS preservado) antes de comprometer arquitectura. Hasta que las plantillas nuevas + la vía A se queden cortas con usuarios reales, no se toca el modelo.
 
 ## 4. Decisiones diferidas y motivo
 

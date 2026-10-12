@@ -45,8 +45,8 @@ Script temporal (eliminado tras la prueba) con el mismo builder y Chromium:
 | Compacto (dos columnas) | Sin cortes ni desbordes |
 | Sección oculta | No aparece ni deja huecos |
 | Botones del editor | No aparecen en el PDF |
-| Foto en moderna/lateral/elegante/compacta | Redonda, nítida, junto a la cabecera |
-| Foto en clásica/mínima | No aparece (omisión ATS por diseño) |
+| Foto en moderna/lateral/elegante/compacta/enérgica/ejecutiva | Redonda, nítida, junto a la cabecera |
+| Foto en clásica/mínima/técnica | No aparece (omisión por diseño; en clásica y mínima, ATS) |
 | CV con foto eliminada | El PDF sale sin foto, sin error |
 
 ## Limitaciones conocidas

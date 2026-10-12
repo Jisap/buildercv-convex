@@ -10,7 +10,7 @@ import { TemplateThumbnail } from "@/features/templates/TemplateThumbnails";
 const VALORES = [
   {
     Icon: LayoutTemplate,
-    titulo: "6 plantillas profesionales",
+    titulo: "9 plantillas profesionales",
     texto: "Clásicas, modernas y compactas, listas para cualquier sector.",
   },
   {

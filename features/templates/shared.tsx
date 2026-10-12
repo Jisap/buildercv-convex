@@ -3,7 +3,7 @@ import type { ResumeDesign, ResumeSection } from "@/types/resume";
 import { FONT_STACKS } from "./types";
 import { HEADING_SCALES } from "@/types/resume";
 
-// Piezas compartidas por los tres renderizadores: la lógica de contenido
+// Piezas compartidas por los renderizadores: la lógica de contenido
 // vive aquí una sola vez; las plantillas solo aportan estilo.
 
 export function formatRange(
@@ -74,7 +74,7 @@ export function TemplatePhoto({
  * diseño, más las variables `--cv-leading` (interlineado del cuerpo) y
  * `--cv-heading` (escala de titulares) que consumen el CSS de pantalla
  * (`app/globals.css`) y el de impresión (`features/exports/printCss.ts`).
- * Centralizado para que las seis plantillas respondan igual.
+ * Centralizado para que todas las plantillas respondan igual.
  */
 export function docRootStyle(design: ResumeDesign): CSSProperties {
   return {
