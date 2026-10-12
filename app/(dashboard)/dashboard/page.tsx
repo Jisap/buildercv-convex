@@ -10,13 +10,13 @@ export default function DashboardPage() {
   return (
     <div>
       <AuthLoading>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400" role="status">
+        <p className="text-sm text-muted-foreground" role="status">
           Cargando tu panel…
         </p>
       </AuthLoading>
       <Unauthenticated>
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-zinc-600 dark:text-zinc-400">Necesitas iniciar sesión.</p>
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <p className="text-muted-foreground">Necesitas iniciar sesión.</p>
           <Button asChild className="mt-4">
             <Link href="/signin">Ir a iniciar sesión</Link>
           </Button>
@@ -24,8 +24,8 @@ export default function DashboardPage() {
       </Unauthenticated>
       <Authenticated>
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">Mis currículums</h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-2xl font-semibold text-foreground">Mis currículums</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Gestiona tus CV desde un solo lugar.
           </p>
         </div>
