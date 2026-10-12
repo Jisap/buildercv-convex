@@ -173,6 +173,7 @@ test("las plantillas usan el mismo modelo de contenido", () => {
     "elegant",
     "minimal",
     "energetic",
+    "technical",
   ]);
   for (const meta of TEMPLATES) {
     const html = renderToStaticMarkup(
@@ -298,7 +299,7 @@ test("la foto aparece en modernas y se omite en ATS", () => {
     );
     expect(html, `${id} muestra la foto`).toContain("cv-photo");
   }
-  for (const id of ["classic", "minimal"]) {
+  for (const id of ["classic", "minimal", "technical"]) {
     const html = renderToStaticMarkup(
       <TemplateRenderer
         content={content}
@@ -319,6 +320,21 @@ test("la foto aparece en modernas y se omite en ATS", () => {
     />,
   );
   expect(sinFoto).not.toContain("cv-photo");
+});
+
+test("técnica usa línea de tiempo, barras y secciones numeradas", () => {
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={content}
+      design={{ ...design, templateId: "technical" }}
+      layout={layout}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain("cv-technical");
+  expect(html).toContain("01");
+  expect(html).toContain("5/5");
+  expect(html).toContain("#b91c1c");
 });
 
 test("docRootStyle centraliza tipografía, relleno e interlineado", () => {

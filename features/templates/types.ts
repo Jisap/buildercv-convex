@@ -71,6 +71,13 @@ export const TEMPLATES: TemplateMeta[] = [
     description:
       "Cabecera asimétrica con bloque de acento y foto con anillo. Para perfiles creativos.",
   },
+  {
+    id: "technical",
+    version: 1,
+    name: "Técnica",
+    description:
+      "Línea de tiempo, barras de nivel y detalles monoespaciados. Sin foto, para ingeniería e IT.",
+  },
 ];
 
 export function getTemplateMeta(templateId: string): TemplateMeta {
