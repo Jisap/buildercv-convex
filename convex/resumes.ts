@@ -16,7 +16,11 @@ import { TEMPLATE_IDS } from "../features/templates/types";
 import { HEADING_SIZES } from "../types/resume";
 import { assertContentLimits } from "./contentLimits";
 import { getIdentityUserId, requireOwnedResume } from "./access";
-import { deletePhotoIfUnreferenced, photoStorageIdsOf } from "./files";
+import {
+  assertPhotoAssociations,
+  deletePhotoIfUnreferenced,
+  photoStorageIdsOf,
+} from "./files";
 
 // Todas las funciones resuelven la identidad desde `ctx.auth` (JWT de Clerk
 // verificado por la plataforma). Jamás se acepta un userId del cliente.
@@ -205,6 +209,13 @@ export const update = mutation({
     }
     if (args.content !== undefined) {
       assertContentLimits(args.content);
+      // Las fotos recién asociadas se validan contra Storage (tipo y
+      // tamaño); la no válida se borra y la mutación se rechaza.
+      await assertPhotoAssociations(
+        ctx,
+        photoStorageIdsOf(resume.content),
+        photoStorageIdsOf(args.content),
+      );
       patch.content = args.content;
     }
     if (args.design !== undefined) {

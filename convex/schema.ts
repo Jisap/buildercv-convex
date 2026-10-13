@@ -23,6 +23,14 @@ const schema = defineSchema({
     layout: v.optional(resumeLayoutValidator),
     updatedAt: v.number(),
   }).index("by_user", ["userId", "updatedAt"]),
+  // Intentos de subida de foto (una fila por `generateUploadUrl`): acotan
+  // cuántas subidas puede generar un usuario por día (ver `files.ts`).
+  // No guardan el `storageId` (Convex solo lo revela tras subir); la
+  // limpieza elimina las filas viejas, no ficheros.
+  uploads: defineTable({
+    userId: v.string(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId", "createdAt"]),
 });
 
 export default schema;

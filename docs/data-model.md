@@ -61,6 +61,19 @@ relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
 propietario en el índice y ordena por modificación descendente. Nunca se
 descargan todos los CV para filtrar en cliente.
 
+## Tabla `uploads`
+
+Una fila por llamada a `generateUploadUrl` (`{ userId, createdAt }`,
+índice `by_user` sobre `["userId", "createdAt"]`): acota las subidas a 20
+por usuario y día. No guarda el `storageId` (Convex solo lo revela tras
+subir); el cron diario (`convex/crons.ts` → `files.cleanupUploads`)
+elimina las filas de hace más de 24 h. La validación real ocurre al
+asociar: `files.attachPhoto` comprueba tipo (JPG/PNG/WebP) y tamaño
+(≤ 5 MB) contra Storage, borra el fichero no válido y lo asocia; el botón
+«Cambiar» limpia la anterior si queda sin referencias. `resumes.update`
+rechaza fotos nuevas no válidas como red de seguridad (sin borrar: el
+borrado dentro de una mutación que falla se revierte con la transacción).
+
 ## Funciones (`convex/resumes.ts`)
 
 | Función     | Hace |

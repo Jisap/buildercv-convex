@@ -56,6 +56,7 @@ export function PhotoUploader({
   onRemove: () => void;
 }) {
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const attachPhoto = useMutation(api.files.attachPhoto);
   const deletePhoto = useMutation(api.files.deletePhoto);
   const photoUrl = useQuery(
     api.files.photoUrl,
@@ -92,6 +93,16 @@ export function PhotoUploader({
       const { storageId: uploaded } = (await response.json()) as {
         storageId: string;
       };
+      // Camino único de validación en servidor (tipo y tamaño): si no
+      // cumple, el fichero ya quedó borrado y llega el motivo.
+      const attached = await attachPhoto({
+        resumeId: resumeId as Id<"resumes">,
+        storageId: uploaded,
+      });
+      if (!attached.ok) {
+        setError(attached.error ?? "La foto no es válida.");
+        return;
+      }
       onSelect(uploaded);
     } catch {
       setError("No se pudo subir la foto. Inténtalo de nuevo.");
