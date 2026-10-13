@@ -1,28 +1,10 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Nota H1 (2026-10-13): `createRouteMatcher` está deprecado en @clerk/nextjs v7
-// (recomiendan checks por recurso en cada página/layout). Se mantiene porque
-// la migración es un refactor mayor fuera de alcance; sigue funcionando y las
-// e2e de guards lo cubren. Archivo renombrado de `middleware.ts` a `proxy.ts`
-// según Next 16 (misma funcionalidad).
-const isSignInPage = createRouteMatcher(["/signin(.*)", "/signup(.*)"]);
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/editor(.*)",
-  "/cuenta(.*)",
-]);
-
-export default clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) {
-    await auth.protect();
-  }
-  // Con sesión iniciada, /signin y /signup redirigen al panel.
-  if (isSignInPage(request) && (await auth()).isAuthenticated) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return Response.redirect(url);
-  }
-});
+// Clerk sigue necesitando el middleware/proxy en marcha; la autorización vive
+// en cada recurso (`auth.protect()` en layouts/páginas servidor y checks en la
+// ruta del PDF). Sin `createRouteMatcher` (deprecado): ver guía
+// https://clerk.com/docs/guides/development/upgrading/upgrade-guides/migrate-from-create-route-matcher
+export default clerkMiddleware();
 
 export const config = {
   matcher: [

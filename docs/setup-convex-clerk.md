@@ -172,26 +172,20 @@ export function ConvexClientProvider({ children }) {
 }
 ```
 
-**`middleware.ts`**: `/dashboard(.*)` protegida; `/signin` y `/signup`
-redirigen al panel si ya hay sesión.
+**`proxy.ts`** (mínimo: Clerk lo sigue necesitando en marcha; la autorización
+vive en cada recurso, sin `createRouteMatcher` deprecado):
 
 ```ts
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const isSignInPage = createRouteMatcher(["/signin(.*)", "/signup(.*)"]);
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
-
-export default clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) {
-    await auth.protect();
-  }
-  if (isSignInPage(request) && (await auth()).isAuthenticated) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return Response.redirect(url);
-  }
-});
+export default clerkMiddleware();
 ```
+
+Protección por recurso (2026-10-13): `await auth.protect()` en
+`app/(dashboard)/layout.tsx` (cubre panel, archivados y cuenta) y en
+`app/editor/[id]/page.tsx`; `/signin` y `/signup` redirigen al panel con
+`redirect("/dashboard")` si ya hay sesión; la ruta del PDF comprueba `auth()`
+y devuelve 401.
 
 **Páginas**: `/signin` y `/signup` usan `<SignIn/>` / `<SignUp/>` de Clerk con
 `routing="hash"` (evita necesitar rutas catch-all `[[...rest]]`) y

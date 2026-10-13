@@ -59,5 +59,5 @@ con override o variable; documentar al estrenar hosting).
   manualmente hasta montar el entorno de testing de Clerk.
 - `middleware.ts` usa la convención deprecada (aviso Next 16); migrar a
   `proxy.ts` cuando la doc de Clerk/Next lo estabilice.
-- `createRouteMatcher` deprecado en `@clerk/nextjs` v7 (aviso, sigue
-  funcionando); migrar a checks por recurso según su guía.
+- `proxy.ts` con `clerkMiddleware()` mínimo (sin `createRouteMatcher`, migrado
+  a checks por recurso con `auth.protect()` en 2026-10-13).
