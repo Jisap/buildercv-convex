@@ -1,5 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { Doc } from "./_generated/dataModel";
 import {
   resumeContentValidator,
@@ -16,6 +17,7 @@ import { TEMPLATE_IDS } from "../features/templates/types";
 import { HEADING_SIZES } from "../types/resume";
 import { assertContentLimits } from "./contentLimits";
 import { getIdentityUserId, requireOwnedResume } from "./access";
+import { MAX_RESUMES_PER_USER } from "../lib/validation/resume";
 import {
   assertPhotoAssociations,
   deletePhotoIfUnreferenced,
@@ -140,6 +142,27 @@ function failLayout(message: string): never {
   throw new ConvexError(message);
 }
 
+/**
+ * Número de CV del usuario (incluidos archivados: también cuentan para el
+ * tope porque ocupan almacenamiento y coste de listado/miniaturas).
+ */
+async function countOwned(ctx: MutationCtx, userId: string): Promise<number> {
+  const docs = await ctx.db
+    .query("resumes")
+    .withIndex("by_user", (q) => q.eq("userId", userId))
+    .collect();
+  return docs.length;
+}
+
+function assertUnderLimit(count: number): void {
+  if (count >= MAX_RESUMES_PER_USER) {
+    throw new ConvexError(
+      `Has llegado al máximo de ${MAX_RESUMES_PER_USER} currículums. ` +
+        "Elimina alguno para crear otro (los archivados también cuentan).",
+    );
+  }
+}
+
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -166,6 +189,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getIdentityUserId(ctx);
+    assertUnderLimit(await countOwned(ctx, userId));
     const title = assertTitle(args.title);
     const design = createDefaultDesign(args.templateId?.trim() || "classic", 1);
     assertDesign(design);
@@ -239,6 +263,7 @@ export const duplicate = mutation({
   handler: async (ctx, args) => {
     const resume = await requireOwnedResume(ctx, args.id);
     const userId = await getIdentityUserId(ctx);
+    assertUnderLimit(await countOwned(ctx, userId));
     const { content, idMap } = cloneContentWithNewIds(resume.content);
     return await ctx.db.insert("resumes", {
       userId,

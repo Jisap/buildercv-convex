@@ -31,6 +31,13 @@ export const ITEM_LIMITS: Record<SectionType, number> = {
   custom: 50,
 };
 
+/**
+ * Máximo de currículums por usuario (H-1). Lo aplica el servidor en
+ * `create` y `duplicate` (los archivados también cuentan: ocupan
+ * almacenamiento y coste de listado); el panel lo refleja en la UI.
+ */
+export const MAX_RESUMES_PER_USER = 30;
+
 const idSchema = z.string().min(1, "ID requerido.");
 const dateSchema = z
   .string()

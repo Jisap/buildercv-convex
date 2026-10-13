@@ -2,6 +2,7 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vitest";
 import { api } from "./_generated/api";
 import schema from "./schema";
+import { MAX_RESUMES_PER_USER } from "../lib/validation/resume";
 
 // Pruebas de aislamiento entre usuarios (Fase 2). Cada test levanta un
 // backend en memoria con el esquema real; `withIdentity` simula el `subject`
@@ -195,6 +196,41 @@ test("crear genera layout total y update lo valida", async () => {
   await alice.mutation(api.resumes.update, { id, layout: next });
   const updated = await alice.query(api.resumes.get, { id });
   expect(updated.layout).toEqual(next);
+});
+
+test("tope de CV por usuario en crear y duplicar", async () => {
+  const { alice, bob } = setup();
+  for (let i = 0; i < MAX_RESUMES_PER_USER; i += 1) {
+    await alice.mutation(api.resumes.create, { title: `CV ${i}` });
+  }
+  // El siguiente crear se rechaza…
+  await expect(
+    alice.mutation(api.resumes.create, { title: "Uno de más" }),
+  ).rejects.toThrow("máximo");
+  // …y duplicar no lo esquiva.
+  const mine = await alice.query(api.resumes.list, {});
+  await expect(
+    alice.mutation(api.resumes.duplicate, { id: mine[0]._id }),
+  ).rejects.toThrow("máximo");
+  // El tope es por usuario: a Bob no le afecta.
+  await alice.mutation(api.resumes.remove, { id: mine[0]._id });
+  const id = await bob.mutation(api.resumes.create, { title: "Bob" });
+  expect(id).toBeDefined();
+});
+
+test("los archivados cuentan para el tope", async () => {
+  const { alice } = setup();
+  const ids = [];
+  for (let i = 0; i < MAX_RESUMES_PER_USER; i += 1) {
+    ids.push(await alice.mutation(api.resumes.create, { title: `CV ${i}` }));
+  }
+  await alice.mutation(api.resumes.update, {
+    id: ids[0],
+    status: "archived",
+  });
+  await expect(
+    alice.mutation(api.resumes.create, { title: "Uno de más" }),
+  ).rejects.toThrow("máximo");
 });
 
 test("duplicar remapea el layout a los IDs nuevos", async () => {

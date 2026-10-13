@@ -17,7 +17,10 @@ import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { withDesignDefaults } from "@/lib/resume";
 import { healLayout } from "@/lib/resume-layout";
-import { resumeTitleSchema } from "@/lib/validation/resume";
+import {
+  MAX_RESUMES_PER_USER,
+  resumeTitleSchema,
+} from "@/lib/validation/resume";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -48,6 +51,16 @@ function nombrePlantilla(templateId: string): string {
   return (
     TEMPLATES.find((t) => t.id === templateId)?.name ?? "Plantilla clásica"
   );
+}
+
+/**
+ * Si el servidor rechaza por tope de CV, su mensaje ya es apto para el
+ * usuario y se muestra tal cual; si no, null para el genérico.
+ */
+function mensajeLimite(error: unknown): string | null {
+  const texto = error instanceof Error ? error.message : "";
+  const m = /Has llegado al máximo[\s\S]*$/.exec(texto);
+  return m ? m[0] : null;
 }
 
 /**
@@ -295,8 +308,11 @@ export function ResumesPanel({
       await createResume({ title: parsed.data, templateId: plantillaId });
       setCrearAbierto(false);
       setTitulo("");
-    } catch {
-      setErrorAccion("No se pudo crear el currículum. Inténtalo de nuevo.");
+    } catch (e) {
+      setErrorAccion(
+        mensajeLimite(e) ??
+          "No se pudo crear el currículum. Inténtalo de nuevo.",
+      );
     } finally {
       setCreando(false);
     }
@@ -327,8 +343,10 @@ export function ResumesPanel({
     setErrorAccion(null);
     try {
       await duplicateResume({ id });
-    } catch {
-      setErrorAccion("No se pudo duplicar el currículum.");
+    } catch (e) {
+      setErrorAccion(
+        mensajeLimite(e) ?? "No se pudo duplicar el currículum.",
+      );
     }
   };
 
@@ -351,6 +369,9 @@ export function ResumesPanel({
   const visible = (resumes ?? []).filter((resume) =>
     archived ? resume.status === "archived" : resume.status !== "archived",
   );
+  // El tope cuenta archivados también (decisión documentada en el
+  // servidor): con el panel lleno se explica en vez de fallar al crear.
+  const alTope = (resumes ?? []).length >= MAX_RESUMES_PER_USER;
 
   return (
     <div>
@@ -374,31 +395,47 @@ export function ResumesPanel({
               ? "Los currículums que archives aparecerán aquí."
               : "Crea el primero en un minuto: ponle nombre, elige una plantilla y edítalo a tu ritmo."}
           </p>
-          {!hideForm && !archived && (
+          {!hideForm && !archived && !alTope && (
             <Button className="mt-4" onClick={abrirCrear}>
               <Plus />
               Crear mi primer CV
             </Button>
+          )}
+          {!hideForm && !archived && alTope && (
+            <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
+              Has llegado al máximo de {MAX_RESUMES_PER_USER} currículums.
+              Elimina alguno para crear otro.
+            </p>
           )}
         </div>
       ) : (
         <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {!hideForm && (
             <li id="nuevo-cv" className="scroll-mt-24">
-              <button
-                type="button"
-                onClick={abrirCrear}
-                className="flex min-h-64 w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-card p-6 text-card-foreground hover:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              >
-                <Plus
-                  className="size-8 text-muted-foreground"
-                  aria-hidden
-                />
-                <span className="font-medium">Nuevo CV</span>
-                <span className="text-sm text-muted-foreground">
-                  Elige plantilla y empieza
-                </span>
-              </button>
+              {alTope ? (
+                <div className="flex min-h-64 w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-card p-6 text-center">
+                  <p className="font-medium">Panel lleno</p>
+                  <span className="text-sm text-muted-foreground">
+                    Máximo de {MAX_RESUMES_PER_USER} currículums. Elimina
+                    alguno para crear otro.
+                  </span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={abrirCrear}
+                  className="flex min-h-64 w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-card p-6 text-card-foreground hover:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  <Plus
+                    className="size-8 text-muted-foreground"
+                    aria-hidden
+                  />
+                  <span className="font-medium">Nuevo CV</span>
+                  <span className="text-sm text-muted-foreground">
+                    Elige plantilla y empieza
+                  </span>
+                </button>
+              )}
             </li>
           )}
           {visible.map((resume) => (

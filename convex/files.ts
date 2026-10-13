@@ -180,7 +180,9 @@ export function photoStorageIdsOf(content: ResumeContent): string[] {
   return ids;
 }
 
-/** Borra el fichero salvo que otro CV del usuario lo use. */
+/** Borra el fichero salvo que otro CV del usuario lo use. Recorre los CV
+ * del usuario: acotado por el tope (MAX_RESUMES_PER_USER, 30 documentos
+ * completos como máximo). */
 export async function deletePhotoIfUnreferenced(
   ctx: MutationCtx,
   userId: string,
