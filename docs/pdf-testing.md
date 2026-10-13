@@ -49,6 +49,18 @@ Script temporal (eliminado tras la prueba) con el mismo builder y Chromium:
 | Foto en clásica/mínima/técnica | No aparece (omisión por diseño; en clásica y mínima, ATS) |
 | CV con foto eliminada | El PDF sale sin foto, sin error |
 
+## Robustez de la ruta (S3, 2026-10-13)
+
+- Singleton con recuperación (`disconnected` relanza), 2 páginas
+  simultáneas + cola de 10 (503 con `Retry-After`), timeout de 30 s (500),
+  límite de 6 exportaciones/min por usuario (429 con `Retry-After`).
+- `Cache-Control: no-store`; registro mínimo (estado, duración, bytes, sin
+  datos personales). El botón del editor pide con `fetch` y muestra el
+  motivo en un aviso con Reintentar (antes descargaba el JSON del error).
+- Límite en memoria: con más de una instancia del frontend, compartir el
+  contador (ver `lib/pdf/rateLimit.ts`). Pruebas unitarias en
+  `lib/pdf/pdf.test.ts` (sin Chromium).
+
 ## Limitaciones conocidas
 
 - Chromium completo (~200 MB) vive fuera del repo (`ms-playwright/`); en

@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery } from "convex/react";
 import {
-  Download,
   FileText,
   Minus,
   Palette,
@@ -45,6 +44,7 @@ import { SectionForm } from "./SectionForm";
 import { ContentSidebar } from "./ContentSidebar";
 import { DesignSidebar } from "./DesignSidebar";
 import { EditorToolbar } from "./EditorToolbar";
+import { PdfDownloadButton } from "./PdfDownloadButton";
 import { ResumePreview } from "./ResumePreview";
 
 type MobileTab = "edit" | "preview";
@@ -492,17 +492,12 @@ export function EditorShell({ resumeId }: { resumeId: string }) {
             <FileText />
             Vista previa
           </Button>
-          <Button
-            asChild
+          <PdfDownloadButton
+            resumeId={resumeId}
             size="sm"
             variant="ghost"
             className="h-auto flex-col gap-1 py-1.5 text-xs"
-          >
-            <a href={`/api/resumes/${resumeId}/pdf`} download>
-              <Download />
-              PDF
-            </a>
-          </Button>
+          />
         </div>
       </nav>
 

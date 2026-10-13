@@ -1,29 +1,26 @@
 import { auth } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { NextResponse, type NextRequest } from "next/server";
-import { chromium, type Browser } from "playwright";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { buildPrintHtml } from "@/features/exports/printDocument";
+import { obtenerNavegador } from "@/lib/pdf/browser";
+import { PuertaPdf, PdfSaturadoError } from "@/lib/pdf/gate";
+import { LimiteTasa } from "@/lib/pdf/rateLimit";
+import { conTimeout, PdfTimeoutError } from "@/lib/pdf/timeout";
 import { withDesignDefaults } from "@/lib/resume";
 
 // Ruta dinámica (usa sesión y genera binario por petición).
+// Robustez (S3): Chromium singleton con recuperación ante caídas,
+// puerta de concurrencia (2 páginas, cola de 10), timeout de 30 s por
+// exportación y límite de 6/min por usuario (en memoria: con más de una
+// instancia habría que compartir el contador, ver `lib/pdf/rateLimit.ts`).
+// En local se usa el Chromium completo de Playwright; en serverless haría
+// falta `playwright-core` + Chromium ligero (ver docs/pdf-testing.md).
 
-// Singleton de Chromium: lanzar un proceso por petición añade segundos y
-// agota memoria bajo concurrencia. En local se usa el Chromium completo de
-// Playwright; en serverless haría falta `playwright-core` + Chromium ligero
-// (ver docs/pdf-testing.md).
-let browserPromise: Promise<Browser> | null = null;
-
-function getBrowser(): Promise<Browser> {
-  if (!browserPromise) {
-    browserPromise = chromium.launch();
-    browserPromise.catch(() => {
-      browserPromise = null;
-    });
-  }
-  return browserPromise;
-}
+const puerta = new PuertaPdf(2, 10);
+const tasa = new LimiteTasa(6, 60_000);
+const TIMEOUT_MS = 30_000;
 
 function safeFilename(title: string): string {
   const slug = title
@@ -35,10 +32,21 @@ function safeFilename(title: string): string {
   return `${slug || "curriculum"}.pdf`;
 }
 
+/** Registro mínimo estructurado, sin datos personales del CV. */
+function registrar(evento: {
+  estado: number;
+  motivo?: string;
+  duracionMs?: number;
+  bytes?: number;
+}) {
+  console.log(JSON.stringify({ ambito: "pdf", ...evento }));
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const inicio = Date.now();
   const { userId, getToken } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "No autenticado." }, { status: 401 });
@@ -76,7 +84,30 @@ export async function GET(
     if (message.includes("Currículum no encontrado")) {
       return NextResponse.json({ error: "Currículum no encontrado." }, { status: 404 });
     }
+    registrar({ estado: 500, motivo: "datos" });
     return NextResponse.json({ error: "No se pudo generar el PDF." }, { status: 500 });
+  }
+
+  const chequeo = tasa.comprobar(userId);
+  if (!chequeo.permitido) {
+    registrar({ estado: 429, motivo: "tasa" });
+    return NextResponse.json(
+      { error: "Demasiadas exportaciones. Espera un minuto e inténtalo de nuevo." },
+      { status: 429, headers: { "Retry-After": String(chequeo.reintentarEn) } },
+    );
+  }
+
+  let soltar: (() => void) | null = null;
+  try {
+    soltar = await puerta.adquirir();
+  } catch (e) {
+    const espera =
+      e instanceof PdfSaturadoError ? e.esperaSegundos : 30;
+    registrar({ estado: 503, motivo: "cola" });
+    return NextResponse.json(
+      { error: "El servicio de PDF está saturado. Inténtalo de nuevo en unos segundos." },
+      { status: 503, headers: { "Retry-After": String(espera) } },
+    );
   }
 
   try {
@@ -90,40 +121,60 @@ export async function GET(
       resume.layout ?? null,
       photoUrl,
     );
-    const browser = await getBrowser();
-    const page = await browser.newPage();
+    const navegador = await obtenerNavegador();
+    const pagina = await navegador.newPage();
     try {
-      await page.setContent(html, { waitUntil: "domcontentloaded" });
-      // Espera a las imágenes (foto) antes de paginar; sin foto resuelve
-      // al momento.
-      await page.evaluate(() =>
-        Promise.all(
-          Array.from(document.images).map((img) =>
-            img.complete
-              ? undefined
-              : new Promise((resolve) => {
-                  img.addEventListener("load", resolve, { once: true });
-                  img.addEventListener("error", resolve, { once: true });
-                }),
-          ),
-        ),
+      const pdf = await conTimeout(
+        TIMEOUT_MS,
+        (async () => {
+          await pagina.setContent(html, { waitUntil: "domcontentloaded" });
+          // Espera a las imágenes (foto) antes de paginar; sin foto resuelve
+          // al momento.
+          await pagina.evaluate(() =>
+            Promise.all(
+              Array.from(document.images).map((img) =>
+                img.complete
+                  ? undefined
+                  : new Promise((resolve) => {
+                      img.addEventListener("load", resolve, { once: true });
+                      img.addEventListener("error", resolve, { once: true });
+                    }),
+              ),
+            ),
+          );
+          return pagina.pdf({
+            format: "A4",
+            printBackground: true,
+            // Manda el `@page` de nuestro CSS (tamaño A4 y márgenes).
+            preferCSSPageSize: true,
+          });
+        })(),
       );
-      const pdf = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        // Manda el `@page` de nuestro CSS (tamaño A4 y márgenes).
-        preferCSSPageSize: true,
-      });
-      return new Response(new Uint8Array(pdf), {
+      const bytes = new Uint8Array(pdf);
+      registrar({ estado: 200, duracionMs: Date.now() - inicio, bytes: bytes.length });
+      return new Response(bytes, {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `attachment; filename="${safeFilename(resume.title)}"`,
+          "Cache-Control": "no-store",
         },
       });
     } finally {
-      await page.close();
+      await pagina.close().catch(() => {});
     }
-  } catch {
-    return NextResponse.json({ error: "No se pudo generar el PDF." }, { status: 500 });
+  } catch (e) {
+    const motivo = e instanceof PdfTimeoutError ? "timeout" : "chromium";
+    registrar({ estado: 500, motivo, duracionMs: Date.now() - inicio });
+    return NextResponse.json(
+      {
+        error:
+          e instanceof PdfTimeoutError
+            ? "La exportación tardó demasiado. Inténtalo de nuevo."
+            : "No se pudo generar el PDF.",
+      },
+      { status: 500 },
+    );
+  } finally {
+    soltar();
   }
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { ArrowLeft, Check, Download, Loader2, RefreshCw } from "lucide-react";
+import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PdfDownloadButton } from "./PdfDownloadButton";
 import type { SaveStatus } from "./useAutosave";
 
 function SaveBadge({ status }: { status: SaveStatus }) {
@@ -87,12 +88,12 @@ export function EditorToolbar({
           Reintentar
         </Button>
       )}
-      <Button asChild size="sm" variant="outline" className="hidden md:inline-flex">
-        <a href={`/api/resumes/${resumeId}/pdf`} download>
-          <Download />
-          PDF
-        </a>
-      </Button>
+      <PdfDownloadButton
+        resumeId={resumeId}
+        size="sm"
+        variant="outline"
+        className="hidden md:inline-flex"
+      />
       <ThemeToggle />
       <UserButton />
     </header>
