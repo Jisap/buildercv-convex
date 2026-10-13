@@ -1,4 +1,24 @@
-# CV Studio — Exportación PDF y pruebas (Fase 5)
+# CV Studio — Exportación PDF y pruebas (Fase 5 + T1)
+
+## Batería de paridad automatizada (T1, 2026-10-13)
+
+- Matriz en `paridad/pdf-parity.spec.ts`: 9 plantillas × {corto, largo} ×
+  {1 columna, 2 columnas} × {con foto, sin foto} = 72 celdas + 9 capturas
+  de referencia (corto, 1 col). Comando: `npm run test:pdf` (config propia
+  `paridad/playwright.config.ts`, sin servidor: usa `buildPrintHtml` +
+  Chromium directamente). No forma parte de `npm run test:e2e`.
+- Por celda: cabecera `%PDF`; texto íntegro extraído con `pdf-parse`
+  (incluye acentos/ñ; excluye la sección oculta `TextoOcultoQueNoDebeSalir`
+  añadida al fixture largo); enlaces del fixture como anotaciones
+  (vía `getInfo`, porque `parseHyperlinks` no los fusiona al texto);
+  corto = 1 página, largo = 2–8 páginas.
+- Capturas en `paridad/pdf-parity.spec.ts-snapshots/` (revisadas a ojo el
+  2026-10-13: clásica, técnica, ejecutiva y moderna correctas). Regenerar
+  solo a conciencia: `npm run test:pdf -- --update-snapshots`.
+- Sensibilidad demostrada: ocultar «Experiencia» en la clásica hace fallar
+  sus 4 celdas cortas (revertido tras la demo).
+- Verificado 2026-10-13: **81/81 en 12 s**. Límite: las capturas dependen
+  de las fuentes del sistema (regenerar por plataforma si cambian).
 
 ## Método
 

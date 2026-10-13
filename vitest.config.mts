@@ -7,7 +7,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    exclude: ["e2e/**", "node_modules/**"],
+    exclude: ["e2e/**", "paridad/**", "node_modules/**"],
     server: {
       // convex-test usa `import.meta.glob` para cargar el backend:
       // hay que procesarlo con Vite en vez de externalizarlo.

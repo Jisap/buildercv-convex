@@ -174,5 +174,13 @@ export const LONG_CONTENT: ResumeContent = {
         { id: "c2", title: "Artículo: accesibilidad", description: LONG_TEXT },
       ],
     },
+    {
+      id: "s8",
+      type: "skills",
+      title: "Oculta",
+      order: 7,
+      visible: false,
+      items: [{ id: "h1", name: "TextoOcultoQueNoDebeSalir" }],
+    },
   ],
 };
