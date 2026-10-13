@@ -7,6 +7,31 @@ comprobación hasta que T1/T2 lo automaticen.
 
 **Fecha:** 2026-10-12 · **Estado:** serie UI + ronda 2 + 3 plantillas nuevas (9 en total) en verde (66/66 tests, e2e 50/50); pendiente QA manual consolidada.
 
+## Sesión 2026-10-13 — oleadas B0–T2 ✅ (comiteado, todo en verde)
+
+Serie ejecutada secuencialmente (decisión del responsable: eficiencia sobre
+paralelo; despliegue aparcado al final):
+
+| Tarea | Commit | Estado |
+|---|---|---|
+| B0 línea base + H1 higiene (`proxy.ts`, docs) | `5bca3f0` | ✅ |
+| Auth por recurso (fin de `createRouteMatcher`) | `2a7106b` | ✅ |
+| F1 enlaces clicables en 9 plantillas + PDF | `441360e` | ✅ |
+| S1 fotos en servidor (`attachPhoto`, tope, cron) | `e04bdf5` | ✅ |
+| S2 tope 30 CV por usuario | `c3452ea` | ✅ |
+| S3 PDF robusto (cola, tasa, timeout, aviso) | `2b7e217` | ✅ |
+| T1 matriz paridad 72 celdas + 9 capturas | `ae97412` | ✅ |
+| T2 E2E con sesión (tickets) + fix recarga editor | `3d1ee38` | ✅ |
+
+Verificación: tsc 0, lint 0, **90 unit**, **50 e2e base + 8 con sesión**,
+**81 paridad**, build OK, Convex en sync (`ardent-shrimp-95`).
+Hallazgos: `delete + throw` no borra (`_storage` es transaccional);
+Chromium sí emite anotaciones `/Link` (F1 verificado); recarga del editor
+rota 3/3 (queries sin gate → corregido con `<Authenticated>`).
+Decisiones humano: H-1…H-3/H-6 por defecto (30 CV, 6 PDF/min, 5 MB,
+jpeg/png/webp, 24 h, 20 subidas/día); archivados cuentan para el tope;
+**R1 diferido** (ver abajo).
+
 ## Próxima sesión (orden propuesto)
 
 ### A. Landing page real ✅ HECHA 2026-10-12 (flujo D, `eba91b5`)
@@ -37,11 +62,14 @@ comprobación hasta que T1/T2 lo automaticen.
 
 ### E. Lo que falta (no olvidar, próxima sesión)
 1. **Despliegue:** hosting con Node por Chromium/PDF (`docs/deployment.md`); Vercel serverless sigue descartado sin alternativa de render.
-2. **E2E autenticada:** Clerk exige su entorno de testing; hoy esos flujos son manuales.
-3. **F4:** canvas libre como experimento futuro (vías A→B→C, §3); sin tocar el modelo hasta tener señal de usuarios reales.
-4. **Menores diferidos:** Undo/redo local (B6, opcional), recorte manual de foto, persistir el tema por usuario en Convex (opcional), 2–3 temas de color (hoy claro/oscuro/sistema + marca única).
-5. **Higiene docs:** `docs/data-model.md` dice “los cuatro campos nuevos son v.optional” y ya son más; actualizar al tocar el modelo.
-6. **G3 hecha (2026-10-12, `adfed5f`):** primitivos `dropdown-menu`/`toast` con identificadores en inglés (`ToastData`, `dismissToast`, `setOpen`, `triggerRef`…); textos visibles intactos en castellano. Alcance: los dos primitivos + las 2 llamadas a `toast()`; los diálogos propios del panel quedan como están.
+2. **E2E autenticada:** ✅ HECHA 2026-10-13 (T2, `3d1ee38`): tickets por Backend API, 8 specs, 3 pasadas seguidas. Necesita `E2E_CLERK_EMAIL` + `CLERK_SECRET_KEY` en `.env.local`; sin ellas se salta en silencio.
+3. **R1: DIFERIDO por decisión conjunta 2026-10-13.** El editor es grande pero estable y cubierto (90/58+8/81); el refactor solo se pagará con el primer cambio de producto que toque el editor (P4/P6/P7/P8). No hacerlo preventivo.
+4. **Oleada 4 (producto, con usuarios tras despliegue):** P1 importar, P2 IA, P3 compartir por enlace, P4 numeración PDF, P5 temas, P6 recorte foto, P7 undo/redo, P8 distribuciones. Sin empezar sin confirmación de prioridad.
+5. **F4:** canvas libre como experimento futuro (vías A→B→C, §3); sin tocar el modelo hasta tener señal de usuarios reales.
+6. **Menores diferidos:** Undo/redo local (B6, opcional), recorte manual de foto, persistir el tema por usuario en Convex (opcional), 2–3 temas de color (hoy claro/oscuro/sistema + marca única).
+7. **Higiene docs:** ✅ HECHA (`data-model.md` corregido + tabla `uploads`; `deployment.md` y `setup-convex-clerk.md` al día con proxy/auth por recurso y T2).
+8. **QA manual con sesión (D.2 + S1/S3, ojo humano):** foto (subir/sustituir/borrar, 6 plantillas que la muestran), pinchar enlaces en un PDF real, matar Chromium y comprobar recuperación, carga de PDF concurrente, aviso 429. Revisar `CV_STUDIO_AGENT_BRIEF.md`: existe en disco pero está en `.gitignore` (decidir: mover a `docs/` o quitar la referencia del README).
+9. **G3 hecha (2026-10-12, `adfed5f`):** primitivos `dropdown-menu`/`toast` con identificadores en inglés (`ToastData`, `dismissToast`, `setOpen`, `triggerRef`…); textos visibles intactos en castellano. Alcance: los dos primitivos + las 2 llamadas a `toast()`; los diálogos propios del panel quedan como están.
 
 ### F. Regla operativa: backend y frontend van juntos
 Todo cambio en `convex/` **o en sus imports** (`features/templates/types.ts`, `lib/*`, etc.) exige `npm run convex:push` (`convex dev --once`) antes de dar por buena la funcionalidad. Sin push, el despliegue (`ardent-shrimp-95`) corre código antiguo y el guardado falla con errores engañosos — 2026-10-12: las 3 plantillas nuevas daban «Plantilla desconocida» (`assertDesign` en `convex/resumes.ts:53`) hasta el push. Regla para el agente futuro: tras tocar el backend, push + re-verificación manual del guardado con sesión.
