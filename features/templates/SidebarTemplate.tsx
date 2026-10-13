@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -46,7 +48,7 @@ export function SidebarTemplate({ content, design, layout, mode, photoUrl }: Res
           : "cv-doc rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
-      {person && <SidebarPersonal item={person} accent={accent} photoUrl={photoUrl} />}
+      {person && <SidebarPersonal item={person} accent={accent} photoUrl={photoUrl} mode={mode} />}
       {twoCol ? (
         <div
           className="cv-layout-two-col"
@@ -67,7 +69,7 @@ export function SidebarTemplate({ content, design, layout, mode, photoUrl }: Res
             }}
           >
             {main.map((section) => (
-              <SidebarSection key={section.id} section={section} />
+              <SidebarSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
           <aside
@@ -86,7 +88,7 @@ export function SidebarTemplate({ content, design, layout, mode, photoUrl }: Res
             }}
           >
             {sidebar.map((section) => (
-              <SidebarSection key={section.id} section={section} light />
+              <SidebarSection key={section.id} section={section} light mode={mode} />
             ))}
           </aside>
         </div>
@@ -96,7 +98,7 @@ export function SidebarTemplate({ content, design, layout, mode, photoUrl }: Res
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <SidebarSection key={section.id} section={section} />
+            <SidebarSection key={section.id} section={section} mode={mode} />
           ))}
         </div>
       )}
@@ -104,7 +106,7 @@ export function SidebarTemplate({ content, design, layout, mode, photoUrl }: Res
   );
 }
 
-function SidebarPersonal({ item, accent, photoUrl }: { item: PersonalItem; accent: string; photoUrl?: string | null }) {
+function SidebarPersonal({ item, accent, photoUrl, mode }: { item: PersonalItem; accent: string; photoUrl?: string | null; mode: "preview" | "print" }) {
   return (
     <header className="cv-personal cv-personal-photo flex items-center gap-5">
       {photoUrl && <TemplatePhoto url={photoUrl} sizeMm={28} />}
@@ -117,7 +119,7 @@ function SidebarPersonal({ item, accent, photoUrl }: { item: PersonalItem; accen
       </p>
       {item.links && item.links.length > 0 && (
         <p className="cv-links mt-1 text-sm text-zinc-600">
-          {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+          <CvLinkList links={item.links} mode={mode} />
         </p>
       )}
       </div>
@@ -128,9 +130,11 @@ function SidebarPersonal({ item, accent, photoUrl }: { item: PersonalItem; accen
 function SidebarSection({
   section,
   light = false,
+  mode,
 }: {
   section: ResumeSection;
   light?: boolean;
+  mode: "preview" | "print";
 }) {
   return (
     <section aria-label={section.title} className="cv-section">
@@ -148,6 +152,7 @@ function SidebarSection({
           sectionType={section.type}
           items={section.items}
           light={light}
+          mode={mode}
         />
       </div>
     </section>
@@ -158,10 +163,12 @@ function SidebarBody({
   sectionType,
   items,
   light,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
   light: boolean;
+  mode: "preview" | "print";
 }) {
   const text = light ? "text-white" : "text-zinc-800";
   const meta = light ? "text-white/85" : "text-zinc-500";
@@ -258,7 +265,13 @@ function SidebarBody({
               </p>
             )}
             <p className={`cv-entry-meta text-sm ${meta}`}>
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

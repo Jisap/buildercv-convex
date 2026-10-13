@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -46,7 +48,7 @@ export function ModernTemplate({ content, design, layout, mode, photoUrl }: Resu
     >
       <div className="cv-band p-8 text-white" style={{ backgroundColor: accent }}>
         {person ? (
-          <ModernPersonal item={person} photoUrl={photoUrl} />
+          <ModernPersonal item={person} photoUrl={photoUrl} mode={mode} />
         ) : (
           <h2 className="cv-name text-3xl font-bold">Tu nombre</h2>
         )}
@@ -66,7 +68,7 @@ export function ModernTemplate({ content, design, layout, mode, photoUrl }: Resu
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <ModernSection key={section.id} section={section} accent={accent} />
+              <ModernSection key={section.id} section={section} accent={accent} mode={mode} />
             ))}
           </div>
           <div
@@ -74,7 +76,7 @@ export function ModernTemplate({ content, design, layout, mode, photoUrl }: Resu
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <ModernSection key={section.id} section={section} accent={accent} />
+              <ModernSection key={section.id} section={section} accent={accent} mode={mode} />
             ))}
           </div>
         </div>
@@ -84,7 +86,7 @@ export function ModernTemplate({ content, design, layout, mode, photoUrl }: Resu
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <ModernSection key={section.id} section={section} accent={accent} />
+            <ModernSection key={section.id} section={section} accent={accent} mode={mode} />
           ))}
         </div>
       )}
@@ -95,9 +97,11 @@ export function ModernTemplate({ content, design, layout, mode, photoUrl }: Resu
 function ModernSection({
   section,
   accent,
+  mode,
 }: {
   section: ResumeSection;
   accent: string;
+  mode: "preview" | "print";
 }) {
   return (
     <section aria-label={section.title} className="cv-section">
@@ -109,12 +113,12 @@ function ModernSection({
         style={{ backgroundColor: accent }}
         aria-hidden
       />
-      <ModernBody sectionType={section.type} items={section.items} accent={accent} />
+      <ModernBody sectionType={section.type} items={section.items} accent={accent} mode={mode} />
     </section>
   );
 }
 
-function ModernPersonal({ item, photoUrl }: { item: PersonalItem; photoUrl?: string | null }) {
+function ModernPersonal({ item, photoUrl, mode }: { item: PersonalItem; photoUrl?: string | null; mode: "preview" | "print" }) {
   return (
     <header className="cv-personal cv-personal-photo flex items-center gap-5">
       {photoUrl && <TemplatePhoto url={photoUrl} sizeMm={30} />}
@@ -125,7 +129,7 @@ function ModernPersonal({ item, photoUrl }: { item: PersonalItem; photoUrl?: str
       </p>
       {item.links && item.links.length > 0 && (
         <p className="cv-links mt-1 text-sm text-white/90">
-          {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+          <CvLinkList links={item.links} mode={mode} />
         </p>
       )}
       </div>
@@ -137,10 +141,12 @@ function ModernBody({
   sectionType,
   items,
   accent,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
   accent: string;
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -234,7 +240,13 @@ function ModernBody({
               <p className="cv-entry-text mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
             )}
             <p className="cv-entry-meta text-xs text-zinc-500">
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

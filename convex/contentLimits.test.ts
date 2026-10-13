@@ -52,6 +52,54 @@ test("IDs duplicados y títulos vacíos", () => {
   );
 });
 
+test("URLs con esquema peligroso rechazadas", () => {
+  const base = createDefaultContent();
+  const personal = base.sections.find((s) => s.type === "personal")!;
+  const withJsLink = {
+    sections: [
+      {
+        ...personal,
+        items: [
+          {
+            ...personal.items[0],
+            links: [{ id: "l1", label: "X", url: "javascript:alert(1)" }],
+          },
+        ],
+      },
+    ],
+  } as unknown as ResumeContent;
+  expectRejects(withJsLink, "URL de enlace");
+
+  const projects = {
+    sections: [
+      {
+        id: "s-proj",
+        type: "projects",
+        title: "Proyectos",
+        order: 0,
+        visible: true,
+        items: [{ id: "p1", url: "data:text/html,<h1>x</h1>" }],
+      },
+    ],
+  } as unknown as ResumeContent;
+  expectRejects(projects, "URL");
+
+  const withHttps = {
+    sections: [
+      {
+        ...personal,
+        items: [
+          {
+            ...personal.items[0],
+            links: [{ id: "l1", label: "Web", url: "https://example.es" }],
+          },
+        ],
+      },
+    ],
+  } as unknown as ResumeContent;
+  expect(() => assertContentLimits(withHttps)).not.toThrow();
+});
+
 test("fechas, niveles y tamaños", () => {
   const base = createDefaultContent();
   const exp = base.sections.find((s) => s.type === "experience")!;

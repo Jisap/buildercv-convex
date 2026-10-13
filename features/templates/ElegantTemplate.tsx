@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -49,7 +51,7 @@ export function ElegantTemplate({ content, design, layout, mode, photoUrl }: Res
       }
     >
       {person ? (
-        <ElegantPersonal item={person} accent={accent} photoUrl={photoUrl} />
+        <ElegantPersonal item={person} accent={accent} photoUrl={photoUrl} mode={mode} />
       ) : (
         <header className="cv-personal cv-elegant-head text-center">
           <h2 className="cv-name text-4xl font-normal tracking-wide text-zinc-950">
@@ -72,7 +74,7 @@ export function ElegantTemplate({ content, design, layout, mode, photoUrl }: Res
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <ElegantSection key={section.id} section={section} />
+              <ElegantSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
           <div
@@ -80,7 +82,7 @@ export function ElegantTemplate({ content, design, layout, mode, photoUrl }: Res
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <ElegantSection key={section.id} section={section} />
+              <ElegantSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
         </div>
@@ -90,7 +92,7 @@ export function ElegantTemplate({ content, design, layout, mode, photoUrl }: Res
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <ElegantSection key={section.id} section={section} />
+            <ElegantSection key={section.id} section={section} mode={mode} />
           ))}
         </div>
       )}
@@ -102,10 +104,12 @@ function ElegantPersonal({
   item,
   accent,
   photoUrl,
+  mode,
 }: {
   item: PersonalItem;
   accent: string;
   photoUrl?: string | null;
+  mode: "preview" | "print";
 }) {
   return (
     <header className="cv-personal cv-elegant-head text-center">
@@ -122,7 +126,7 @@ function ElegantPersonal({
       </p>
       {item.links && item.links.length > 0 && (
         <p className="cv-links mt-1 text-xs tracking-widest text-zinc-600 uppercase">
-          {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+          <CvLinkList links={item.links} mode={mode} />
         </p>
       )}
       <div
@@ -134,14 +138,14 @@ function ElegantPersonal({
   );
 }
 
-function ElegantSection({ section }: { section: ResumeSection }) {
+function ElegantSection({ section, mode }: { section: ResumeSection; mode: "preview" | "print" }) {
   return (
     <section aria-label={section.title} className="cv-section">
       <SectionTitle className="cv-section-title text-xs font-normal tracking-[0.25em] text-zinc-900 uppercase">
         {section.title}
       </SectionTitle>
       <div className="mt-2 border-t border-zinc-200 pt-2">
-        <ElegantBody sectionType={section.type} items={section.items} />
+        <ElegantBody sectionType={section.type} items={section.items} mode={mode} />
       </div>
     </section>
   );
@@ -150,9 +154,11 @@ function ElegantSection({ section }: { section: ResumeSection }) {
 function ElegantBody({
   sectionType,
   items,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -251,7 +257,13 @@ function ElegantBody({
               </p>
             )}
             <p className="cv-entry-meta text-sm text-zinc-500">
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -45,7 +47,7 @@ export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplat
           : "cv-doc cv-minimal rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
-      {person && <MinimalPersonal item={person} />}
+      {person && <MinimalPersonal item={person} mode={mode} />}
       {twoCol ? (
         <div
           className="cv-layout-two-col"
@@ -61,7 +63,7 @@ export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplat
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <MinimalSection key={section.id} section={section} accent={accent} />
+              <MinimalSection key={section.id} section={section} accent={accent} mode={mode} />
             ))}
           </div>
           <div
@@ -69,7 +71,7 @@ export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplat
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <MinimalSection key={section.id} section={section} accent={accent} />
+              <MinimalSection key={section.id} section={section} accent={accent} mode={mode} />
             ))}
           </div>
         </div>
@@ -79,7 +81,7 @@ export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplat
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <MinimalSection key={section.id} section={section} accent={accent} />
+            <MinimalSection key={section.id} section={section} accent={accent} mode={mode} />
           ))}
         </div>
       )}
@@ -87,7 +89,7 @@ export function MinimalTemplate({ content, design, layout, mode }: ResumeTemplat
   );
 }
 
-function MinimalPersonal({ item }: { item: PersonalItem }) {
+function MinimalPersonal({ item, mode }: { item: PersonalItem; mode: "preview" | "print" }) {
   // Sin foto a propósito: plantilla de lectura automática (ATS).
   return (
     <header className="cv-personal">
@@ -99,7 +101,7 @@ function MinimalPersonal({ item }: { item: PersonalItem }) {
       </p>
       {item.links && item.links.length > 0 && (
         <p className="cv-links mt-1 text-sm text-zinc-600">
-          {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+          <CvLinkList links={item.links} mode={mode} />
         </p>
       )}
     </header>
@@ -109,9 +111,11 @@ function MinimalPersonal({ item }: { item: PersonalItem }) {
 function MinimalSection({
   section,
   accent,
+  mode,
 }: {
   section: ResumeSection;
   accent: string;
+  mode: "preview" | "print";
 }) {
   return (
     <section aria-label={section.title} className="cv-section">
@@ -121,7 +125,7 @@ function MinimalSection({
         </span>
       </SectionTitle>
       <div className="mt-2">
-        <MinimalBody sectionType={section.type} items={section.items} />
+        <MinimalBody sectionType={section.type} items={section.items} mode={mode} />
       </div>
     </section>
   );
@@ -130,9 +134,11 @@ function MinimalSection({
 function MinimalBody({
   sectionType,
   items,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -224,7 +230,13 @@ function MinimalBody({
               </p>
             )}
             <p className="cv-entry-meta text-sm text-zinc-500">
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -48,7 +50,7 @@ export function EnergeticTemplate({ content, design, layout, mode, photoUrl }: R
       }
     >
       {person ? (
-        <EnergeticPersonal item={person} accent={accent} photoUrl={photoUrl} />
+        <EnergeticPersonal item={person} accent={accent} photoUrl={photoUrl} mode={mode} />
       ) : (
         <header className="cv-personal" style={{ display: "flex", gap: "5mm", alignItems: "stretch" }}>
           <div aria-hidden style={{ width: "2.5mm", backgroundColor: accent }} />
@@ -72,7 +74,7 @@ export function EnergeticTemplate({ content, design, layout, mode, photoUrl }: R
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <EnergeticSection key={section.id} section={section} accent={accent} />
+              <EnergeticSection key={section.id} section={section} accent={accent} mode={mode} />
             ))}
           </div>
           <div
@@ -80,7 +82,7 @@ export function EnergeticTemplate({ content, design, layout, mode, photoUrl }: R
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <EnergeticSection key={section.id} section={section} accent={accent} />
+              <EnergeticSection key={section.id} section={section} accent={accent} mode={mode} />
             ))}
           </div>
         </div>
@@ -90,7 +92,7 @@ export function EnergeticTemplate({ content, design, layout, mode, photoUrl }: R
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <EnergeticSection key={section.id} section={section} accent={accent} />
+            <EnergeticSection key={section.id} section={section} accent={accent} mode={mode} />
           ))}
         </div>
       )}
@@ -102,10 +104,12 @@ function EnergeticPersonal({
   item,
   accent,
   photoUrl,
+  mode,
 }: {
   item: PersonalItem;
   accent: string;
   photoUrl?: string | null;
+  mode: "preview" | "print";
 }) {
   return (
     <header
@@ -122,7 +126,7 @@ function EnergeticPersonal({
         </p>
         {item.links && item.links.length > 0 && (
           <p className="cv-links mt-1 text-sm text-zinc-600">
-            {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+            <CvLinkList links={item.links} mode={mode} />
           </p>
         )}
       </div>
@@ -138,9 +142,11 @@ function EnergeticPersonal({
 function EnergeticSection({
   section,
   accent,
+  mode,
 }: {
   section: ResumeSection;
   accent: string;
+  mode: "preview" | "print";
 }) {
   return (
     <section aria-label={section.title} className="cv-section">
@@ -158,7 +164,7 @@ function EnergeticSection({
         {section.title}
       </SectionTitle>
       <div className="mt-2">
-        <EnergeticBody sectionType={section.type} items={section.items} accent={accent} />
+        <EnergeticBody sectionType={section.type} items={section.items} accent={accent} mode={mode} />
       </div>
     </section>
   );
@@ -168,10 +174,12 @@ function EnergeticBody({
   sectionType,
   items,
   accent,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
   accent: string;
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -277,7 +285,13 @@ function EnergeticBody({
               <p className="cv-entry-text mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
             )}
             <p className="cv-entry-meta text-xs text-zinc-500">
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

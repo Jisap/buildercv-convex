@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -43,7 +45,7 @@ export function ClassicTemplate({ content, design, layout, mode }: ResumeTemplat
           : "cv-doc rounded-xl border border-zinc-200 bg-white text-zinc-900 shadow-sm"
       }
     >
-      {person && <ClassicPersonal item={person} accent={design.accentColor} />}
+      {person && <ClassicPersonal item={person} accent={design.accentColor} mode={mode} />}
       {twoCol ? (
         <div
           className="cv-layout-two-col"
@@ -59,7 +61,7 @@ export function ClassicTemplate({ content, design, layout, mode }: ResumeTemplat
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <ClassicSection key={section.id} section={section} />
+              <ClassicSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
           <div
@@ -67,7 +69,7 @@ export function ClassicTemplate({ content, design, layout, mode }: ResumeTemplat
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <ClassicSection key={section.id} section={section} />
+              <ClassicSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
         </div>
@@ -77,7 +79,7 @@ export function ClassicTemplate({ content, design, layout, mode }: ResumeTemplat
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <ClassicSection key={section.id} section={section} />
+            <ClassicSection key={section.id} section={section} mode={mode} />
           ))}
         </div>
       )}
@@ -85,20 +87,20 @@ export function ClassicTemplate({ content, design, layout, mode }: ResumeTemplat
   );
 }
 
-function ClassicSection({ section }: { section: ResumeSection }) {
+function ClassicSection({ section, mode }: { section: ResumeSection; mode: "preview" | "print" }) {
   return (
     <section aria-label={section.title} className="cv-section">
       <SectionTitle className="cv-section-title border-b border-zinc-300 pb-1 text-xs font-bold tracking-widest text-zinc-900 uppercase">
         {section.title}
       </SectionTitle>
       <div className="mt-2">
-        <ClassicBody sectionType={section.type} items={section.items} />
+        <ClassicBody sectionType={section.type} items={section.items} mode={mode} />
       </div>
     </section>
   );
 }
 
-function ClassicPersonal({ item, accent }: { item: PersonalItem; accent: string }) {
+function ClassicPersonal({ item, accent, mode }: { item: PersonalItem; accent: string; mode: "preview" | "print" }) {
   // Sin foto a propósito: plantilla de lectura automática (ATS).
   return (
     <header className="cv-personal">
@@ -110,7 +112,7 @@ function ClassicPersonal({ item, accent }: { item: PersonalItem; accent: string 
       </p>
       {item.links && item.links.length > 0 && (
         <p className="cv-links mt-1 text-sm text-zinc-600">
-          {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+          <CvLinkList links={item.links} mode={mode} />
         </p>
       )}
     </header>
@@ -120,9 +122,11 @@ function ClassicPersonal({ item, accent }: { item: PersonalItem; accent: string 
 function ClassicBody({
   sectionType,
   items,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -214,7 +218,13 @@ function ClassicBody({
               </p>
             )}
             <p className="cv-entry-meta text-sm text-zinc-500">
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

@@ -1,4 +1,5 @@
 import { ConvexError } from "convex/values";
+import { isAllowedUrlScheme } from "../lib/links";
 import { ITEM_LIMITS, LIMITS } from "../lib/validation/resume";
 import type { ResumeContent } from "../types/resume";
 
@@ -19,6 +20,19 @@ function checkString(value: unknown, what: string): void {
   }
   if (typeof value !== "string" || value.length > MAX_STRING) {
     fail(`${what} no válido.`);
+  }
+}
+
+function checkUrl(value: unknown, what: string): void {
+  if (value === undefined) {
+    return;
+  }
+  if (
+    typeof value !== "string" ||
+    value.length > MAX_STRING ||
+    !isAllowedUrlScheme(value)
+  ) {
+    fail(`${what} no válido (usa https://, http:// o mailto:).`);
   }
 }
 
@@ -66,7 +80,7 @@ export function assertContentLimits(content: ResumeContent): void {
             }
             linkIds.add(link.id);
             checkString(link.label, "Etiqueta de enlace");
-            checkString(link.url, "URL de enlace");
+            checkUrl(link.url, "URL de enlace");
           }
           continue;
         }
@@ -92,6 +106,10 @@ export function assertContentLimits(content: ResumeContent): void {
           continue;
         }
         if (typeof value === "boolean" || value === undefined) {
+          continue;
+        }
+        if (key === "url") {
+          checkUrl(value, "URL");
           continue;
         }
         checkString(value, "Campo");

@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -43,7 +45,7 @@ export function CompactTemplate({ content, design, layout, mode, photoUrl }: Res
           : "cv-doc rounded-xl border border-zinc-200 bg-white text-[13px] leading-5 text-zinc-900 shadow-sm"
       }
     >
-      {person && <CompactPersonal item={person} accent={design.accentColor} photoUrl={photoUrl} />}
+      {person && <CompactPersonal item={person} accent={design.accentColor} photoUrl={photoUrl} mode={mode} />}
       {twoCol ? (
         <div
           className="cv-layout-two-col"
@@ -59,7 +61,7 @@ export function CompactTemplate({ content, design, layout, mode, photoUrl }: Res
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <CompactSection key={section.id} section={section} />
+              <CompactSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
           <div
@@ -67,7 +69,7 @@ export function CompactTemplate({ content, design, layout, mode, photoUrl }: Res
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <CompactSection key={section.id} section={section} />
+              <CompactSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
         </div>
@@ -77,7 +79,7 @@ export function CompactTemplate({ content, design, layout, mode, photoUrl }: Res
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <CompactSection key={section.id} section={section} />
+            <CompactSection key={section.id} section={section} mode={mode} />
           ))}
         </div>
       )}
@@ -85,7 +87,7 @@ export function CompactTemplate({ content, design, layout, mode, photoUrl }: Res
   );
 }
 
-function CompactSection({ section }: { section: ResumeSection }) {
+function CompactSection({ section, mode }: { section: ResumeSection; mode: "preview" | "print" }) {
   const twoColList =
     section.type === "skills" ||
     section.type === "digitalSkills" ||
@@ -96,13 +98,13 @@ function CompactSection({ section }: { section: ResumeSection }) {
         {section.title}
       </SectionTitle>
       <div className={twoColList ? "cv-cols mt-1 grid grid-cols-1 gap-x-6 sm:grid-cols-2" : "mt-1"}>
-        <CompactBody sectionType={section.type} items={section.items} />
+        <CompactBody sectionType={section.type} items={section.items} mode={mode} />
       </div>
     </section>
   );
 }
 
-function CompactPersonal({ item, accent, photoUrl }: { item: PersonalItem; accent: string; photoUrl?: string | null }) {
+function CompactPersonal({ item, accent, photoUrl, mode }: { item: PersonalItem; accent: string; photoUrl?: string | null; mode: "preview" | "print" }) {
   return (
     <header className="cv-personal cv-personal-photo flex items-center gap-4 border-b-2 pb-2" style={{ borderColor: accent }}>
       {photoUrl && <TemplatePhoto url={photoUrl} sizeMm={24} />}
@@ -110,9 +112,12 @@ function CompactPersonal({ item, accent, photoUrl }: { item: PersonalItem; accen
       <h2 className="cv-name text-xl font-bold text-zinc-950">{item.fullName || "Tu nombre"}</h2>
       <p className="cv-contact text-xs text-zinc-600">
         {[item.email, item.phone, item.location].filter(Boolean).join(" · ")}
-        {item.links && item.links.length > 0
-          ? ` · ${item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}`
-          : ""}
+        {item.links && item.links.length > 0 ? (
+          <>
+            {" · "}
+            <CvLinkList links={item.links} mode={mode} />
+          </>
+        ) : null}
       </p>
       </div>
     </header>
@@ -122,9 +127,11 @@ function CompactPersonal({ item, accent, photoUrl }: { item: PersonalItem; accen
 function CompactBody({
   sectionType,
   items,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -207,7 +214,13 @@ function CompactBody({
             <p className="cv-entry-title font-bold text-zinc-900">
               {item.name || "Proyecto"}
               <span className="cv-entry-meta ml-2 font-normal text-zinc-500">
-                {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+                {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+                {(item.technologies ?? []).length > 0 ? (
+                  <>
+                    {item.url ? " · " : null}
+                    {(item.technologies ?? []).join(", ")}
+                  </>
+                ) : null}
               </span>
             </p>
             {item.description && <p className="cv-entry-text text-zinc-700">{item.description}</p>}

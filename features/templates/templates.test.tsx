@@ -196,6 +196,75 @@ test("las plantillas usan el mismo modelo de contenido", () => {
   }
 });
 
+test("enlaces: las 9 plantillas pintan <a href> clicables", () => {
+  for (const meta of TEMPLATES) {
+    const html = renderToStaticMarkup(
+      <TemplateRenderer
+        content={content}
+        design={{ ...design, templateId: meta.id }}
+        layout={layout}
+        mode="preview"
+      />,
+    );
+    // Etiqueta visible como texto del enlace y URL en el href.
+    expect(html, `${meta.id} enlaza LinkedIn`).toContain(
+      '<a href="https://linkedin.example/maria"',
+    );
+    expect(html, `${meta.id} abre en pestaña nueva`).toContain(
+      'target="_blank"',
+    );
+    // En impresión: enlace normal (Chromium lo conserva como anotación PDF).
+    const print = renderToStaticMarkup(
+      <TemplateRenderer
+        content={content}
+        design={{ ...design, templateId: meta.id }}
+        layout={layout}
+        mode="print"
+      />,
+    );
+    expect(print, `${meta.id} conserva el href en print`).toContain(
+      '<a href="https://linkedin.example/maria"',
+    );
+    expect(print, `${meta.id} sin target en print`).not.toContain(
+      'target="_blank"',
+    );
+  }
+});
+
+test("enlaces: URL sin esquema se normaliza y javascript: no enlaza", () => {
+  const withLinks: ResumeContent = {
+    sections: [
+      {
+        id: "s-personal",
+        type: "personal",
+        title: "Datos",
+        order: 0,
+        visible: true,
+        items: [
+          {
+            id: "p1",
+            links: [
+              { id: "l1", label: "Portfolio", url: "portfolio.example/yo" },
+              { id: "l2", label: "Malicioso", url: "javascript:alert(1)" },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  const html = renderToStaticMarkup(
+    <TemplateRenderer
+      content={withLinks}
+      design={{ ...design, templateId: "classic" }}
+      layout={layoutFromContent(withLinks)}
+      mode="preview"
+    />,
+  );
+  expect(html).toContain('<a href="https://portfolio.example/yo"');
+  expect(html).not.toContain("javascript:");
+  expect(html).toContain("Malicioso");
+});
+
 test("mode print no añade cromo de previsualización", () => {
   const html = renderToStaticMarkup(
     <TemplateRenderer content={content} design={design} layout={layout} mode="print" />,

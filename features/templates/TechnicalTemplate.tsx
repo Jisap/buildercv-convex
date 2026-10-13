@@ -12,6 +12,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -50,7 +52,7 @@ export function TechnicalTemplate({ content, design, layout, mode }: ResumeTempl
       }
     >
       {person ? (
-        <TechnicalPersonal item={person} accent={accent} />
+        <TechnicalPersonal item={person} accent={accent} mode={mode} />
       ) : (
         <header className="cv-personal">
           <h2 className="cv-name text-3xl font-bold tracking-tight text-zinc-950">
@@ -74,7 +76,7 @@ export function TechnicalTemplate({ content, design, layout, mode }: ResumeTempl
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section, i) => (
-              <TechnicalSection key={section.id} section={section} accent={accent} index={i} />
+              <TechnicalSection key={section.id} section={section} accent={accent} index={i} mode={mode} />
             ))}
           </div>
           <div
@@ -82,7 +84,7 @@ export function TechnicalTemplate({ content, design, layout, mode }: ResumeTempl
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section, i) => (
-              <TechnicalSection key={section.id} section={section} accent={accent} index={main.length + i} />
+              <TechnicalSection key={section.id} section={section} accent={accent} index={main.length + i} mode={mode} />
             ))}
           </div>
         </div>
@@ -92,7 +94,7 @@ export function TechnicalTemplate({ content, design, layout, mode }: ResumeTempl
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section, i) => (
-            <TechnicalSection key={section.id} section={section} accent={accent} index={i} />
+            <TechnicalSection key={section.id} section={section} accent={accent} index={i} mode={mode} />
           ))}
         </div>
       )}
@@ -103,9 +105,11 @@ export function TechnicalTemplate({ content, design, layout, mode }: ResumeTempl
 function TechnicalPersonal({
   item,
   accent,
+  mode,
 }: {
   item: PersonalItem;
   accent: string;
+  mode: "preview" | "print";
 }) {
   return (
     <header className="cv-personal">
@@ -117,7 +121,7 @@ function TechnicalPersonal({
       </p>
       {item.links && item.links.length > 0 && (
         <p className="cv-links mt-1 text-sm text-zinc-600" style={{ fontFamily: MONO }}>
-          {item.links.map((l) => l.label || l.url || "").filter(Boolean).join("  //  ")}
+          <CvLinkList links={item.links} mode={mode} separator="  //  " />
         </p>
       )}
       <div aria-hidden style={{ height: "0.8mm", backgroundColor: accent, marginTop: "2mm" }} />
@@ -129,10 +133,12 @@ function TechnicalSection({
   section,
   accent,
   index,
+  mode,
 }: {
   section: ResumeSection;
   accent: string;
   index: number;
+  mode: "preview" | "print";
 }) {
   return (
     <section aria-label={section.title} className="cv-section">
@@ -143,7 +149,7 @@ function TechnicalSection({
         {section.title}
       </SectionTitle>
       <div className="mt-2">
-        <TechnicalBody sectionType={section.type} items={section.items} accent={accent} />
+        <TechnicalBody sectionType={section.type} items={section.items} accent={accent} mode={mode} />
       </div>
     </section>
   );
@@ -185,10 +191,12 @@ function TechnicalBody({
   sectionType,
   items,
   accent,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
   accent: string;
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -301,7 +309,13 @@ function TechnicalBody({
               <p className="cv-entry-text mt-1 whitespace-pre-line text-sm text-zinc-700">{item.description}</p>
             )}
             <p className="cv-entry-meta text-xs text-zinc-500" style={{ fontFamily: MONO }}>
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" // ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " // " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

@@ -11,6 +11,8 @@ import type {
 } from "@/types/resume";
 import type { ResumeTemplateProps } from "./types";
 import {
+  CvLink,
+  CvLinkList,
   docRootStyle,
   formatRange,
   SectionTitle,
@@ -51,7 +53,7 @@ export function ExecutiveTemplate({ content, design, layout, mode, photoUrl }: R
     >
       <div className="cv-band p-8 text-white" style={{ backgroundColor: BANDA_OSCURA }}>
         {person ? (
-          <ExecutivePersonal item={person} photoUrl={photoUrl} />
+          <ExecutivePersonal item={person} photoUrl={photoUrl} mode={mode} />
         ) : (
           <h2 className="cv-name text-3xl font-bold text-white">Tu nombre</h2>
         )}
@@ -72,7 +74,7 @@ export function ExecutiveTemplate({ content, design, layout, mode, photoUrl }: R
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {main.map((section) => (
-              <ExecutiveSection key={section.id} section={section} />
+              <ExecutiveSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
           <div
@@ -80,7 +82,7 @@ export function ExecutiveTemplate({ content, design, layout, mode, photoUrl }: R
             style={{ display: "grid", gap, alignContent: "start" }}
           >
             {sidebar.map((section) => (
-              <ExecutiveSection key={section.id} section={section} />
+              <ExecutiveSection key={section.id} section={section} mode={mode} />
             ))}
           </div>
         </div>
@@ -90,7 +92,7 @@ export function ExecutiveTemplate({ content, design, layout, mode, photoUrl }: R
           style={{ display: "grid", gap, marginTop: gap }}
         >
           {main.map((section) => (
-            <ExecutiveSection key={section.id} section={section} />
+            <ExecutiveSection key={section.id} section={section} mode={mode} />
           ))}
         </div>
       )}
@@ -101,9 +103,11 @@ export function ExecutiveTemplate({ content, design, layout, mode, photoUrl }: R
 function ExecutivePersonal({
   item,
   photoUrl,
+  mode,
 }: {
   item: PersonalItem;
   photoUrl?: string | null;
+  mode: "preview" | "print";
 }) {
   return (
     <header
@@ -117,7 +121,7 @@ function ExecutivePersonal({
         </p>
         {item.links && item.links.length > 0 && (
           <p className="cv-links mt-1 text-sm text-white/90">
-            {item.links.map((l) => l.label || l.url || "").filter(Boolean).join(" · ")}
+            <CvLinkList links={item.links} mode={mode} />
           </p>
         )}
       </div>
@@ -130,14 +134,14 @@ function ExecutivePersonal({
   );
 }
 
-function ExecutiveSection({ section }: { section: ResumeSection }) {
+function ExecutiveSection({ section, mode }: { section: ResumeSection; mode: "preview" | "print" }) {
   return (
     <section aria-label={section.title} className="cv-section">
       <SectionTitle className="cv-section-title text-xs font-bold tracking-[0.2em] text-zinc-900 uppercase">
         {section.title}
       </SectionTitle>
       <div className="mt-2">
-        <ExecutiveBody sectionType={section.type} items={section.items} />
+        <ExecutiveBody sectionType={section.type} items={section.items} mode={mode} />
       </div>
     </section>
   );
@@ -146,9 +150,11 @@ function ExecutiveSection({ section }: { section: ResumeSection }) {
 function ExecutiveBody({
   sectionType,
   items,
+  mode,
 }: {
   sectionType: string;
   items: ProfileItem[] | ExperienceItem[] | EducationItem[] | SkillItem[] | LanguageItem[] | ProjectItem[] | CustomItem[] | PersonalItem[];
+  mode: "preview" | "print";
 }) {
   if (sectionType === "profile") {
     return (
@@ -247,7 +253,13 @@ function ExecutiveBody({
               </p>
             )}
             <p className="cv-entry-meta text-sm text-zinc-500">
-              {[item.url, (item.technologies ?? []).join(", ")].filter(Boolean).join(" · ")}
+              {item.url ? <CvLink url={item.url} mode={mode} /> : null}
+              {(item.technologies ?? []).length > 0 ? (
+                <>
+                  {item.url ? " · " : null}
+                  {(item.technologies ?? []).join(", ")}
+                </>
+              ) : null}
             </p>
           </li>
         ))}

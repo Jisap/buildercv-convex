@@ -73,6 +73,14 @@ html, body {
   margin: 0 0 1mm 0;
 }
 
+/* Enlaces: heredan el color del contexto (nada de azul Chromium) y se
+   subrayan para que se reconozcan en el PDF; el href viaja como
+   anotación clicable. Compatible con lectura automática. */
+.cv-doc a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* Cabecera con foto (flex de Tailwind no existe en el PDF). */
 .cv-personal-photo {
   display: flex;

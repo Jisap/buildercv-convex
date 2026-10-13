@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isAllowedUrlScheme } from "../links";
 import {
   DESIGN_LIMITS,
   FONT_FAMILIES,
@@ -36,10 +37,18 @@ const dateSchema = z
   .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Formato YYYY-MM.")
   .optional();
 
+const safeUrlSchema = z
+  .string()
+  .max(500)
+  .refine((v) => isAllowedUrlScheme(v), {
+    message: "URL no válida (usa https://, http:// o mailto:).",
+  })
+  .optional();
+
 const linkSchema = z.object({
   id: idSchema,
   label: z.string().max(100).optional(),
-  url: z.string().max(500).optional(),
+  url: safeUrlSchema,
 });
 
 const personalItemSchema = z.object({
@@ -94,7 +103,7 @@ const projectItemSchema = z.object({
   id: idSchema,
   name: z.string().max(LIMITS.maxTitle).optional(),
   description: z.string().max(LIMITS.maxText).optional(),
-  url: z.string().max(500).optional(),
+  url: safeUrlSchema,
   technologies: z.array(z.string().max(100)).max(30).optional(),
 });
 
