@@ -203,6 +203,24 @@ reflejan la sesión validada contra Convex) con `UserButton` de Clerk.
 4. Ver el panel `Authenticated` (y no el aviso de “iniciar sesión”)
    demuestra que Convex valida los tokens de Clerk.
 
+### 2.7 E2E con sesión (T2)
+
+Los flujos con sesión se prueban con `npm run test:e2e` (proyectos `setup`
++ `autenticado`): crear, editar, plantilla, reorden, foto, PDF, duplicar,
+archivar y borrar, con limpieza de los CV creados (prefijo `E2E `).
+
+Necesita, solo en `.env.local` (gitignorado, jamás en el repo):
+
+```
+E2E_CLERK_EMAIL=usuario-de-pruebas@example.com
+CLERK_SECRET_KEY=sk_test_…   # ya la tienes del §2.3
+```
+
+El setup crea un sign-in ticket por Backend API (`@clerk/backend`, solo
+dev) y lo canjea en el navegador: no usa la contraseña ni pide OTP. Sin
+esas variables, el setup y los specs se saltan en silencio y el resto de
+la suite sigue verde. Repetido 3 veces seguidas sin fallos (2026-10-13).
+
 ## 3. Por qué no Convex Auth
 
 Se probó primero `@convex-dev/auth` con provider Password (documentado en

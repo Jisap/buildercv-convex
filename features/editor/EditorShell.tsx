@@ -1,6 +1,12 @@
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
+import {
+  Authenticated,
+  AuthLoading,
+  Unauthenticated,
+  useMutation,
+  useQuery,
+} from "convex/react";
 import {
   FileText,
   Minus,
@@ -62,6 +68,32 @@ function redondearZoom(valor: number): number {
 }
 
 export function EditorShell({ resumeId }: { resumeId: string }) {
+  // Las queries solo se suscriben con sesión establecida: en una recarga
+  // total, dispararlas durante la hidratación de Clerk las lanza sin token
+  // y el error rompe la página (mismo patrón que el panel).
+  return (
+    <>
+      <AuthLoading>
+        <p className="p-6 text-sm text-muted-foreground" role="status">
+          Cargando el editor…
+        </p>
+      </AuthLoading>
+      <Unauthenticated>
+        <div className="mx-auto max-w-md p-6 text-center">
+          <p className="font-medium text-foreground">Necesitas iniciar sesión.</p>
+          <Button asChild className="mt-4">
+            <Link href="/signin">Ir a iniciar sesión</Link>
+          </Button>
+        </div>
+      </Unauthenticated>
+      <Authenticated>
+        <EditorConSesion resumeId={resumeId} />
+      </Authenticated>
+    </>
+  );
+}
+
+function EditorConSesion({ resumeId }: { resumeId: string }) {
   const id = resumeId as Id<"resumes">;
   const serverDoc = useQuery(api.resumes.get, { id });
   const updateResume = useMutation(api.resumes.update);
