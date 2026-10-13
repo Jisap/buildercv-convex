@@ -1,5 +1,10 @@
 # Roadmap futuro — Editor BuilderCV / CV Studio
 
+**Nota (2026-10-13):** `docs/ROADMAP_AGENTES.md` es desde hoy la fuente de
+verdad del plan (oleadas B0–Final). Este archivo queda como histórico de las
+sesiones 2026-10-11/12; su punto D (QA manual) sigue vigente como lista de
+comprobación hasta que T1/T2 lo automaticen.
+
 **Fecha:** 2026-10-12 · **Estado:** serie UI + ronda 2 + 3 plantillas nuevas (9 en total) en verde (66/66 tests, e2e 50/50); pendiente QA manual consolidada.
 
 ## Próxima sesión (orden propuesto)

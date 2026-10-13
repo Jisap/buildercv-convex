@@ -61,7 +61,7 @@ MVP completo (Fases 0–6): autenticación Clerk, panel, editor con
 autoguardado, 9 plantillas y exportación PDF. Serie UI cerrada: tokens
 semánticos y fuente Geist, editor de barra única con menú «⋯» y deshacer,
 panel con miniaturas diferidas, landing real y panel de diseño plegable.
-Ronda 2 de correcciones (G1–G5) hecha. Verificación en verde: 63 tests
+Ronda 2 de correcciones (G1–G5) hecha. Verificación en verde: 66 tests
 unitarios y 50 e2e. Detalle y criterios en `docs/implementation-plan.md`;
 decisiones en `docs/architecture.md`; instalación de Convex y Clerk en
 `docs/setup-convex-clerk.md`; modelo en `docs/data-model.md`; PDF en

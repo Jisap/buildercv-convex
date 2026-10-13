@@ -1,5 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
+// Nota H1 (2026-10-13): `createRouteMatcher` está deprecado en @clerk/nextjs v7
+// (recomiendan checks por recurso en cada página/layout). Se mantiene porque
+// la migración es un refactor mayor fuera de alcance; sigue funcionando y las
+// e2e de guards lo cubren. Archivo renombrado de `middleware.ts` a `proxy.ts`
+// según Next 16 (misma funcionalidad).
 const isSignInPage = createRouteMatcher(["/signin(.*)", "/signup(.*)"]);
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",

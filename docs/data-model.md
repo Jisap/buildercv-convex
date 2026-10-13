@@ -35,11 +35,13 @@ relativos, porque el typecheck de Convex no resuelve el alias `@/*`.
   La URL firmada solo se sirve si el ID es el referenciado por un CV propio
   (`files.photoUrl`); duplicar comparte el fichero y borrar lo elimina
   únicamente sin otras referencias (`deletePhotoIfUnreferenced`). Las
-  plantillas de lectura automática (clásica, mínima) la omiten por diseño.
-  Los CV guardados antes de esta fase se normalizan al hidratar
-  (`withDesignDefaults` en `lib/resume.ts`). En Convex los cuatro campos
-  nuevos son `v.optional` para no invalidar documentos antiguos en el push
-  del esquema; `update` fusiona (`{...guardado, ...parche}` + defaults) para
+   plantillas de lectura automática (clásica, mínima) la omiten por diseño.
+   Los CV guardados antes de esta fase se normalizan al hidratar
+   (`withDesignDefaults` en `lib/resume.ts`). En Convex los siete campos
+   añadidos tras el diseño inicial (`fontSize`, `pageMargin`,
+   `sectionSpacing`, `lineHeight`, `headingSize`, `sidebarWidth`, `layoutId`)
+   son `v.optional` para no invalidar documentos antiguos en el push
+   del esquema; `update` fusiona (`{...guardado, ...parche}` + defaults) para
   no borrar valores con parches parciales, y `assertDesign` solo valida los
   campos presentes.
 
