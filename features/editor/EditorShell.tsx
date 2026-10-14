@@ -46,6 +46,9 @@ import {
   resumeTitleSchema,
 } from "@/lib/validation/resume";
 import { useAutosave } from "./useAutosave";
+import { analyzeAts } from "@/lib/ats/analyze";
+import type { AtsFix, AtsIssue } from "@/lib/ats/types";
+import { AtsPanel } from "./AtsPanel";
 import { SectionForm } from "./SectionForm";
 import { ContentSidebar } from "./ContentSidebar";
 import { DesignSidebar } from "./DesignSidebar";
@@ -55,7 +58,7 @@ import { ResumePreview } from "./ResumePreview";
 
 type MobileTab = "edit" | "preview";
 
-type PanelTab = "content" | "design";
+type PanelTab = "content" | "design" | "ats";
 
 // B2: control compacto. El rango incluye como mínimo el anterior
 // (75/100/125 %) y lo amplía a 50–200 % en pasos de 25.
@@ -397,6 +400,22 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
     [],
   );
 
+  // Compatibilidad de lectura automática: informe derivado del borrador en
+  // edición (no del guardado). Puro y síncrono; no se persiste. Va antes de
+  // los retornos tempranos para no romper las reglas de los hooks.
+  const atsReport = useMemo(
+    () =>
+      content !== null && design !== null && layout !== null
+        ? analyzeAts({
+            content,
+            design,
+            layout: healLayout(content.sections, layout),
+            title,
+          })
+        : null,
+    [content, design, layout, title],
+  );
+
   if (serverDoc === undefined) {
     return (
       <p className="p-6 text-sm text-muted-foreground" role="status">
@@ -450,6 +469,27 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
     }
     setMobileTab("edit");
     requestAnimationFrame(() => panelRef.current?.focus());
+  };
+
+  const irAts = (target: NonNullable<AtsIssue["target"]>) => {
+    if (target.panel === "design") {
+      setPanelTab("design");
+    } else {
+      setPanelTab("content");
+      if (target.sectionId) {
+        setSelectedId(target.sectionId);
+      }
+    }
+    setMobileTab("edit");
+    requestAnimationFrame(() => panelRef.current?.focus());
+  };
+
+  const aplicarFix = (fix: AtsFix) => {
+    if (fix.kind === "setDesign") {
+      setDesign((prev) => (prev ? { ...prev, ...fix.patch } : prev));
+    } else {
+      patchSection(fix.sectionId, { title: fix.title });
+    }
   };
 
   return (
@@ -547,12 +587,13 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
           <div
             className="hidden gap-1 rounded-lg bg-muted p-1 md:flex"
             role="tablist"
-            aria-label="Contenido o diseño"
+            aria-label="Contenido, diseño o compatibilidad"
           >
             {(
               [
                 ["content", "Contenido"],
                 ["design", "Diseño"],
+                ["ats", "Compatibilidad"],
               ] as [PanelTab, string][]
             ).map(([tab, label]) => (
               <button
@@ -574,6 +615,16 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
           <div className="mt-3">
             {panelTab === "content" ? (
               <div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mb-3 w-full"
+                  onClick={() => setPanelTab("ats")}
+                >
+                  Revisar compatibilidad
+                  {(atsReport?.issues.length ?? 0) > 0 &&
+                    ` (${atsReport!.issues.length})`}
+                </Button>
                 <ContentSidebar
                   sections={content.sections}
                   layout={healedLayout}
@@ -609,9 +660,15 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
                   )}
                 </div>
               </div>
-            ) : (
+            ) : panelTab === "design" ? (
               <DesignSidebar design={design} onChange={setDesign} />
-            )}
+            ) : atsReport ? (
+              <AtsPanel
+                report={atsReport}
+                onGoToSection={irAts}
+                onApplyFix={aplicarFix}
+              />
+            ) : null}
           </div>
         </section>
 

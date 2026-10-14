@@ -130,6 +130,24 @@ test.describe.serial("panel y editor con sesión", () => {
     );
   });
 
+  test("compatibilidad muestra nivel y el fix de columna persiste", async ({
+    page,
+  }) => {
+    await page.getByRole("link", { name: `Editar ${tituloEditado}` }).click();
+    await page.waitForURL("**/editor/**");
+    await page.getByRole("tab", { name: "Diseño" }).click();
+    await page.getByRole("radio", { name: "Dos columnas" }).click();
+    await esperarGuardado(page);
+    await page.getByRole("tab", { name: "Compatibilidad" }).click();
+    await expect(
+      page.getByText(/Compatibilidad: (Alta|Media|Baja)/),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("El CV usa dos columnas.")).toBeVisible();
+    await page.getByRole("button", { name: "Pasar a una columna" }).click();
+    await esperarGuardado(page);
+    await expect(page.getByText("El CV usa dos columnas.")).toHaveCount(0);
+  });
+
   test("bajar una sección reordena y persiste", async ({ page }) => {
     await page.getByRole("link", { name: `Editar ${tituloEditado}` }).click();
     await page.waitForURL("**/editor/**");
