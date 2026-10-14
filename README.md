@@ -1,7 +1,8 @@
 # CV Studio
 
 Aplicación web para crear, editar, organizar y exportar currículums
-profesionales. Especificación completa en `CV_STUDIO_AGENT_BRIEF.md`.
+profesionales. Plan vigente en `docs/ROADMAP_AGENTES.md` (índice en
+`docs/README.md`).
 
 **Stack:** Next.js 16 (App Router), React 19, TypeScript estricto,
 Tailwind CSS v4 (CSS-first), shadcn/ui, Convex + Clerk (email+contraseña),
@@ -65,10 +66,11 @@ Ronda 2 de correcciones (G1–G5) hecha. Oleadas B0–T2 hechas (2026-10-13):
 auth por recurso, enlaces clicables, fotos validadas en servidor, tope de
 30 CV, PDF robusto, paridad preview/PDF automatizada y E2E con sesión.
 Verificación en verde: 90 tests unitarios, 50 e2e base + 8 con sesión y 81
-de paridad PDF (`npm run test:pdf`). Detalle y criterios en `docs/implementation-plan.md`;
-decisiones en `docs/architecture.md`; instalación de Convex y Clerk en
-`docs/setup-convex-clerk.md`; modelo en `docs/data-model.md`; PDF en
-`docs/pdf-testing.md`; despliegue en `docs/deployment.md`; mejoras de
-interfaz en `docs/UI_MEJORAS_AGENTES.md`; revisión y QA en
-`docs/UI_REVISION_Y_QA_AGENTES.md`; pendientes en `docs/roadmap-futuro.md`
-(QA manual H1–H7, E2E autenticada, despliegue Node para el PDF).
+de paridad PDF (`npm run test:pdf`). Índice y orden de lectura en
+`docs/README.md`. Fuente de verdad del plan en `docs/ROADMAP_AGENTES.md`;
+modelo en `docs/data-model.md`; PDF en `docs/pdf-testing.md`; despliegue en
+`docs/deployment.md`; instalación de Convex y Clerk en
+`docs/setup-convex-clerk.md`; QA manual pendiente (H1–H7) en
+`docs/roadmap-futuro.md`; plan ATS (MVP Capa 1) en
+`docs/ATS_COMPATIBILIDAD_AGENTES.md`. Planes ya ejecutados, congelados en
+`docs/archivo/` (Fase 0, Fases 0–6, diseño editor, auditoría, serie UI).
