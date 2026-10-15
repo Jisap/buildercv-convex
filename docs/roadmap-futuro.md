@@ -51,14 +51,15 @@ jpeg/png/webp, 24 h, 20 subidas/día); archivados cuentan para el tope;
 3. Decisión: foto omitida en miniatura (el listado no trae URLs firmadas); editor y PDF sí la muestran.
 4. Criterio: pendiente revisión visual con CV reales.
 
-### D. QA manual consolidada (todo lo pendiente de ojo humano)
-1. PDF de las 9 plantillas en 1–2 columnas (corto + largo). Ojo a las 3 nuevas: hilos de la línea de tiempo y barras (técnica), banda oscura con texto blanco (ejecutiva), bloque de acento y anillo de foto (enérgica). **Pendiente.**
-2. Foto: subida, 6 plantillas que la muestran (moderna, lateral, elegante, compacta, enérgica, ejecutiva), PDF con/sin foto, duplicado y borrado. Clásica, mínima y técnica la omiten por diseño. **Pendiente.**
-3. Temas: recorrer landing (mosaico de 9), panel + editor en claro/oscuro/sistema. **Pendiente.**
-4. Navegación: navbar, sidebar, archivados, cuenta. **Pendiente.**
-5. Preview auto-ajustada en móvil real + ventana estrecha en desktop. **Pendiente.**
-6. Nuevo: arrastre ratón/táctil/teclado tras B, deshacer de sección/diseño, editor a 380 px, tarjetas del panel a 360 px. **Pendiente.**
-7. Medición G4 con ~30 CVs (primer pintado del panel y nodos DOM, antes/después). Requiere datos reales con sesión. **Pendiente.**
+### D. QA manual consolidada (verificada 2026-10-15: H1–H7 ✅, G4 aparcada)
+1. PDF de las 9 plantillas en 1–2 columnas (corto + largo). Ojo a las 3 nuevas: hilos de la línea de tiempo y barras (técnica), banda oscura con texto blanco (ejecutiva), bloque de acento y anillo de foto (enérgica). ✅ 2026-10-15 (más paridad auto 81/81 en verde).
+2. Foto: subida, 6 plantillas que la muestran (moderna, lateral, elegante, compacta, enérgica, ejecutiva), PDF con/sin foto, duplicado y borrado. Clásica, mínima y técnica la omiten por diseño. ✅ 2026-10-15.
+3. Temas: recorrer landing (mosaico de 9), panel + editor en claro/oscuro/sistema. ✅ 2026-10-15.
+4. Navegación: navbar, sidebar, archivados, cuenta. ✅ 2026-10-15.
+5. Preview auto-ajustada en móvil real + ventana estrecha en desktop. ✅ 2026-10-15.
+6. Nuevo: arrastre ratón/táctil/teclado tras B, deshacer de sección/diseño, editor a 380 px, tarjetas del panel a 360 px. ✅ 2026-10-15. Incluye pestaña Compatibilidad (ATS Capa 1) con nivel, «Ir a la sección» y fixes.
+7. Medición G4 con ~30 CVs (primer pintado del panel y nodos DOM, antes/después). Requiere datos reales con sesión. **Aparcada por decisión del responsable (2026-10-15).**
+Extra 2026-10-15: fix flaky E2E PDF 401 (`page.request` en vez de fixture `request`; el JWT de Clerk rota cada ~60 s). Commit `3d5d177`; 59/59 e2e en verde.
 
 ### E. Lo que falta (no olvidar, próxima sesión)
 1. **Despliegue:** hosting con Node por Chromium/PDF (`docs/deployment.md`); Vercel serverless sigue descartado sin alternativa de render.
