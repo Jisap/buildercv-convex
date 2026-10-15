@@ -97,10 +97,12 @@ export const TemplateThumbnail = memo(function TemplateThumbnail({
     <div
       aria-hidden="true"
       className={`pointer-events-none flex justify-center overflow-hidden rounded-md border border-border bg-white select-none ${
-        tall ? "h-40" : "h-24"
+        tall ? "h-40 items-center" : "h-24"
       }`}
     >
-      <div style={{ width: "210mm", zoom: 0.18 }}>
+      {/* En el carrusel la página cabe entera y centrada (zoom menor);
+          en la cuadrícula se recorta por arriba como antes. */}
+      <div style={{ width: "210mm", zoom: tall ? 0.16 : 0.18 }}>
         <TemplateRenderer
           content={THUMB_CONTENT}
           design={design}
