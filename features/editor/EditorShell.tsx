@@ -108,6 +108,10 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("edit");
   const [panelTab, setPanelTab] = useState<PanelTab>("content");
+  // Capa 3 del ATS: puesto y oferta en local (no se persisten ni se
+  // guardan en Convex; viven solo mientras el editor está abierto).
+  const [targetRole, setTargetRole] = useState("");
+  const [jobPosting, setJobPosting] = useState("");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -411,9 +415,11 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
             design,
             layout: healLayout(content.sections, layout),
             title,
+            targetRole,
+            jobPosting,
           })
         : null,
-    [content, design, layout, title],
+    [content, design, layout, title, targetRole, jobPosting],
   );
 
   if (serverDoc === undefined) {
@@ -665,6 +671,10 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
             ) : atsReport ? (
               <AtsPanel
                 report={atsReport}
+                targetRole={targetRole}
+                jobPosting={jobPosting}
+                onTargetRoleChange={setTargetRole}
+                onJobPostingChange={setJobPosting}
                 onGoToSection={irAts}
                 onApplyFix={aplicarFix}
               />

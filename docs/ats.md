@@ -30,6 +30,24 @@ ante ningún sistema concreto.
 Pesos: error 15, aviso 6, info 0; tope por regla 30/12/0; niveles Alta ≥85,
 Media 60–84, Baja <60. Valores iniciales a calibrar.
 
+## Capa 3 — Puesto objetivo y palabras clave de la oferta
+
+La pestaña «Compatibilidad» pregunta **para qué puesto va destinado el
+CV**: campo «Puesto objetivo» + «Texto de la oferta» (hasta 8000
+caracteres). De ambos se extraen unigramas y bigramas (frecuencia,
+stopwords es/en, sin acentos) y se comprueba cuáles aparecen en el CV
+(tolerando singular/plural y género: «desarrolladores» casa con
+«desarrolladora»). Muestra «Cobertura: X de Y términos», lista de
+cubiertos y de ausentes.
+
+Límites deliberados: **informativa, no resta puntos** (evita falsa
+precisión); el texto **no se guarda** en Convex ni sale del navegador
+(vive en estado local y se vacía al recargar); sin LLM ni llamadas
+externas; el aviso honesto («Solo añade términos que reflejen tu
+experiencia real») desincentiva el relleno. Implementación:
+`lib/ats/keywords.ts` (`extractKeywords`, `matchKeywords`,
+`analyzeKeywords`) + `keywords.test.ts`.
+
 ## Reglas futuras (diferidas y por qué)
 
 Teléfono y formato de correo, experiencia sin fechas o sin descripción,

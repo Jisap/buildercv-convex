@@ -148,6 +148,28 @@ test.describe.serial("panel y editor con sesión", () => {
     await expect(page.getByText("El CV usa dos columnas.")).toHaveCount(0);
   });
 
+  test("palabras clave muestra cobertura sin persistir", async ({
+    page,
+  }) => {
+    await page.getByRole("link", { name: `Editar ${tituloEditado}` }).click();
+    await page.waitForURL("**/editor/**");
+    await page.getByRole("tab", { name: "Compatibilidad" }).click();
+    await page
+      .getByLabel("Puesto objetivo")
+      .fill("Desarrolladora frontend React");
+    await expect(
+      page.getByText(/Cobertura: \d+ de \d+ términos/),
+    ).toBeVisible();
+    await page
+      .getByLabel("Texto de la oferta")
+      .fill("Se requiere React, TypeScript e inglés.");
+    await expect(page.getByText("Ausentes en tu CV")).toBeVisible();
+    // Local: al recargar se vacía (no se persiste ni sale del navegador).
+    await page.reload();
+    await page.getByRole("tab", { name: "Compatibilidad" }).click();
+    await expect(page.getByLabel("Puesto objetivo")).toHaveValue("");
+  });
+
   test("bajar una sección reordena y persiste", async ({ page }) => {
     await page.getByRole("link", { name: `Editar ${tituloEditado}` }).click();
     await page.waitForURL("**/editor/**");

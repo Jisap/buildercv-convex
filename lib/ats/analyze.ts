@@ -1,3 +1,4 @@
+import { analyzeKeywords } from "./keywords";
 import { RULES } from "./rules";
 import { scoreFor } from "./scoring";
 import type {
@@ -44,5 +45,11 @@ export function analyzeAts(input: AtsInput): AtsReport {
       warning: issues.filter((i) => i.severity === "warning").length,
       info: issues.filter((i) => i.severity === "info").length,
     },
+    // Capa 3: informativa, fuera de la puntuación.
+    keywords: analyzeKeywords({
+      content: input.content,
+      targetRole: input.targetRole,
+      jobPosting: input.jobPosting,
+    }),
   };
 }
