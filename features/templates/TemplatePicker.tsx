@@ -5,7 +5,7 @@ import { FONT_FAMILIES } from "@/types/resume";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { getTemplateMeta, FONT_STACKS } from "./types";
-import { TemplateThumbnails } from "./TemplateThumbnails";
+import { TemplateCarousel } from "./TemplateThumbnails";
 
 const FONT_LABELS: Record<FontFamily, string> = {
   inter: "Inter (moderna)",
@@ -42,7 +42,7 @@ export function SelectorPlantilla({
       <span id="template-label" className="text-sm font-medium">
         Plantilla
       </span>
-      <TemplateThumbnails
+      <TemplateCarousel
         selectedId={design.templateId}
         onSelect={(templateId) => {
           const meta = getTemplateMeta(templateId);
