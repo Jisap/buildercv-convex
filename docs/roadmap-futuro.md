@@ -5,7 +5,23 @@ verdad del plan (oleadas B0–Final). Este archivo queda como histórico de las
 sesiones 2026-10-11/12; su punto D (QA manual) sigue vigente como lista de
 comprobación hasta que T1/T2 lo automaticen.
 
-**Fecha:** 2026-10-12 · **Estado:** serie UI + ronda 2 + 3 plantillas nuevas (9 en total) en verde (66/66 tests, e2e 50/50); pendiente QA manual consolidada.
+**Fecha:** 2026-10-15 · **Estado:** QA manual H1–H7 verificada ✅ (G4 aparcada); ancho desktop, carrusel de plantillas y ATS Capa 3 en verde (130/130 unit, 60/60 e2e, 81/81 paridad).
+
+## Sesión 2026-10-15 — QA + 3 mejoras ✅ (todo en verde, en `main`)
+
+1. **QA manual H1–H7 verificada** (punto D, actualizado abajo): 0 ❌. G4 (medición con ~30 CVs) aparcada por decisión del responsable.
+2. **Ancho en desktop** (`309ad60`): contenedor hasta 1600 px y panel de 480 px en `2xl`; la preview crece sola (`ResizeObserver`). Solo CSS, móvil intacto.
+3. **Carrusel de plantillas** (`5d68aed` + fixes `52e4011`, `7b5c7b5`): scroll-snap sin dependencias en el panel Diseño (cuadrícula intacta en Nuevo CV y landing); miniatura centrada y completa (zoom 0.16); corregido scroll horizontal a 360 px (columna `minmax(0,1fr)`, sin márgenes negativos, contador con truncate).
+4. **ATS Capa 3** (`410e554`): puesto objetivo + texto de oferta (8000 chars) en Compatibilidad; «Cobertura: X de Y», cubiertos/ausentes; tolera singular/plural y género; informativa (no resta puntos); sin persistencia (se vacía al recargar, verificado en E2E); sin LLM. Nuevo `lib/ats/keywords.ts` + 16 tests. Sin tocar `convex/`: no hizo falta push.
+5. **Fix flaky E2E** (`3d5d177`): `page.request` en el test de PDF (el JWT de Clerk rota cada ~60 s y el fixture `request` daba 401).
+
+Verificación final: tsc 0, lint 0, **130 unit**, **60 e2e** (50 base + 10 con sesión), **81 paridad**, build OK.
+
+## Próxima sesión (pendiente)
+
+- **ATS Capa 2** (round-trip del PDF: ruta `/ats`, coherencia de lectura, capa de texto): única capa ATS que queda (plan en `docs/ATS_COMPATIBILIDAD_AGENTES.md` §3).
+- **Oleada 4 (producto) y Oleada Final (despliegue)**: requieren decisiones humanas (prioridad con usuarios reales; host H-5).
+- **G4 (medición 30 CVs)**: solo si hay datos reales con sesión.
 
 ## Sesión 2026-10-13 — oleadas B0–T2 ✅ (comiteado, todo en verde)
 
