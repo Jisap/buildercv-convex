@@ -192,11 +192,14 @@ test.describe.serial("panel y editor con sesión", () => {
     ).toBeVisible({ timeout: 15_000 });
   });
 
-  test("exportar PDF devuelve un PDF válido", async ({ page, request }) => {
+  test("exportar PDF devuelve un PDF válido", async ({ page }) => {
     await page.getByRole("link", { name: `Editar ${tituloEditado}` }).click();
     await page.waitForURL("**/editor/**");
     const id = page.url().split("/editor/")[1].split(/[?#]/)[0];
-    const respuesta = await request.get(`/api/resumes/${id}/pdf`);
+    // `page.request` y no el fixture `request`: comparte las cookies vivas
+    // del navegador (Clerk rota el JWT `__session` cada ~60 s; el estado
+    // guardado por el setup queda obsoleto y la API devuelve 401).
+    const respuesta = await page.request.get(`/api/resumes/${id}/pdf`);
     expect(respuesta.status()).toBe(200);
     expect(respuesta.headers()["content-type"]).toContain("application/pdf");
     const cuerpo = await respuesta.body();
