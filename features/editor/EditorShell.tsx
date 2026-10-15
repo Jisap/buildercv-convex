@@ -493,7 +493,7 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-4 pb-24 md:px-6 md:pb-4">
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-4 pb-24 md:px-6 md:pb-4 2xl:max-w-[1600px] 2xl:px-8">
       <EditorToolbar
         title={title}
         onTitleChange={setTitle}
@@ -573,7 +573,7 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
         </div>
       </nav>
 
-      <div className="mt-3 grid flex-1 items-start gap-4 md:grid-cols-[380px_minmax(0,1fr)] lg:grid-cols-[420px_minmax(0,1fr)]">
+      <div className="mt-3 grid flex-1 items-start gap-4 md:grid-cols-[380px_minmax(0,1fr)] lg:grid-cols-[420px_minmax(0,1fr)] 2xl:grid-cols-[480px_minmax(0,1fr)] 2xl:gap-6">
         <section
           ref={panelRef}
           tabIndex={-1}
