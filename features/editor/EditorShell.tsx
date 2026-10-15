@@ -573,15 +573,15 @@ function EditorConSesion({ resumeId }: { resumeId: string }) {
         </div>
       </nav>
 
-      <div className="mt-3 grid flex-1 items-start gap-4 md:grid-cols-[380px_minmax(0,1fr)] lg:grid-cols-[420px_minmax(0,1fr)] 2xl:grid-cols-[480px_minmax(0,1fr)] 2xl:gap-6">
+      <div className="mt-3 grid flex-1 grid-cols-[minmax(0,1fr)] items-start gap-4 md:grid-cols-[380px_minmax(0,1fr)] lg:grid-cols-[420px_minmax(0,1fr)] 2xl:grid-cols-[480px_minmax(0,1fr)] 2xl:gap-6">
         <section
           ref={panelRef}
           tabIndex={-1}
           aria-label="Panel de edición"
           className={
             mobileTab === "edit"
-              ? "block focus:outline-none"
-              : "hidden focus:outline-none md:block"
+              ? "block min-w-0 focus:outline-none"
+              : "hidden min-w-0 focus:outline-none md:block"
           }
         >
           <div

@@ -228,12 +228,15 @@ export function TemplateCarousel({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground" aria-live="polite">
+        <p
+          className="min-w-0 flex-1 truncate text-xs text-muted-foreground"
+          aria-live="polite"
+        >
           {activo + 1} de {TEMPLATES.length}: {TEMPLATES[activo]?.name}
         </p>
-        <div className="flex gap-1">
+        <div className="flex shrink-0 gap-1">
           <button
             type="button"
             onClick={() => desplazar(-1)}
@@ -258,7 +261,7 @@ export function TemplateCarousel({
         onKeyDown={alTeclado}
         role="radiogroup"
         aria-label="Plantilla"
-        className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1"
+        className="flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto pb-1"
       >
         {TEMPLATES.map((meta, i) => {
           const selected = meta.id === selectedId;
